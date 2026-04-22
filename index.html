@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JM OS - Estação de Lanhouse</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#202020">
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=JetBrains+Mono:wght@500;700&family=Share+Tech+Mono&family=Libre+Barcode+128&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /* ================= TEMA BALCÃO SMART E UI/UX ================= */
+        :root {
+            --win-bg: #202020;
+            --win-mica: rgba(32, 32, 32, 0.85);
+            --win-acrylic: rgba(43, 43, 43, 0.7);
+            --win-surface: #2b2b2b;
+            --win-border: rgba(255, 255, 255, 0.08);
+            --win-border-light: rgba(255, 255, 255, 0.15);
+            --win-text: #ffffff;
+            --win-text-muted: #a0a0a0;
+            --win-accent: #f59e0b; 
+            --win-accent-hover: #fbbf24;
+            --win-danger: #ef4444; 
+            --win-success: #10b981;
+            --service-font-size: 14px;
+            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+        }
+
+        body.light-theme {
+            background-color: #eef2f5;
+            background-image: radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.08), transparent 40%),
+                              radial-gradient(circle at 80% 70%, rgba(239, 68, 68, 0.05), transparent 40%);
+            --win-bg: #f3f3f3;
+            --win-mica: rgba(250, 250, 250, 0.85);
+            --win-acrylic: rgba(255, 255, 255, 0.7);
+            --win-surface: #ffffff;
+            --win-border: rgba(0, 0, 0, 0.08);
+            --win-border-light: rgba(0, 0, 0, 0.15);
+            --win-text: #1a1a1a;
+            --win-text-muted: #5e5e5e;
+            --win-accent: #ea580c; 
+            --win-accent-hover: #c2410c;
+            --win-danger: #dc2626;
+            --win-success: #15803d;
+            --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; }
+
+        body { 
+            background-color: #111;
+            background-image: radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.15), transparent 40%),
+                              radial-gradient(circle at 80% 70%, rgba(239, 68, 68, 0.1), transparent 40%);
+            color: var(--win-text); 
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; padding: 2vh 2vw; transition: background 0.4s ease, color 0.4s ease;
+        }
+
+        /* TELA CHEIA (FULLSCREEN) */
+        body.is-fullscreen { padding: 0 !important; }
+        body.is-fullscreen .app-window { max-width: 100% !important; height: 100vh !important; border-radius: 0 !important; border: none !important; }
+
+        /* SCROLLBAR ELEGANTE */
+        ::-webkit-scrollbar { width: 10px; height: 10px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: rgba(128, 128, 128, 0.3); border-radius: 10px; border: 3px solid transparent; background-clip: content-box; }
+        ::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
+
+        /* ================= TELA DE CARREGAMENTO ================= */
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--win-bg); z-index: 100000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        body.light-theme .loader-overlay { background: #ffffff; }
+        .loader-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        .loader-logo-container { width: 90px; height: 90px; margin-bottom: 25px; animation: spin 2.5s cubic-bezier(0.5, 0, 0.5, 1) infinite; filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.5));}
+        .loader-text { font-size: 0.9rem; color: var(--win-text-muted); font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
+        
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* ================= JANELA DO APLICATIVO ================= */
+        .app-window {
+            width: 100%; max-width: 1600px; height: 96vh;
+            background: var(--win-mica);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid var(--win-border-light);
+            border-radius: 12px;
+            box-shadow: var(--shadow-float);
+            display: flex; flex-direction: column;
+            overflow: hidden; transition: var(--transition-smooth);
+        }
+
+        .title-bar {
+            height: 48px; background: rgba(0,0,0,0.25);
+            display: flex; align-items: center; padding: 0 16px;
+            border-bottom: 1px solid var(--win-border); user-select: none;
+        }
+        body.light-theme .title-bar { background: rgba(255,255,255,0.5); }
+        .app-title { font-size: 13px; color: var(--win-text); display: flex; align-items: center; gap: 8px; white-space: nowrap; padding-right: 20px; font-weight: 700;}
+        .app-logo-small { width: 22px; height: 22px; display: flex; align-items: center; }
+        
+        .app-switcher { display: flex; gap: 4px; margin-left: 10px; height: 100%; align-items: flex-end; }
+        .app-tab { 
+            background: transparent; color: var(--win-text-muted); border: none; 
+            padding: 10px 24px; border-radius: 8px 8px 0 0; cursor: pointer; 
+            font-size: 13px; font-weight: 600; transition: var(--transition-smooth); position: relative; 
+        }
+        .app-tab:hover { background: rgba(128,128,128,0.15); color: var(--win-text);}
+        .app-tab.active { background: var(--win-surface); color: var(--win-accent); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border); }
+        .app-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-accent); border-radius: 3px; }
+
+        .pos-tabs { display: none; gap: 4px; margin-left: 20px; height: 100%; align-items: flex-end;}
+        .pos-tab { background: transparent; color: var(--win-text-muted); border: none; padding: 10px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 12px; font-weight: 600; transition: var(--transition-smooth); position: relative;}
+        .pos-tab:hover { background: rgba(128,128,128,0.15); color: var(--win-text);}
+        .pos-tab.active { background: var(--win-surface); color: var(--win-text); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border); }
+        .pos-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-success); border-radius: 3px; }
+
+        .clock-widget { text-align: right; line-height: 1.1; margin-left: auto; display: flex; gap: 15px; align-items: center; }
+        .clock-time { font-size: 1.1rem; font-weight: 600; color: var(--win-text); }
+        .clock-date { font-size: 0.8rem; color: var(--win-text-muted); }
+        .btn-fullscreen { background: transparent; border: none; color: var(--win-text); cursor: pointer; padding: 8px 10px; border-radius: 6px; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; }
+        .btn-fullscreen:hover { background: rgba(128,128,128,0.2); transform: scale(1.05);}
+
+        .command-bar {
+            height: 58px; background: var(--win-surface);
+            display: flex; align-items: center; padding: 0 20px; gap: 8px;
+            border-bottom: 1px solid var(--win-border); flex-shrink: 0; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .cmd-btn {
+            background: transparent; border: 1px solid transparent; color: var(--win-text);
+            padding: 8px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            font-size: 13px; font-weight: 600; transition: var(--transition-smooth);
+        }
+        .cmd-btn:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border-light); }
+        .cmd-btn:active { transform: scale(0.96); }
+        .cmd-btn i { font-size: 15px; color: var(--win-accent); }
+        .cmd-divider { width: 1px; height: 24px; background: var(--win-border); margin: 0 8px; }
+
+        /* ================= QUICKLINKS ================= */
+        .search-container { position: relative; width: 280px; }
+        .search-input { width: 100%; padding: 8px 35px 8px 12px; border-radius: 6px; border: 1px solid var(--win-border); background: rgba(128,128,128,0.1); color: var(--win-text); font-size: 0.95rem; outline: none; transition: var(--transition-smooth); border-bottom: 2px solid var(--win-border); }
+        .search-input:focus { background: rgba(128,128,128,0.2); border-bottom-color: var(--win-accent); }
+        .search-icon { position: absolute; right: 12px; top: 10px; color: var(--win-text-muted); font-size: 0.9rem; }
+
+        .app-body { display: flex; flex: 1; overflow: hidden; padding: 20px; }
+        .main-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; width: 100%; height: 100%; overflow: hidden; }
+        .content-area { overflow-y: auto; padding-right: 10px; }
+        .sidebar-area { display: flex; flex-direction: column; gap: 20px; overflow-y: auto;}
+
+        .sidebar-widget { background: var(--win-surface); border-radius: 12px; padding: 20px; border: 1px solid var(--win-border); display: flex; flex-direction: column; box-shadow: var(--shadow-float); transition: var(--transition-smooth);}
+        .sidebar-widget.notepad { flex: 1; min-height: 250px; }
+        .widget-header { font-weight: 600; font-size: 1rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--win-text); padding-bottom: 10px; border-bottom: 1px solid var(--win-border); }
+        .notepad-area { flex: 1; background: transparent; border: none; resize: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; color: var(--win-text); }
+        .notepad-area::placeholder { color: var(--win-text-muted); }
+
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; width: 100%; padding-bottom: 20px;}
+        .category-card { background: var(--win-surface); border: 1px solid var(--win-border); border-radius: 10px; padding: 18px; transition: var(--transition-smooth); display: flex; flex-direction: column; position: relative; box-shadow: var(--shadow-float); }
+        .category-card:hover { border-color: var(--win-border-light); transform: translateY(-2px);}
+        .category-card.edit-mode { border: 1px dashed var(--win-accent); background: rgba(245, 158, 11, 0.05); }
+
+        .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+        .cat-info { display: flex; align-items: center; gap: 12px; }
+        .cat-icon { width: 36px; height: 36px; background: rgba(128,128,128,0.08); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: var(--win-accent); font-size: 1.1rem; border: 1px solid var(--win-border); }
+        .cat-title { font-weight: 700; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        .card-actions { display: none; gap: 5px; }
+        .edit-active .card-actions { display: flex; }
+        .btn-mini { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--win-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--win-text); font-size: 0.85rem; background: var(--win-surface); transition: var(--transition-smooth);}
+        .btn-mini:hover { background: rgba(128,128,128,0.15); }
+        .btn-del:hover { background: var(--win-danger); color: #FFF; border-color: var(--win-danger); }
+
+        .link-list { display: flex; flex-direction: column; gap: 6px; }
+        .service-link-wrapper { position: relative; display: flex; align-items: center; gap: 6px; }
+        .service-link { flex: 1; text-decoration: none; color: var(--win-text-muted); padding: 8px 12px; border-radius: 6px; font-size: 0.9rem; transition: var(--transition-smooth); display: flex; align-items: center; gap: 10px; border-bottom: 1px dashed var(--win-border); }
+        .service-link:hover { background: rgba(128,128,128,0.1); color: var(--win-text); border-bottom-style: solid; padding-left: 16px;}
+        .link-side-btn { background: transparent; border: none; color: var(--win-text-muted); cursor: pointer; width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: var(--transition-smooth);}
+        .link-side-btn:hover { background: rgba(128,128,128,0.15); color: var(--win-text); }
+        .fav-active { color: var(--win-accent) !important; }
+
+        .favorites-section { width: 100%; margin-bottom: 24px; display: none; }
+        .favorites-section.show { display: block; animation: popIn 0.3s ease; }
+        .fav-title { font-size: 0.85rem; color: var(--win-text-muted); margin-bottom: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .fav-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .fav-item { background: var(--win-surface); border: 1px solid var(--win-border); padding: 8px 16px; border-radius: 8px; color: var(--win-text); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; gap: 10px; font-weight: 500; transition: var(--transition-smooth); box-shadow: 0 2px 5px rgba(0,0,0,0.1);}
+        .fav-item:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border-light); transform: translateY(-2px); box-shadow: var(--shadow-float);}
+        .fav-item i { color: var(--win-accent); }
+
+        .btn-add-link { width: 100%; padding: 10px; margin-top: 12px; background: transparent; color: var(--win-accent); border: 1px dashed var(--win-border); border-radius: 6px; cursor: pointer; display: none; font-size: 0.9rem; font-weight: 600; transition: var(--transition-smooth);}
+        .btn-add-link:hover { background: rgba(245, 158, 11, 0.05); border-color: var(--win-accent);}
+        .edit-active .btn-add-link { display: block; }
+        .btn-new-cat { border: 1px dashed var(--win-border); border-radius: 10px; display: none; align-items: center; justify-content: center; flex-direction: column; color: var(--win-text-muted); cursor: pointer; min-height: 120px; background: transparent; transition: var(--transition-smooth); font-weight: 600;}
+        .btn-new-cat:hover { background: rgba(128,128,128,0.05); color: var(--win-text); border-color: var(--win-border-light);}
+        .edit-active .btn-new-cat { display: flex; }
+
+        /* ================= BALCÃO SMART ================= */
+        .paper-area { flex: 1; overflow-y: auto; padding: 0 30px 30px 0; background: transparent; display: flex; flex-direction: column; }
+        .paper-header { margin-bottom: 30px; border-bottom: 2px solid var(--win-accent); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;}
+        .editable-text { outline: none; border-radius: 6px; padding: 2px 6px; transition: var(--transition-smooth); cursor: default; display: inline-block; }
+        
+        .pos-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; flex: 1; align-content: start; }
+        .category-box { background: var(--win-surface); border: 1px solid var(--win-border); border-radius: 12px; overflow: hidden; margin-bottom: 20px; box-shadow: var(--shadow-float); transition: var(--transition-smooth);}
+        .category-box:hover { border-color: var(--win-border-light); }
+        .pos-cat-header { background: rgba(128,128,128,0.05); padding: 14px 18px; font-weight: 700; font-size: var(--service-font-size); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--win-border); color: var(--win-text); text-transform: uppercase; letter-spacing: 0.5px; }
+        .service-list { padding: 10px; }
+        
+        .service-item { display: flex; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: var(--service-font-size); cursor: pointer; position: relative; border-bottom: 1px dashed var(--win-border); transition: var(--transition-smooth); }
+        .service-item:last-child { border-bottom: none; }
+        .service-item:hover { background: rgba(128,128,128,0.1); padding-left: 15px;}
+        .service-item.obs { background: rgba(245, 158, 11, 0.08); color: var(--win-accent); font-size: calc(var(--service-font-size) * 0.85); padding: 12px; border-left: 4px solid var(--win-accent); font-weight: 600; cursor: default;}
+        body.light-theme .service-item.obs { color: #b45309; background: rgba(234, 88, 12, 0.1); }
+        
+        .service-item.selected-calc { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.2); border-bottom: 1px solid rgba(245, 158, 11, 0.2); }
+        body.light-theme .service-item.selected-calc { background: rgba(234, 88, 12, 0.08); border-color: rgba(234, 88, 12, 0.15); }
+        .service-item.selected-calc::before { content: ''; position: absolute; left: 0; top: 15%; height: 70%; width: 4px; background: var(--win-accent); border-radius: 4px; }
+
+        .s-name { flex: 1; outline: none; border-radius: 6px; padding: 4px 6px; color: var(--win-text); line-height: 1.3;}
+        .s-price { font-weight: 700; color: var(--win-text); background: rgba(128,128,128,0.15); padding: 6px 10px; border-radius: 6px; outline: none; margin-left: 10px; min-width: 85px; text-align: right; border: 1px solid transparent; transition: var(--transition-smooth);}
+        
+        .qty-badge { display: flex; align-items: center; gap: 4px; background: var(--win-bg); border: 1px solid var(--win-border-light); border-radius: 6px; padding: 4px; margin-right: 12px; margin-left: auto; }
+        .qty-btn { background: transparent; border: none; width: 24px; height: 24px; border-radius: 4px; color: var(--win-text); cursor: pointer; transition: var(--transition-smooth); font-weight: bold;}
+        .qty-btn:hover { background: rgba(128,128,128,0.2); }
+        .qty-val { font-weight: 700; font-size: 14px; min-width: 24px; text-align: center; color: var(--win-text);}
+
+        .btn-remove { display: none; position: absolute; left: -10px; color: var(--win-danger); cursor: pointer; background: transparent; border: none; font-size: 16px; transition: var(--transition-smooth);}
+        .btn-add-item { display: none; width: 100%; padding: 12px; background: transparent; color: var(--win-accent); border: none; border-top: 1px solid var(--win-border); font-size: 13px; font-weight: 700; cursor: pointer; opacity: 0; transition: var(--transition-smooth);}
+        
+        body.edit-mode-pos-active .btn-add-item { display: block; opacity: 0; }
+        body.edit-mode-pos-active .category-box:hover .btn-add-item { opacity: 1; }
+        body.edit-mode-pos-active .btn-add-item:hover { background: rgba(245, 158, 11, 0.1); }
+        body.light-theme.edit-mode-pos-active .btn-add-item:hover { background: rgba(234, 88, 12, 0.1); }
+        body.edit-mode-pos-active .service-item:hover .btn-remove { display: flex; opacity: 1; left: -25px; }
+        body.edit-mode-pos-active .s-name:hover, body.edit-mode-pos-active .s-price:hover, body.edit-mode-pos-active .editable-text:hover { background: rgba(128,128,128,0.2); cursor: text; border: 1px dashed var(--win-border-light); }
+
+        .footer-info { margin-top: 30px; background: rgba(128,128,128,0.05); padding: 20px 25px; border-radius: 12px; display: flex; justify-content: center; align-items: center; border-left: 6px solid var(--win-accent); border: 1px solid var(--win-border); box-shadow: var(--shadow-sm);}
+
+        /* Calculadora do Balcão */
+        .pos-panel { width: 340px; background: var(--win-acrylic); border-left: 1px solid var(--win-border); display: flex; flex-direction: column; padding: 25px; overflow-y: auto; overflow-x: hidden; border-radius: 0 12px 12px 0;}
+        .pos-total-box { background: var(--win-bg); border: 1px solid var(--win-border); border-radius: 12px; padding: 25px; text-align: center; margin-bottom: 25px; flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.15);}
+        .pos-total-label { font-size: 13px; text-transform: uppercase; color: var(--win-text-muted); font-weight: 700; letter-spacing: 1px;}
+        .pos-total-value { font-size: 36px; font-weight: 700; color: var(--win-success); font-family: 'JetBrains Mono', monospace; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);}
+        
+        .pos-keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 25px; flex-shrink: 0;}
+        .k-btn { background: var(--win-surface); border: 1px solid var(--win-border); color: var(--win-text); border-radius: 8px; padding: 14px 0; font-size: 18px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-weight: 600; transition: var(--transition-smooth); box-shadow: var(--shadow-sm);}
+        .k-btn:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border-light); transform: translateY(-1px);}
+        .k-btn:active { transform: scale(0.95); }
+        .k-btn.op { color: var(--win-accent); }
+        .k-btn.clear { color: var(--win-danger); }
+        .k-btn.eq { background: var(--win-accent); color: white; font-weight: bold; border: none; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);}
+        .k-btn.eq:hover { background: var(--win-accent-hover); }
+
+        .pos-actions { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
+        .action-btn { background: var(--win-surface); border: 1px solid var(--win-border); color: var(--win-text); padding: 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; font-size: 14px; transition: var(--transition-smooth); box-shadow: var(--shadow-sm);}
+        .action-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-float);}
+        .action-btn.whatsapp { background: rgba(16, 124, 16, 0.15); border-color: rgba(16, 124, 16, 0.3); color: var(--win-success); }
+        .action-btn.pdf { background: rgba(209, 52, 56, 0.15); border-color: rgba(209, 52, 56, 0.3); color: var(--win-danger); }
+
+        /* ================= MODAIS E TOASTS ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 9000; display: none; align-items: center; justify-content: center; }
+        .modal { background: var(--win-surface); border: 1px solid var(--win-border-light); border-radius: 12px; width: 90%; max-width: 420px; padding: 30px; box-shadow: var(--shadow-float); animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal h3 { margin-bottom: 24px; font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 12px; color: var(--win-text); border-bottom: 1px solid var(--win-border); padding-bottom: 15px;}
+        .form-label { display: block; font-size: 13px; color: var(--win-text-muted); margin-bottom: 8px; font-weight: 600;}
+        .form-input { width: 100%; padding: 12px 14px; background: rgba(128,128,128,0.1); border: 1px solid var(--win-border); border-radius: 6px; color: var(--win-text); outline: none; margin-bottom: 20px; font-size: 14px; transition: var(--transition-smooth);}
+        .form-input:focus { border-color: var(--win-accent); border-bottom-width: 2px; padding-bottom: 11px; background: rgba(128,128,128,0.15);}
+        .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 15px; }
+        .btn-modal { padding: 10px 24px; border-radius: 6px; font-weight: 600; font-size: 14px; cursor: pointer; border: 1px solid transparent; transition: var(--transition-smooth);}
+        .btn-cancel { background: rgba(128,128,128,0.1); border-color: var(--win-border); color: var(--win-text);}
+        .btn-cancel:hover { background: rgba(128,128,128,0.2); }
+        .btn-save-modal { background: var(--win-accent); color: white;}
+        .btn-save-modal:hover { background: var(--win-accent-hover); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);}
+
+        .icon-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 10px; max-height: 160px; overflow-y: auto; padding: 6px; background: rgba(128,128,128,0.1); border-radius: 6px; border: 1px solid var(--win-border);}
+        .icon-option { width: 100%; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; color: var(--win-text-muted); border: 1px solid transparent; transition: var(--transition-smooth);}
+        .icon-option:hover { background: rgba(128,128,128,0.2); color: var(--win-text);}
+        .icon-option.selected { background: var(--win-accent); color: #000; }
+
+        .toast { position: fixed; bottom: 30px; right: 30px; background: var(--win-surface); border: 1px solid var(--win-border-light); color: var(--win-text); padding: 18px 28px; border-radius: 8px; font-weight: 600; font-size: 14px; opacity: 0; transform: translateX(100px); transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 10000; box-shadow: var(--shadow-float); display: flex; align-items: center; gap: 14px; border-left: 4px solid var(--win-accent);}
+        .toast.show { transform: translateX(0); opacity: 1; }
+
+        /* ================= CARTÕES PREMIUM ================= */
+        #area-cartoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; }
+        .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+        .premium-card { width: 360px; height: 230px; border-radius: 16px; box-shadow: var(--shadow-float); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); transition: var(--transition-smooth); }
+        .card-gov { background: linear-gradient(135deg, #1351B4 0%, #0c3373 100%); color: white; }
+        .card-email { background: linear-gradient(135deg, #2C3E50 0%, #1a252f 100%); color: white; }
+        .editable-input-card { border: none; background: transparent; padding: 0; font-size: 22px; font-weight: 700; color: white; font-family: 'Share Tech Mono', monospace; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.3); width: 100%; transition: var(--transition-smooth);}
+        .editable-input-card:focus { border-bottom: 1px solid white; background: rgba(255,255,255,0.1); border-radius: 4px; padding: 0 5px;}
+        
+        #mobile-view {
+            display: none; flex-direction: column; align-items: center; justify-content: center; 
+            height: 100vh; width: 100%; position: absolute; top:0; left:0; 
+            background: var(--win-bg); z-index: 99999; text-align: center; padding: 20px;
+        }
+
+        /* ================= IMPRESSÃO ================= */
+        @media print {
+            body { background: white; padding: 0; color: black;}
+            .app-window { box-shadow: none; border: none; height: auto; max-width: 100%; display: block; filter: none !important;}
+            .title-bar, .command-bar, .pos-panel, .loader-overlay, .toast, .btn-add-item, .btn-remove, .qty-badge, #app-quicklinks, #mobile-view, #cardsOverlay, #transferOverlay, #pixModal, #catModal, #linkModal { display: none !important; }
+            #app-balcao { display: flex !important; }
+            .paper-area { padding: 0; overflow: visible;}
+            .category-box { border-color: #ccc; break-inside: avoid; color: black; background: white; box-shadow: none; margin-bottom: 10px;}
+            .pos-cat-header { background: #eee; color: black; border-bottom: 1px solid #ccc; font-size: 13px;}
+            .s-name, .s-price, .editable-text { color: black; background: transparent; }
+            .service-item { border-bottom: 1px dashed #ccc; padding: 4px 0;}
+            .service-item.selected-calc { background: transparent; border: none; border-bottom: 1px dashed #ccc;}
+            .service-item.selected-calc::before { display: none; }
+            .footer-info { margin-top: 15px; border-color: #ccc; background: transparent; padding: 10px;}
+        }
+    </style>
+</head>
+<body>
+
+    <div id="jmLoader" class="loader-overlay">
+        <div class="loader-logo-container">
+            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                <defs>
+                    <linearGradient id="gradLoader" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f59e0b"/>
+                        <stop offset="100%" stop-color="#ef4444"/>
+                    </linearGradient>
+                </defs>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="4" opacity="0.15"/>
+                <path d="M 50,10 A 40,40 0 0,1 90,50" fill="none" stroke="url(#gradLoader)" stroke-width="6" stroke-linecap="round"/>
+                <path d="M 50,90 A 40,40 0 0,1 10,50" fill="none" stroke="url(#gradLoader)" stroke-width="6" stroke-linecap="round"/>
+                <polygon points="50,30 67,40 67,60 50,70 33,60 33,40" fill="url(#gradLoader)" opacity="0.9"/>
+            </svg>
+        </div>
+        <div class="loader-text">Iniciando JM OS - Estação de Lanhouse</div>
+    </div>
+
+    <div id="mobile-view">
+        <h2 style="color: var(--win-accent); font-weight: 700; margin-bottom: 5px;"><i class="fas fa-satellite-dish"></i> Transferência</h2>
+        <div style="color: var(--win-success); margin-top: 20px; font-weight: 600; font-size: 1.1rem;"><i class="fas fa-shield-check"></i> Conectado ao Balcão</div>
+        <label for="fileInput" style="border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 12px; background: rgba(255, 255, 255, 0.05); padding: 50px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 30px auto; cursor: pointer; width: 100%; max-width: 350px; transition: var(--transition-smooth);">
+            <i class="fas fa-cloud-upload-alt" style="font-size: 40px; color: var(--win-accent); margin-bottom: 15px;"></i>
+            <span style="font-weight:600; font-size: 18px; color: var(--win-text);">Toque para Enviar Arquivo</span>
+        </label>
+        <input type="file" id="fileInput" multiple style="display: none;">
+        <div id="success-msg" style="display: none; background: rgba(16, 185, 129, 0.2); padding: 12px 20px; border-radius: 8px; color: var(--win-success); margin-top: 10px; font-weight: bold;">Enviado! <i class="fas fa-check"></i></div>
+    </div>
+
+    <div class="app-window" id="pc-view" style="display: none;">
+        
+        <div class="title-bar">
+            <div class="app-title">
+                <div class="app-logo-small">
+                    <svg viewBox="0 0 100 100" width="100%" height="100%">
+                        <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="6" opacity="0.2"/>
+                        <path d="M 50,10 A 40,40 0 0,1 90,50" fill="none" stroke="var(--win-accent)" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M 50,90 A 40,40 0 0,1 10,50" fill="none" stroke="var(--win-accent)" stroke-width="8" stroke-linecap="round"/>
+                        <polygon points="50,30 67,40 67,60 50,70 33,60 33,40" fill="var(--win-accent)"/>
+                    </svg>
+                </div>
+                JM OS - Estação de Lanhouse
+            </div>
+            
+            <div class="app-switcher">
+                <button class="app-tab active" id="tab-quicklinks" onclick="switchApp('quicklinks')"><i class="fas fa-link"></i> QuickLinks</button>
+                <button class="app-tab" id="tab-balcao" onclick="switchApp('balcao')"><i class="fas fa-cash-register"></i> Balcão Smart</button>
+            </div>
+
+            <div class="pos-tabs" id="pos-tabs-container">
+                <button class="pos-tab active" id="posTabBtn1" onclick="switchPosTab(1)">Caixa 1</button>
+                <button class="pos-tab" id="posTabBtn2" onclick="switchPosTab(2)">Caixa 2</button>
+                <button class="pos-tab" id="posTabBtn3" onclick="switchPosTab(3)">Caixa 3</button>
+            </div>
+
+            <div class="clock-widget">
+                <button class="btn-fullscreen" onclick="toggleFullScreen()" title="Expandir para Tela Cheia">
+                    <i class="fas fa-expand"></i>
+                </button>
+                <div class="clock-date" id="clockDate">---, -- de ---</div>
+                <div class="clock-time" id="clockTime">--:--</div>
+            </div>
+        </div>
+
+        <div id="app-quicklinks" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+            <div class="command-bar">
+                <div class="search-container">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar links rápidos..." onkeyup="filterLinks()">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" onclick="exportUnifiedBackup()" title="Baixar todos os dados"><i class="fas fa-download"></i> Backup do Sistema</button>
+                <input type="file" id="fileRestore" style="display:none" accept=".json" onchange="importUnifiedBackup(this)">
+                <button class="cmd-btn" onclick="document.getElementById('fileRestore').click()"><i class="fas fa-upload"></i> Restaurar</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" id="btnEditToggleQL" onclick="toggleEditModeQL()"><i class="fas fa-pen-to-square"></i> Editar Painel</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn theme-btn" onclick="toggleTheme()"><i class="fas fa-sun"></i> Tema Claro</button>
+            </div>
+
+            <div class="app-body">
+                <div class="main-layout">
+                    <div class="content-area">
+                        <div class="favorites-section" id="favSection">
+                            <div class="fav-title"><i class="fas fa-thumbtack"></i> Fixados (Acesso Rápido)</div>
+                            <div class="fav-grid" id="favGrid"></div>
+                        </div>
+                        <div class="services-grid" id="gridContainer"></div>
+                    </div>
+                    <div class="sidebar-area">
+                        <div class="sidebar-widget notepad">
+                            <div class="widget-header">
+                                <span><i class="fas fa-align-left" style="color: var(--win-accent);"></i> Bloco de Rascunho</span>
+                                <i class="fas fa-check" style="opacity:0.3; font-size:0.8rem"></i>
+                            </div>
+                            <textarea class="notepad-area" id="quickNote" placeholder="Cole CPFs, protocolos ou recados aqui..." oninput="saveNote()"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="app-balcao" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+            <div class="command-bar">
+                <button class="cmd-btn" id="btnEditTogglePOS" onclick="toggleEditModePOS()"><i class="fas fa-pen"></i> Editar Tabela</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" onclick="openCards()" style="border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15);"><i class="fas fa-id-card" style="color: #3b82f6;"></i> Cartões GOV / SUS</button>
+                <button class="cmd-btn" onclick="openTransferModal()" style="border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.15);"><i class="fas fa-wifi" style="color: #10b981;"></i> Wi-Fi Transfer</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Limpo</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn theme-btn" onclick="toggleTheme()"><i class="fas fa-sun"></i> Tema Claro</button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" onclick="changeFontSize(-1)"><i class="fas fa-minus"></i> Letra</button>
+                <button class="cmd-btn" onclick="changeFontSize(1)"><i class="fas fa-plus"></i></button>
+                <div class="cmd-divider"></div>
+                <button class="cmd-btn" onclick="openPixConfig()"><i class="fas fa-qrcode"></i> Config. PIX</button>
+                <button class="cmd-btn" onclick="baixarFechoCaixa()" style="color: var(--win-success);"><i class="fas fa-cash-register"></i> Fechar Caixa</button>
+            </div>
+
+            <div class="app-body">
+                <div class="paper-area" id="boardContent">
+                    </div>
+
+                <div class="pos-panel">
+                    <div class="pos-total-box">
+                        <div class="pos-total-label">Total Orçamento</div>
+                        <div class="pos-total-value">R$ <span id="calcTotal">0,00</span></div>
+                        <input type="text" id="calcDisplay" disabled style="width:100%; background:transparent; border:none; text-align:center; color: var(--win-text-muted); font-family: 'JetBrains Mono'; margin-top: 10px; font-size: 1.1rem;">
+                    </div>
+
+                    <div class="pos-keypad">
+                        <button class="k-btn clear" onclick="clearCalc()">C</button>
+                        <button class="k-btn op" onclick="inputCalc('/')">/</button>
+                        <button class="k-btn op" onclick="inputCalc('*')">*</button>
+                        <button class="k-btn op" onclick="inputCalc('-')">-</button>
+                        <button class="k-btn" onclick="inputCalc('7')">7</button>
+                        <button class="k-btn" onclick="inputCalc('8')">8</button>
+                        <button class="k-btn" onclick="inputCalc('9')">9</button>
+                        <button class="k-btn op" onclick="inputCalc('+')" style="grid-row: span 2; height: 100%;">+</button>
+                        <button class="k-btn" onclick="inputCalc('4')">4</button>
+                        <button class="k-btn" onclick="inputCalc('5')">5</button>
+                        <button class="k-btn" onclick="inputCalc('6')">6</button>
+                        <button class="k-btn" onclick="inputCalc('1')">1</button>
+                        <button class="k-btn" onclick="inputCalc('2')">2</button>
+                        <button class="k-btn" onclick="inputCalc('3')">3</button>
+                        <button class="k-btn eq" onclick="evalCalc()" style="grid-row: span 2; height: 100%;">=</button>
+                        <button class="k-btn" onclick="inputCalc('0')" style="grid-column: span 2;">0</button>
+                        <button class="k-btn" onclick="inputCalc('.')">.</button>
+                    </div>
+
+                    <div class="pos-actions">
+                        <button class="action-btn whatsapp" onclick="gerarReciboCliente()"><i class="fab fa-whatsapp"></i> Fechar via WhatsApp</button>
+                        <button class="action-btn pdf" onclick="gerarPDF()"><i class="fas fa-file-pdf"></i> Imprimir Orçamento</button>
+                        <button class="action-btn" onclick="clearCart()" style="margin-top: 10px; background: transparent; border: 1px dashed var(--win-border);"><i class="fas fa-trash"></i> Esvaziar Balcão</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toastMsg"><i class="fas fa-check-circle" style="color: var(--win-accent);"></i> <span>Mensagem</span></div>
+    <audio id="notify-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <div class="modal-overlay" id="catModal">
+        <div class="modal">
+            <h3 id="catModalTitle">Nova Categoria</h3>
+            <div class="form-group"><label class="form-label">Nome da Categoria</label><input type="text" id="catName" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Ícone</label><div class="icon-grid" id="iconSelector"></div><input type="hidden" id="catIcon"></div>
+            <input type="hidden" id="catIndex">
+            <div class="modal-actions"><button class="btn-modal btn-cancel" onclick="closeModal('catModal')">Cancelar</button><button class="btn-modal btn-save-modal" onclick="saveCategory()">Salvar</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="linkModal">
+        <div class="modal">
+            <h3 id="linkModalTitle">Novo Link</h3>
+            <div class="form-group"><label class="form-label">Nome</label><input type="text" id="linkName" class="form-input"></div>
+            <div class="form-group"><label class="form-label">URL</label><input type="text" id="linkUrl" class="form-input" placeholder="https://..."></div>
+            <input type="hidden" id="linkCatIndex"><input type="hidden" id="linkIndex">
+            <div class="modal-actions"><button class="btn-modal btn-cancel" onclick="closeModal('linkModal')">Cancelar</button><button class="btn-modal btn-save-modal" onclick="saveLink()">Salvar</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="pixModal">
+        <div class="modal">
+            <h3><i class="fas fa-qrcode" style="color: var(--win-accent);"></i> Dados do PIX</h3>
+            <div class="form-group"><label class="form-label">Chave PIX</label><input type="text" id="configPixKey" class="form-input"></div>
+            <div class="form-group"><label class="form-label">Nome Favorecido</label><input type="text" id="configPixName" class="form-input"></div>
+            <div class="modal-actions"><button class="btn-modal btn-cancel" onclick="closeModal('pixModal')">Cancelar</button><button class="btn-modal btn-save-modal" onclick="savePixConfig()">Salvar</button></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="transferOverlay">
+        <div class="modal" style="max-width: 450px; text-align: center;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--win-border); padding-bottom: 15px;">
+                <h3 style="margin:0; color: var(--win-accent);"><i class="fas fa-wifi"></i> Wi-Fi Transfer</h3>
+                <button class="cmd-btn" onclick="closeModal('transferOverlay')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="font-size: 13px; color: var(--win-text-muted); margin-bottom: 15px;">Escaneie o QR com a câmera do celular.</p>
+            <div style="background: #ffffff; padding: 15px; border-radius: 12px; display: inline-block; margin-bottom: 15px;"><div id="qrcode-transfer"></div></div>
+            <div id="transfer-status" style="display: flex; align-items: center; justify-content:center; gap: 8px; padding: 10px; border-radius: 8px; font-size: 14px; font-weight: 600; background: rgba(128,128,128,0.1); margin-bottom: 15px; border: 1px solid var(--win-border-light);"><i class="fas fa-circle-notch fa-spin"></i> Aguardando cliente...</div>
+            <div id="transfer-file-list" style="text-align: left; max-height: 200px; overflow-y: auto; padding-right: 5px; margin-bottom: 15px;"></div>
+            <button id="btn-dl-all" onclick="downloadAllTransfer()" style="background: var(--win-accent); color: #000; border: none; width: 100%; padding: 12px; border-radius: 6px; font-weight: 700; cursor: pointer; display: none; align-items: center; justify-content: center; gap: 8px; transition: var(--transition-smooth);"><i class="fas fa-download"></i> Baixar Todos</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cardsOverlay" style="align-items: flex-start; padding-top: 4vh;">
+        <div class="modal" style="width: 95%; max-width: 1000px; height: 92vh; display: flex; flex-direction: column; padding: 30px; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid var(--win-border); padding-bottom: 15px;">
+                <h3 style="margin:0;"><i class="fas fa-id-badge" style="color: #3b82f6;"></i> Central de Cartões</h3>
+                <button class="cmd-btn" onclick="closeModal('cardsOverlay')"><i class="fas fa-times"></i></button>
+            </div>
+            <p style="color: var(--win-text-muted); font-size: 0.9rem; text-align: center; margin-bottom: 25px;">Preencha os dados e baixe as imagens PNG para impressão.</p>
+            
+            <div id="area-cartoes">
+                <div class="card-wrapper">
+                    <div class="premium-card card-gov" id="cartao-gov">
+                        <div style="padding: 20px 25px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 2;">
+                            <div style="font-weight: 900; font-size: 26px; font-style: italic;">gov.br</div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; backdrop-filter: blur(5px);">Acesso Federal</div>
+                        </div>
+                        <div style="padding: 10px 25px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; z-index: 2;">
+                            <div style="display: flex; flex-direction: column;">
+                                <label style="font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">CPF do Cidadão</label>
+                                <input type="text" class="editable-input-card" placeholder="000.000.000-00" maxlength="14" oninput="formatarCPF(this)">
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <label style="font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Senha de Acesso</label>
+                                <input type="text" class="editable-input-card" placeholder="Digite a senha">
+                            </div>
+                        </div>
+                        <div style="height: 8px; width: 100%; background: linear-gradient(90deg, #009C3B 50%, #FFCD00 50%); position: absolute; bottom: 0;"></div>
+                    </div>
+                    <button class="btn-modal" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 100%; display: flex; justify-content: center; gap: 10px;" onclick="baixarPNGCartao('cartao-gov', 'Cartao_GovBr.png')"><i class="fas fa-download" style="color: #10b981;"></i> Salvar Imagem Gov.br</button>
+                </div>
+
+                <div class="card-wrapper">
+                    <div class="premium-card card-email" id="cartao-email">
+                        <div style="padding: 20px 25px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 2;">
+                            <div style="font-weight: 800; font-size: 22px;">E-MAIL</div>
+                            <div style="background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700; backdrop-filter: blur(5px);">Conta Pessoal</div>
+                        </div>
+                        <div style="padding: 10px 25px 20px; flex-grow: 1; display: flex; flex-direction: column; justify-content: center; gap: 20px; z-index: 2;">
+                            <div style="display: flex; flex-direction: column;">
+                                <label style="font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Endereço Eletrônico</label>
+                                <input type="email" class="editable-input-card" placeholder="usuario@gmail.com" style="font-size: 18px;">
+                            </div>
+                            <div style="display: flex; flex-direction: column;">
+                                <label style="font-size: 10px; color: rgba(255,255,255,0.7); font-weight: 700; margin-bottom: 5px; text-transform: uppercase;">Senha do E-mail</label>
+                                <input type="text" class="editable-input-card" placeholder="Digite a senha">
+                            </div>
+                        </div>
+                        <div style="height: 8px; width: 100%; background: #e74c3c; position: absolute; bottom: 0;"></div>
+                    </div>
+                    <button class="btn-modal" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 100%; display: flex; justify-content: center; gap: 10px;" onclick="baixarPNGCartao('cartao-email', 'Cartao_Email.png')"><i class="fas fa-download" style="color: #3b82f6;"></i> Salvar Imagem E-mail</button>
+                </div>
+
+                <div class="card-wrapper">
+                    <div class="premium-card" id="cartao-sus" style="background: #1b8557; width: 440px; height: 280px; position: relative; border: 1px solid rgba(0,0,0,0.2);">
+                        <svg style="position: absolute; width: 100%; height: 100%; z-index: 1;" viewBox="0 0 460 290" preserveAspectRatio="none">
+                            <rect width="460" height="290" fill="#1b8557"/>
+                            <polygon points="0,290 460,0 460,290" fill="#25a069" opacity="0.9"/>
+                            <polygon points="0,180 460,0 0,0" fill="#126c45" opacity="0.8"/>
+                            <polygon points="260,290 460,70 460,290" fill="#fddb00"/>
+                            <circle cx="470" cy="180" r="85" fill="#004294"/>
+                            <path d="M 387,180 Q 425,155 470,165 L 470,180 Q 425,170 387,195 Z" fill="#ffffff"/>
+                            <circle cx="410" cy="205" r="1.5" fill="#ffffff"/><circle cx="430" cy="220" r="1.5" fill="#ffffff"/><circle cx="445" cy="210" r="1.5" fill="#ffffff"/><circle cx="435" cy="240" r="2" fill="#ffffff"/>
+                        </svg>
+                        <div style="position: absolute; width: 100%; height: 100%; z-index: 10; display: flex;">
+                            <div style="width: 32px; background: #fddb00; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgba(0,0,0,0.1);">
+                                <span style="writing-mode: vertical-rl; transform: rotate(180deg); color: #126c45; font-size: 14px; font-weight: bold; font-family: Arial, sans-serif;">Cartão do Usuário</span>
+                            </div>
+                            <div style="flex-grow: 1; padding: 20px; display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                    <span style="color: white; font-size: 38px; font-weight: 900; line-height: 1; font-family: Arial, sans-serif; letter-spacing: -2px;">SUS</span>
+                                    <div style="width: 34px; height: 34px; position: relative; display: flex; align-items: center; justify-content: center; margin: 0 10px;">
+                                        <div style="position: absolute; width: 10px; height: 34px; background: white;"></div>
+                                        <div style="position: absolute; width: 34px; height: 10px; background: white;"></div>
+                                        <div style="position: absolute; width: 40px; height: 2px; background: #1b8557; transform: rotate(-45deg); z-index: 5;"></div>
+                                    </div>
+                                    <span style="color: white; font-size: 7px; font-weight: bold; font-family: Arial, sans-serif; line-height: 1.1;">Sistema<br>Único<br>de Saúde</span>
+                                </div>
+                                <div style="color: white; font-size: 18px; font-weight: bold; font-family: Arial, sans-serif; margin-bottom: 10px;">Cartão Nacional de Saúde</div>
+                                <div style="background: rgba(255,255,255,0.95); padding: 12px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                                    <input type="text" placeholder="NOME DO CIDADÃO" style="border: none; background: transparent; font-size: 13px; font-weight: bold; color: black; outline: none; border-bottom: 1px dashed #999; text-transform: uppercase;">
+                                    <div style="display: flex; gap: 10px;">
+                                        <input type="text" placeholder="NASC: 00/00/0000" maxlength="10" style="flex: 1; border: none; background: transparent; font-size: 12px; font-weight: bold; color: black; outline: none; border-bottom: 1px dashed #999;" oninput="formatarDataSUS(this)">
+                                        <input type="text" placeholder="SEXO: M/F" maxlength="1" style="width: 70px; border: none; background: transparent; font-size: 12px; font-weight: bold; color: black; outline: none; border-bottom: 1px dashed #999; text-align: center; text-transform: uppercase;">
+                                    </div>
+                                    <input type="text" placeholder="CNS: 123 4567 8910 1112" maxlength="18" style="border: none; background: transparent; font-size: 15px; font-weight: bold; color: black; outline: none; border-bottom: 1px dashed #999; text-align: center; letter-spacing: 1px; font-family: Arial, sans-serif;" oninput="formatarCNSSUS(this)">
+                                    <div id="barcode-sus" style="font-family: 'Libre Barcode 128', cursive; font-size: 38px; color: black; text-align: center; line-height: 0.6; height: 25px; overflow: hidden; opacity: 0.8;">123456789101112</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-modal" style="background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); width: 100%; display: flex; justify-content: center; gap: 10px;" onclick="baixarPNGCartao('cartao-sus', 'Cartao_SUS_Oficial.png')"><i class="fas fa-download" style="color: #10b981;"></i> Salvar Imagem SUS</button>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <button class="btn-modal" style="background: var(--win-accent); color: white; font-size: 14px; padding: 12px 25px;" onclick="window.print()"><i class="fas fa-print"></i> Imprimir Apenas Cartões</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. GERENCIADOR DO LOADER (Segurança Anti-Loop) ---
+        let loaderRemovido = false;
+
+        function esconderLoader(motivo = "carregamento normal") {
+            if (loaderRemovido) return; // Garante que executa apenas uma vez
+            loaderRemovido = true;
+            
+            console.log(`[JM OS] Ocultando tela de loading. Motivo: ${motivo}`);
+            
+            const loader = document.getElementById('jmLoader');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    const pcView = document.getElementById('pc-view');
+                    const mobileView = document.getElementById('mobile-view');
+                    
+                    if(pcView && window.location.search.indexOf('remote') === -1) {
+                        pcView.style.display = 'flex';
+                    } else if (mobileView && window.location.search.indexOf('remote') > -1) {
+                        mobileView.style.display = 'flex';
+                    }
+                }, 400);
+            }
+        }
+
+        // TIMEOUT DE SEGURANÇA (FALLBACK) - Impede o travamento permanente
+        const safetyTimeout = setTimeout(() => {
+            console.warn("⚠️ [JM OS] Timeout de segurança atingido (6s). Ocultando o loader forçadamente.");
+            esconderLoader("fallback de segurança (timeout)");
+        }, 6000);
+
+        // --- 2. FUNÇÕES GERAIS E TELA CHEIA ---
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    showToast(`Erro ao ativar tela cheia`, true);
+                });
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                }
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement) {
+                document.body.classList.add('is-fullscreen');
+            } else {
+                document.body.classList.remove('is-fullscreen');
+            }
+        });
+
+        const sanitizeHTML = (str) => typeof str === 'string' ? str.replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'}[tag])) : str;
+        const escapeQuotes = (str) => typeof str === 'string' ? str.replace(/'/g, "\\'").replace(/"/g, '&quot;') : str;
+
+        function showToast(msg, isError=false) {
+            const toast = document.getElementById('toastMsg');
+            toast.innerHTML = `<i class="fas ${isError?'fa-exclamation-circle':'fa-check-circle'}" style="color:var(${isError?'--win-danger':'--win-accent'})"></i> <span>${msg}</span>`;
+            toast.style.borderLeftColor = `var(${isError?'--win-danger':'--win-accent'})`;
+            toast.classList.add('show');
+            clearTimeout(toastTimeout); 
+            toastTimeout = setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function toggleTheme() {
+            const isLight = document.body.classList.toggle('light-theme');
+            localStorage.setItem('jm_os_theme', isLight ? 'light' : 'dark');
+            document.querySelectorAll('.theme-btn').forEach(btn => btn.innerHTML = isLight ? '<i class="fas fa-moon"></i> Tema Escuro' : '<i class="fas fa-sun"></i> Tema Claro');
+        }
+
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('clockTime').innerText = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
+                document.getElementById('clockDate').innerText = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+            }, 1000);
+        }
+
+        // --- 3. STORAGE KEYS & ESTADO GLOBAL ---
+        const KEY_QL_DB = 'jm_win_db_v3';
+        const KEY_QL_FAVS = 'jm_win_favs_v3';
+        const KEY_NOTE = 'jm_win_note_v3';
+        const KEY_POS_BOARD = 'jm_priceboard_win11_v3';
+        
+        let db = [], favorites = [];
+        let configPix = { chave: "87999513067", nome: "José Marcelo" };
+        let fechoCaixa = { total: 0, clientes: 0 };
+        let posCarts = { 1: [], 2: [], 3: [] };
+        
+        let isEditModeQL = false;
+        let isEditModePOS = false;
+        let currentPosTab = 1;
+        let calcVal = '';
+        let calcTotalValue = 0;
+        let currentFontSize = 14;
+        let toastTimeout;
+        let transferConn = null;
+        let receivedFiles = [];
+
+        const defaultQLDB = [
+            { title: "Título de Eleitor", icon: "fas fa-vote-yea", links: [ { name: "Autoatendimento Eleitoral", url: "https://www.tse.jus.br" } ] },
+            { title: "CPF & Receita", icon: "fas fa-id-card", links: [ { name: "Imprimir CPF", url: "https://servicos.receita.fazenda.gov.br" } ] }
+        ];
+
+        const defaultPOSHTML = `
+            <div class="paper-header">
+                <div><h1 class="editable-text" contenteditable="false" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">GEONET INFORMÁTICA</h1><p class="editable-text" contenteditable="false" style="color: var(--win-text-muted);">Tabela de Preços - Serviços Lan House</p></div>
+                <div style="text-align: right;"><p style="font-weight: 600;"><i class="fab fa-whatsapp"></i> <span class="editable-text" contenteditable="false">(81) 9986-4841</span></p><p><i class="fas fa-map-marker-alt"></i> <span class="editable-text" contenteditable="false">Centro</span></p></div>
+            </div>
+            <div class="pos-grid-container">
+                <div class="column">
+                    <div class="category-box">
+                        <div class="pos-cat-header"><i class="fas fa-copy" style="color: var(--win-accent);"></i> Cópia</div>
+                        <div class="service-list">
+                            <div class="service-item"><button class="btn-remove" onclick="removeRow(this)"><i class="fas fa-times"></i></button><span class="s-name" contenteditable="false">Xerox PB</span><span class="s-price" contenteditable="false">R$ 0,50</span></div>
+                        </div>
+                        <button class="btn-add-item" onclick="addRow(this)"><i class="fas fa-plus"></i> Adicionar Item</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const commonIcons = ["fas fa-home", "fas fa-user", "fas fa-id-card", "fas fa-file-alt", "fas fa-print", "fas fa-car", "fas fa-bolt", "fas fa-globe", "fas fa-wifi", "fas fa-tools"];
+
+        // --- 4. INICIALIZAÇÃO SEGURA (Evita travamentos) ---
+        function safelyParseJSON(key, fallback) {
+            try { 
+                const item = localStorage.getItem(key); 
+                if (!item) return fallback;
+                const parsed = JSON.parse(item);
+                if (Array.isArray(fallback) && !Array.isArray(parsed)) return fallback;
+                return parsed;
+            } catch (e) { return fallback; }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("[JM OS] Iniciando sistema...");
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const remoteId = urlParams.get('remote');
+
+                if (remoteId) {
+                    clearTimeout(safetyTimeout);
+                    esconderLoader("acesso mobile wifi");
+                    setTimeout(() => initMobileTransfer(remoteId), 800);
+                    return;
+                }
+
+                // Carregamento Seguro dos Dados
+                db = safelyParseJSON(KEY_QL_DB, defaultQLDB);
+                favorites = safelyParseJSON(KEY_QL_FAVS, []);
+                configPix = safelyParseJSON('jm_tabela_pix', configPix);
+                fechoCaixa = safelyParseJSON('jm_pos_fecho', fechoCaixa);
+                posCarts = safelyParseJSON('jm_pos_carts', posCarts);
+                
+                if (localStorage.getItem('jm_os_theme') === 'light') {
+                    document.body.classList.add('light-theme');
+                    document.querySelectorAll('.theme-btn').forEach(btn => btn.innerHTML = '<i class="fas fa-moon"></i> Tema Escuro');
+                }
+
+                renderLinks(db);
+                renderFavorites();
+                buildIconSelector();
+                startClock();
+                loadNote();
+                loadBoard();
+
+                const lastApp = localStorage.getItem('jm_last_app') || 'quicklinks';
+                switchApp(lastApp);
+
+                // Sucesso na Inicialização
+                clearTimeout(safetyTimeout);
+                setTimeout(() => esconderLoader("inicialização concluída com sucesso"), 800);
+
+                setTimeout(() => { if (typeof Peer !== 'undefined') initPCTransfer(); }, 2000);
+
+            } catch(erroInterno) {
+                console.error("❌ [JM OS] Erro crítico na inicialização:", erroInterno);
+                esconderLoader("erro contornado (fallback catch)");
+            }
+        });
+
+        // --- 5. LÓGICA DO SISTEMA: ABAS E QUICKLINKS ---
+        function switchApp(app) {
+            document.getElementById('app-quicklinks').style.display = app === 'quicklinks' ? 'flex' : 'none';
+            document.getElementById('app-balcao').style.display = app === 'balcao' ? 'flex' : 'none';
+            
+            document.getElementById('tab-quicklinks').classList.toggle('active', app === 'quicklinks');
+            document.getElementById('tab-balcao').classList.toggle('active', app === 'balcao');
+            document.getElementById('pos-tabs-container').style.display = app === 'balcao' ? 'flex' : 'none';
+            
+            localStorage.setItem('jm_last_app', app);
+        }
+
+        function saveNote() { localStorage.setItem(KEY_NOTE, document.getElementById('quickNote').value); }
+        function loadNote() { const text = localStorage.getItem(KEY_NOTE); if(text) document.getElementById('quickNote').value = text; }
+
+        function renderLinks(data) {
+            const grid = document.getElementById('gridContainer');
+            if(!grid) return;
+            grid.innerHTML = "";
+            
+            (data || []).forEach((cat, catIndex) => {
+                const card = document.createElement('div'); card.className = `category-card ${isEditModeQL ? 'edit-mode' : ''}`;
+                card.innerHTML = `<div class="cat-header"><div class="cat-info"><div class="cat-icon"><i class="${sanitizeHTML(cat.icon)}"></i></div><div class="cat-title">${sanitizeHTML(cat.title)}</div></div><div class="card-actions"><button class="btn-mini" onclick="openCatModal(${catIndex})"><i class="fas fa-pen"></i></button><button class="btn-mini btn-del" onclick="deleteCategory(${catIndex})"><i class="fas fa-trash"></i></button></div></div>`;
+                
+                const list = document.createElement('div'); list.className = 'link-list';
+                (cat.links || []).forEach((link, linkIndex) => {
+                    const wrap = document.createElement('div'); wrap.className = 'service-link-wrapper';
+                    const favClass = favorites.some(f => f.url === link.url) ? 'fas fa-star fav-active' : 'far fa-star';
+                    wrap.innerHTML = `<a href="${sanitizeHTML(link.url)}" target="_blank" class="service-link"><i class="fas fa-angle-right" style="opacity: 0.5;"></i> ${sanitizeHTML(link.name)}</a><button class="link-side-btn" onclick="toggleFav('${escapeQuotes(link.name)}', '${escapeQuotes(link.url)}')"><i class="${favClass}"></i></button><button class="link-side-btn" onclick="copyURL('${escapeQuotes(link.url)}')"><i class="fas fa-copy"></i></button>`;
+                    if(isEditModeQL) wrap.innerHTML += `<div class="card-actions" style="display:flex"><button class="btn-mini" onclick="openLinkModal(${catIndex}, ${linkIndex})"><i class="fas fa-pen"></i></button><button class="btn-mini btn-del" onclick="deleteLink(${catIndex}, ${linkIndex})"><i class="fas fa-trash"></i></button></div>`;
+                    list.appendChild(wrap);
+                });
+                card.appendChild(list);
+                
+                const addBtn = document.createElement('button'); addBtn.className = 'btn-add-link'; addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Link'; addBtn.onclick = () => openLinkModal(catIndex);
+                card.appendChild(addBtn); grid.appendChild(card);
+            });
+            const newCard = document.createElement('div'); newCard.className = 'btn-new-cat'; newCard.innerHTML = '<i class="fas fa-plus" style="font-size:2rem; margin-bottom:10px;"></i> Nova Categoria'; newCard.onclick = () => openCatModal();
+            grid.appendChild(newCard);
+            isEditModeQL ? grid.classList.add('edit-active') : grid.classList.remove('edit-active');
+        }
+
+        function renderFavorites() {
+            const grid = document.getElementById('favGrid'); const sec = document.getElementById('favSection');
+            if(!grid || !sec) return;
+            if(favorites.length > 0) {
+                sec.classList.add('show'); grid.innerHTML = '';
+                favorites.forEach(f => {
+                    const item = document.createElement('a'); item.className = 'fav-item'; item.href = sanitizeHTML(f.url); item.target = "_blank";
+                    item.innerHTML = `<i class="fas fa-star"></i> ${sanitizeHTML(f.name)}`; grid.appendChild(item);
+                });
+            } else { sec.classList.remove('show'); }
+        }
+
+        function filterLinks() {
+            const searchEl = document.getElementById('searchInput');
+            if(!searchEl) return;
+            const t = searchEl.value.toLowerCase();
+            if(!t) return renderLinks(db);
+            const filtered = db.map(c => {
+                if(c.title.toLowerCase().includes(t)) return c;
+                const m = c.links.filter(l => l.name.toLowerCase().includes(t));
+                return m.length > 0 ? { ...c, links: m } : null;
+            }).filter(i => i !== null);
+            renderLinks(filtered);
+        }
+
+        function toggleEditModeQL() {
+            isEditModeQL = !isEditModeQL;
+            const btn = document.getElementById('btnEditToggleQL');
+            if(isEditModeQL) { btn.innerHTML = '<i class="fas fa-check" style="color:var(--win-success)"></i> Concluir'; showToast("Editor QuickLinks Aberto"); } 
+            else { btn.innerHTML = '<i class="fas fa-pen-to-square"></i> Editar Painel'; }
+            filterLinks();
+        }
+
+        function toggleFav(name, url) {
+            if(isEditModeQL) return;
+            const idx = favorites.findIndex(f => f.url === url);
+            idx > -1 ? favorites.splice(idx, 1) : favorites.push({name, url});
+            localStorage.setItem(KEY_QL_FAVS, JSON.stringify(favorites)); renderLinks(db); renderFavorites();
+        }
+        function copyURL(url) { navigator.clipboard.writeText(url); showToast("Link copiado!"); }
+        function saveQLStorage() { localStorage.setItem(KEY_QL_DB, JSON.stringify(db)); renderLinks(db); }
+
+        function buildIconSelector() {
+            const container = document.getElementById('iconSelector');
+            if(!container) return;
+            commonIcons.forEach(icon => {
+                const div = document.createElement('div'); div.className = 'icon-option'; div.innerHTML = `<i class="${icon}"></i>`;
+                div.onclick = () => { document.getElementById('catIcon').value = icon; document.querySelectorAll('.icon-option').forEach(d => d.classList.remove('selected')); div.classList.add('selected'); };
+                container.appendChild(div);
+            });
+        }
+
+        function openCatModal(idx = null) {
+            document.getElementById('catIndex').value = idx !== null ? idx : "-1";
+            document.getElementById('catName').value = idx !== null ? db[idx].title : "";
+            document.getElementById('catIcon').value = idx !== null ? db[idx].icon : "fas fa-folder";
+            document.querySelectorAll('.icon-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById('catModal').style.display = 'flex';
+        }
+        function saveCategory() {
+            const n = document.getElementById('catName').value.trim(); const ic = document.getElementById('catIcon').value; const idx = parseInt(document.getElementById('catIndex').value);
+            if(!n) return; idx === -1 ? db.push({title:n, icon:ic, links:[]}) : (db[idx].title=n, db[idx].icon=ic);
+            saveQLStorage(); closeModal('catModal');
+        }
+        function deleteCategory(idx) { if(confirm("Apagar categoria?")) { db.splice(idx, 1); saveQLStorage(); } }
+
+        function openLinkModal(cIdx, lIdx = null) {
+            document.getElementById('linkCatIndex').value = cIdx; document.getElementById('linkIndex').value = lIdx !== null ? lIdx : "-1";
+            document.getElementById('linkName').value = lIdx !== null ? db[cIdx].links[lIdx].name : "";
+            document.getElementById('linkUrl').value = lIdx !== null ? db[cIdx].links[lIdx].url : "";
+            document.getElementById('linkModal').style.display = 'flex';
+        }
+        function saveLink() {
+            const n = document.getElementById('linkName').value.trim(); let url = document.getElementById('linkUrl').value.trim();
+            const cIdx = parseInt(document.getElementById('linkCatIndex').value); const lIdx = parseInt(document.getElementById('linkIndex').value);
+            if(!n || !url) return; if(!/^https?:\/\//i.test(url)) url = 'http://' + url;
+            lIdx === -1 ? db[cIdx].links.push({name:n, url:url}) : db[cIdx].links[lIdx] = {name:n, url:url};
+            saveQLStorage(); closeModal('linkModal');
+        }
+        function deleteLink(cIdx, lIdx) { 
+            if(confirm("Excluir link?")) { 
+                const u = db[cIdx].links[lIdx].url; const fIdx = favorites.findIndex(f => f.url === u);
+                if(fIdx > -1) { favorites.splice(fIdx, 1); localStorage.setItem(KEY_QL_FAVS, JSON.stringify(favorites)); renderFavorites(); }
+                db[cIdx].links.splice(lIdx, 1); saveQLStorage(); 
+            } 
+        }
+
+        function exportUnifiedBackup() {
+            const data = { ql_db: db, ql_favs: favorites, pos_html: localStorage.getItem(KEY_POS_BOARD), pos_pix: configPix };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a'); a.href = url; a.download = `JM_OS_Backup_Completo_${new Date().toISOString().slice(0,10)}.json`; a.click();
+        }
+        
+        function importUnifiedBackup(input) {
+            const file = input.files[0]; if(!file) return;
+            const r = new FileReader();
+            r.onload = function(e) {
+                try {
+                    const d = JSON.parse(e.target.result);
+                    if(d.ql_db || d.links) localStorage.setItem(KEY_QL_DB, JSON.stringify(d.ql_db || d.links));
+                    if(d.ql_favs || d.favorites) localStorage.setItem(KEY_QL_FAVS, JSON.stringify(d.ql_favs || d.favorites));
+                    if(d.pos_html) localStorage.setItem(KEY_POS_BOARD, d.pos_html);
+                    if(d.pos_pix) localStorage.setItem('jm_tabela_pix', JSON.stringify(d.pos_pix));
+                    showToast("Sistema Restaurado! Recarregando..."); 
+                    setTimeout(()=>location.reload(), 1500);
+                } catch(err) { showToast("Arquivo Inválido", true); }
+            }; r.readAsText(file);
+        }
+
+        // --- 6. LÓGICA DO BALCÃO SMART ---
+        function loadBoard() {
+            try {
+                const html = localStorage.getItem(KEY_POS_BOARD);
+                const boardContent = document.getElementById('boardContent');
+                if(boardContent) { boardContent.innerHTML = (html && html !== "undefined" && html !== "null") ? html : defaultPOSHTML; }
+                
+                const sf = localStorage.getItem('jm_fontsize_premium');
+                if(sf && sf !== "undefined") { 
+                    currentFontSize = parseInt(sf); 
+                    if(!isNaN(currentFontSize)) document.documentElement.style.setProperty('--service-font-size', currentFontSize + 'px'); 
+                }
+                
+                document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
+                document.body.classList.remove('edit-mode-pos-active');
+                isEditModePOS = false; initCalculator(); switchPosTab(1);
+            } catch (err) { console.error("Erro ao carregar balcão", err); }
+        }
+
+        function saveBoard() {
+            document.querySelectorAll('#app-balcao .selected-calc').forEach(i => { i.classList.remove('selected-calc'); const b = i.querySelector('.qty-badge'); if(b) b.remove(); delete i.dataset.qtd; });
+            calcTotalValue = 0; const calcTotal = document.getElementById('calcTotal');
+            if(calcTotal) calcTotal.innerText = "0,00";
+            try { localStorage.setItem(KEY_POS_BOARD, document.getElementById('boardContent').innerHTML); localStorage.setItem('jm_fontsize_premium', currentFontSize); posCarts = {1:[],2:[],3:[]}; localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts)); showToast("Tabela Salva!"); } catch(e){}
+        }
+
+        function toggleEditModePOS() {
+            isEditModePOS = !isEditModePOS; const btn = document.getElementById('btnEditTogglePOS');
+            if(isEditModePOS) {
+                document.body.classList.add('edit-mode-pos-active'); btn.innerHTML = '<i class="fas fa-check" style="color:var(--win-success)"></i> Salvar Tabela';
+                document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', true));
+                showToast("Editor da Tabela Ativo");
+            } else {
+                document.body.classList.remove('edit-mode-pos-active'); btn.innerHTML = '<i class="fas fa-pen"></i> Editar Tabela';
+                document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
+                saveBoard();
+            }
+        }
+
+        function switchPosTab(t) {
+            if(document.querySelectorAll('#app-balcao .service-item').length > 0) saveCart();
+            currentPosTab = t; document.querySelectorAll('.pos-tab').forEach(b => b.classList.remove('active')); 
+            const tabBtn = document.getElementById('posTabBtn'+t); if(tabBtn) tabBtn.classList.add('active');
+            
+            document.querySelectorAll('#app-balcao .selected-calc').forEach(i => { i.classList.remove('selected-calc'); const b = i.querySelector('.qty-badge'); if(b) b.remove(); delete i.dataset.qtd; });
+            const c = posCarts[t];
+            if(c && c.length > 0) {
+                const items = document.querySelectorAll('#app-balcao .service-item');
+                c.forEach(x => { if(items[x.index]) { items[x.index].classList.add('selected-calc'); items[x.index].dataset.qtd = x.qtd; const b = document.createElement('div'); b.className = 'qty-badge'; b.innerHTML = `<button class="qty-btn" onclick="changeQty(this, -1, event)">-</button><span class="qty-val">${x.qtd}</span><button class="qty-btn" onclick="changeQty(this, 1, event)">+</button>`; items[x.index].insertBefore(b, items[x.index].querySelector('.s-price')); } });
+            }
+            recalcTotal();
+        }
+
+        function saveCart() {
+            let c = []; document.querySelectorAll('#app-balcao .service-item').forEach((item, idx) => { if(item.classList.contains('selected-calc')) { c.push({index: idx, qtd: parseInt(item.dataset.qtd)||1}); } });
+            posCarts[currentPosTab] = c; try { localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts)); } catch(e){}
+        }
+
+        function itemClickLogic(e) {
+            if(isEditModePOS || e.target.tagName.toLowerCase()==='button' || e.target.closest('button') || e.target.isContentEditable) return;
+            if(!this.classList.contains('selected-calc')) {
+                this.classList.add('selected-calc'); this.dataset.qtd = 1;
+                const b = document.createElement('div'); b.className = 'qty-badge'; b.innerHTML = `<button class="qty-btn" onclick="changeQty(this, -1, event)">-</button><span class="qty-val">1</span><button class="qty-btn" onclick="changeQty(this, 1, event)">+</button>`;
+                this.insertBefore(b, this.querySelector('.s-price'));
+            } else { this.classList.remove('selected-calc'); const b = this.querySelector('.qty-badge'); if(b) b.remove(); delete this.dataset.qtd; }
+            recalcTotal();
+        }
+
+        function changeQty(btn, step, e) {
+            e.stopPropagation(); const row = btn.closest('.service-item'); const nv = (parseInt(row.dataset.qtd)||1) + step;
+            if(nv <= 0) { row.classList.remove('selected-calc'); const b = row.querySelector('.qty-badge'); if(b) b.remove(); delete row.dataset.qtd; } 
+            else { row.dataset.qtd = nv; row.querySelector('.qty-val').innerText = nv; }
+            recalcTotal();
+        }
+
+        function recalcTotal() {
+            let tot = 0;
+            document.querySelectorAll('#app-balcao .selected-calc').forEach(i => {
+                const pEl = i.querySelector('.s-price'); const q = parseInt(i.dataset.qtd)||1;
+                if(pEl) { const p = parseFloat(pEl.innerText.replace('R$','').replace(/\./g,'').replace(',','.').trim()); if(!isNaN(p)) tot += (p*q); }
+            });
+            calcTotalValue = Math.max(0, tot); const calcTotal = document.getElementById('calcTotal');
+            if(calcTotal) calcTotal.innerText = calcTotalValue.toLocaleString('pt-BR', {minimumFractionDigits:2}); saveCart();
+        }
+
+        function initCalculator() { document.querySelectorAll('#app-balcao .service-item').forEach(i => { if(!i.classList.contains('obs')) { i.removeEventListener('click', itemClickLogic); i.addEventListener('click', itemClickLogic); } }); }
+
+        function clearCart() { document.querySelectorAll('#app-balcao .selected-calc').forEach(i => { i.classList.remove('selected-calc'); const b = i.querySelector('.qty-badge'); if(b) b.remove(); delete i.dataset.qtd; }); recalcTotal(); showToast("Carrinho Limpo"); }
+
+        function inputCalc(val) { const ops = ['/','*','-','+','.']; if(ops.includes(val) && ops.includes(calcVal.slice(-1))) { calcVal = calcVal.slice(0,-1)+val; } else { calcVal += val; } document.getElementById('calcDisplay').value = calcVal; }
+        function clearCalc() { calcVal = ''; document.getElementById('calcDisplay').value = ''; }
+        function evalCalc() { 
+            if(!calcVal) return; 
+            try { 
+                const san = calcVal.replace(/[^-()\d/*+.]/g, ''); 
+                let res = new Function('return '+san)(); 
+                if(res === undefined || !isFinite(res)) res=''; 
+                res = Math.round(res*100)/100; 
+                document.getElementById('calcDisplay').value = res; calcVal = res.toString(); 
+            } catch(e) { document.getElementById('calcDisplay').value = 'Erro'; calcVal=''; } 
+        }
+
+        function removeRow(btn) { const i = btn.parentElement; i.style.opacity = '0'; setTimeout(()=>{ i.remove(); recalcTotal(); }, 200); }
+        function addRow(btn) { const l = btn.previousElementSibling; const n = document.createElement('div'); n.className = 'service-item'; n.innerHTML = `<button class="btn-remove" onclick="removeRow(this)"><i class="fas fa-times"></i></button><span class="s-name" contenteditable="true">Novo Serviço...</span><span class="s-price" contenteditable="true">R$ 0,00</span>`; l.appendChild(n); if(!n.classList.contains('obs')){ n.removeEventListener('click', itemClickLogic); n.addEventListener('click', itemClickLogic); } }
+        function changeFontSize(s) { currentFontSize += s; if(currentFontSize<10) currentFontSize=10; if(currentFontSize>22) currentFontSize=22; document.documentElement.style.setProperty('--service-font-size', currentFontSize+'px'); localStorage.setItem('jm_fontsize_premium', currentFontSize); }
+
+        function openPixConfig() { document.getElementById('pixModal').style.display = 'flex'; document.getElementById('configPixKey').value = configPix.chave; document.getElementById('configPixName').value = configPix.nome; }
+        function savePixConfig() { const k = document.getElementById('configPixKey').value.trim(); const n = document.getElementById('configPixName').value.trim(); if(!k||!n) return; configPix = {chave:k, nome:n}; localStorage.setItem('jm_tabela_pix', JSON.stringify(configPix)); closeModal('pixModal'); showToast("PIX Atualizado."); }
+
+        function gerarReciboCliente() {
+            const itens = document.querySelectorAll('#app-balcao .selected-calc'); if(itens.length===0) return showToast("Nenhum serviço selecionado!", true);
+            let r = "🧾 *Orçamento de Serviços*\n\n";
+            itens.forEach(i => { const n = i.querySelector('.s-name').innerText.trim(); const p = i.querySelector('.s-price').innerText.trim(); const v = parseFloat(p.replace('R$','').replace(/\./g,'').replace(',','.').trim()); const q = parseInt(i.dataset.qtd)||1; r += q>1 ? `🔸 ${q}x ${n} - *R$ ${(v*q).toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n` : `🔸 ${n} - *${p}*\n`; });
+            r += `\n💰 *TOTAL DO PEDIDO: R$ ${calcTotalValue.toLocaleString('pt-BR',{minimumFractionDigits:2})}*\n\n💳 *Pagamento PIX:*\nChave: ${configPix.chave}\nNome: ${configPix.nome}\n\nObrigado!`;
+            navigator.clipboard.writeText(r).then(() => { if(calcTotalValue>0) { fechoCaixa.total += calcTotalValue; fechoCaixa.clientes += 1; localStorage.setItem('jm_pos_fecho', JSON.stringify(fechoCaixa)); } showToast("Copiado! Cole no WhatsApp."); clearCart(); }).catch(()=>showToast("Erro ao copiar.", true));
+        }
+
+        function gerarPDF() {
+            const itens = document.querySelectorAll('#app-balcao .selected-calc'); if(itens.length === 0) return showToast("Nenhum serviço selecionado!", true);
+            let trs = ''; itens.forEach(i => { const n = i.querySelector('.s-name').innerText.trim(); const pStr = i.querySelector('.s-price').innerText.trim(); const pNum = parseFloat(pStr.replace('R$','').replace(/\./g,'').replace(',','.').trim()); const q = parseInt(i.dataset.qtd)||1; trs += `<tr><td style="padding:12px; border-bottom:1px solid #ddd;">${n}</td><td style="text-align:center; padding:12px; border-bottom:1px solid #ddd;">${q}</td><td style="text-align:right; padding:12px; border-bottom:1px solid #ddd;">R$ ${pNum.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td><td style="text-align:right; font-weight:bold; padding:12px; border-bottom:1px solid #ddd;">R$ ${(pNum*q).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td></tr>`; });
+            const html = `<html><head><title>Orçamento</title><style>body { font-family: 'Segoe UI', sans-serif; color: #222; margin: 40px; } th { background: #f3f3f3; padding: 12px; text-align: left; border-bottom: 2px solid #ccc; } table { width: 100%; border-collapse: collapse; margin-top: 20px;}</style></head><body><h2 style="color:#f59e0b; border-bottom:2px solid #f59e0b; padding-bottom:10px;">Orçamento de Serviços</h2><p style="text-align:right; font-size:13px; color: #555;">Data: ${new Date().toLocaleDateString('pt-BR')} - ${new Date().toLocaleTimeString('pt-BR')}</p><table><thead><tr><th>Descrição</th><th style="text-align:center;">Qtd</th><th style="text-align:right;">Unitário</th><th style="text-align:right;">Subtotal</th></tr></thead><tbody>${trs}</tbody></table><h3 style="text-align:right; margin-top:30px; color:#f59e0b; font-size: 22px;">TOTAL A PAGAR: R$ ${calcTotalValue.toLocaleString('pt-BR',{minimumFractionDigits:2})}</h3><p style="margin-top:50px; font-size:13px; color:#666; border-top:1px solid #eee; padding-top:15px;"><strong>Pagamento PIX:</strong><br>Chave: ${configPix.chave} <br> Nome: ${configPix.nome}</p><script>window.onload=()=>{ window.print(); window.close(); }<\/script></body></html>`;
+            const win = window.open('','_blank'); win.document.write(html); win.document.close();
+        }
+
+        function baixarFechoCaixa() {
+            if(fechoCaixa.clientes===0) return showToast("Nenhuma venda hoje.", true);
+            const r = `📊 FECHO DE CAIXA DIARIO \nData: ${new Date().toLocaleDateString('pt-BR')} - ${new Date().toLocaleTimeString('pt-BR')}\n=================================\nCLIENTES ATENDIDOS: ${fechoCaixa.clientes}\nFATURAMENTO TOTAL: R$ ${fechoCaixa.total.toLocaleString('pt-BR',{minimumFractionDigits:2})}\n=================================\n`;
+            const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([r], {type:"text/plain;charset=utf-8"})); a.download = `Fecho_${new Date().toISOString().slice(0,10)}.txt`; a.click();
+            setTimeout(() => { if(confirm("Deseja ZERAR o caixa agora para iniciar novo turno?")) { fechoCaixa={total:0, clientes:0}; localStorage.setItem('jm_pos_fecho', JSON.stringify(fechoCaixa)); showToast("Caixa zerado!"); } }, 500);
+        }
+
+        // --- 7. CARTÕES E WI-FI ---
+        function openCards() { document.getElementById('cardsOverlay').style.display = 'flex'; }
+        function formatarCPF(c) { let v=c.value.replace(/\D/g,""); if(v.length>3) v=v.replace(/^(\d{3})(\d)/,"$1.$2"); if(v.length>6) v=v.replace(/^(\d{3})\.(\d{3})(\d)/,"$1.$2.$3"); if(v.length>9) v=v.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/,"$1.$2.$3-$4"); c.value=v; }
+        function formatarDataSUS(c) { let v=c.value.replace(/\D/g,""); if(v.length>2) v=v.replace(/^(\d{2})(\d)/,"$1/$2"); if(v.length>5) v=v.replace(/^(\d{2})\/(\d{2})(\d)/,"$1/$2/$3"); c.value=v; }
+        function formatarCNSSUS(c) { let v=c.value.replace(/\D/g,""); if(v.length>3) v=v.replace(/^(\d{3})(\d)/,"$1 $2"); if(v.length>7) v=v.replace(/^(\d{3})\s(\d{4})(\d)/,"$1 $2 $3"); if(v.length>11) v=v.replace(/^(\d{3})\s(\d{4})\s(\d{4})(\d)/,"$1 $2 $3 $4"); c.value=v; const p = v.replace(/\s/g,""); document.getElementById('barcode-sus').innerText = p.length>0 ? p : "123456789101112"; }
+        function baixarPNGCartao(id, nome) { if(typeof html2canvas === 'undefined') return; showToast("Gerando PNG Premium..."); html2canvas(document.getElementById(id), {scale:4, backgroundColor:null, useCORS:true}).then(c => { const l=document.createElement('a'); l.download=nome; l.href=c.toDataURL('image/png'); l.click(); }); }
+
+        function openTransferModal() { document.getElementById('transferOverlay').style.display = 'flex'; }
+        
+        function initPCTransfer() {
+            try {
+                const p = new Peer();
+                p.on('open', (id) => { 
+                    const l = `${window.location.href.split('?')[0]}?remote=${id}`; 
+                    if(typeof QRCode !== 'undefined') new QRCode(document.getElementById("qrcode-transfer"), {text:l, width:140, height:140, colorDark:"#000", colorLight:"#fff"}); 
+                });
+                p.on('connection', (c) => {
+                    transferConn = c; 
+                    const statusUI = document.getElementById('transfer-status');
+                    statusUI.innerHTML = '<i class="fas fa-check-circle"></i> Celular Conectado'; statusUI.style.color = '#10b981'; statusUI.style.borderColor = '#10b981';
+                    transferConn.on('data', (d) => {
+                        document.getElementById('notify-sound').play().catch(e=>{}); 
+                        const u = URL.createObjectURL(new Blob([d.file], {type:d.type})); receivedFiles.push({url:u, name:d.name});
+                        document.getElementById('btn-dl-all').style.display = 'flex';
+                        const it = document.createElement('div'); it.style.cssText = "background: rgba(128,128,128,0.05); border: 1px solid var(--win-border); padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; transition: var(--transition-smooth);";
+                        it.innerHTML = `<div style="display:flex; flex-direction:column;"><span style="font-size:13px; font-weight:700; overflow:hidden; text-overflow:ellipsis; max-width:220px; white-space:nowrap; color: var(--win-text);">${d.name}</span><span style="font-size:11px; color: var(--win-text-muted);">${(d.size/1024/1024).toFixed(2)} MB</span></div><a href="${u}" download="${d.name}" style="background:var(--win-accent); color:#fff; text-decoration:none; font-size:12px; font-weight:700; padding: 6px 12px; border-radius: 6px;"><i class="fas fa-download"></i> Baixar</a>`;
+                        document.getElementById('transfer-file-list').prepend(it);
+                    });
+                    transferConn.on('close', () => { statusUI.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Aguardando...'; statusUI.style.color = 'inherit'; statusUI.style.borderColor = 'var(--win-border-light)'; });
+                });
+            } catch(e) {}
+        }
+        
+        function initMobileTransfer(rid) {
+            try { const p = new Peer(); p.on('open', () => { const c = p.connect(rid); document.getElementById('fileInput').addEventListener('change', (e) => { const fs = e.target.files; if(fs.length > 0) { for(let i=0; i<fs.length; i++) { c.send({file:fs[i], name:fs[i].name, type:fs[i].type, size:fs[i].size}); } document.getElementById('success-msg').style.display='block'; e.target.value=''; setTimeout(()=>document.getElementById('success-msg').style.display='none', 3000); } }); }); } catch(e){}
+        }
+        
+        function downloadAllTransfer() { receivedFiles.forEach(f => { const a = document.createElement('a'); a.href = f.url; a.download = f.name; a.style.display = 'none'; document.body.appendChild(a); a.click(); document.body.removeChild(a); }); }
+
+        // --- 8. ATALHOS DE TECLADO ---
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'Escape') { closeModal('catModal'); closeModal('linkModal'); closeModal('pixModal'); closeModal('transferOverlay'); closeModal('cardsOverlay'); }
+            const appBalcao = document.getElementById('app-balcao');
+            if(!appBalcao) return;
+            const currApp = appBalcao.style.display;
+            
+            if(currApp === 'flex' && !isEditModePOS && document.getElementById('cardsOverlay').style.display !== 'flex' && document.getElementById('transferOverlay').style.display !== 'flex' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if(/[0-9\/\*\-\+\.]/.test(e.key)) { e.preventDefault(); inputCalc(e.key); }
+                if(e.key === 'Enter' || e.key === '=') { e.preventDefault(); evalCalc(); }
+                if(e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); calcVal = calcVal.slice(0,-1); document.getElementById('calcDisplay').value = calcVal||''; }
+            }
+        });
+    </script>
+</body>
+</html>
