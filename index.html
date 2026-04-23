@@ -315,7 +315,24 @@
             .footer-info { margin-top: 15px; border-color: #ccc; background: transparent; padding: 10px;}
         }
     </style>
-</head>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script>
+        // ATENÇÃO: Substitua com as suas chaves do Firebase
+        const firebaseConfig = {
+            apiKey: "SUA_API_KEY",
+            authDomain: "seu-projeto.firebaseapp.com",
+            projectId: "seu-projeto",
+            storageBucket: "seu-projeto.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456:web:abcdef"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const dbCloud = firebase.firestore();
+    </script>
+    </head>
 <body>
 
     <div id="jmLoader" class="loader-overlay">
@@ -1013,21 +1030,78 @@
         // ==========================================
         //         MÓDULO: BALCÃO SMART
         // ==========================================
-        function loadBoard() {
-            const html = localStorage.getItem(KEY_POS_BOARD);
-            document.getElementById('boardContent').innerHTML = (html && html !== "undefined") ? html : defaultPOSHTML;
-            const sf = localStorage.getItem('jm_fontsize_premium');
-            if(sf) { currentFontSize = parseInt(sf); document.documentElement.style.setProperty('--service-font-size', currentFontSize + 'px'); }
-            
-            document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
-            document.body.classList.remove('edit-mode-pos-active');
-            isEditModePOS = false; initCalculator(); switchPosTab(1);
+        async function loadBoard() {
+            try {
+                // Tenta buscar da Nuvem primeiro
+                const doc = await dbCloud.collection("configuracoes").doc("tabela_precos").get();
+                
+                let conteudoHTML;
+                if (doc.exists) {
+                    conteudoHTML = doc.data().html;
+                    console.log("Dados carregados da Nuvem ☁️");
+                } else {
+                    // Se não houver nada na nuvem, usa o local ou o padrão
+                    const local = localStorage.getItem(KEY_POS_BOARD);
+                    conteudoHTML = (local && local !== "undefined" && local !== "null") ? local : defaultPOSHTML;
+                }
+
+                const boardContent = document.getElementById('boardContent');
+                if(boardContent) boardContent.innerHTML = conteudoHTML;
+
+                const sf = localStorage.getItem('jm_fontsize_premium');
+                if(sf) { currentFontSize = parseInt(sf); document.documentElement.style.setProperty('--service-font-size', currentFontSize + 'px'); }
+
+                // Reaplica bloqueio de edição
+                document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
+                document.body.classList.remove('edit-mode-pos-active');
+                isEditModePOS = false; 
+                
+                initCalculator(); 
+                switchPosTab(1);
+            } catch (err) {
+                console.error("Erro ao carregar do Firebase, usando backup local", err);
+                // Fallback para LocalStorage se a internet falhar
+                const backupLocal = localStorage.getItem(KEY_POS_BOARD);
+                const boardContent = document.getElementById('boardContent');
+                if (boardContent) boardContent.innerHTML = (backupLocal && backupLocal !== "undefined" && backupLocal !== "null") ? backupLocal : defaultPOSHTML;
+                
+                const sf = localStorage.getItem('jm_fontsize_premium');
+                if(sf) { currentFontSize = parseInt(sf); document.documentElement.style.setProperty('--service-font-size', currentFontSize + 'px'); }
+                
+                document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
+                document.body.classList.remove('edit-mode-pos-active');
+                isEditModePOS = false; 
+                initCalculator(); switchPosTab(1);
+            }
         }
 
-        function saveBoard() {
+        async function saveBoard() {
             document.querySelectorAll('#app-balcao .selected-calc').forEach(i => { i.classList.remove('selected-calc'); const b = i.querySelector('.qty-badge'); if(b) b.remove(); delete i.dataset.qtd; });
-            calcTotalValue = 0; document.getElementById('calcTotal').innerText = "0,00";
-            try { localStorage.setItem(KEY_POS_BOARD, document.getElementById('boardContent').innerHTML); localStorage.setItem('jm_fontsize_premium', currentFontSize); posCarts = {1:[],2:[],3:[]}; localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts)); showToast("Tabela Salva!"); } catch(e){}
+            calcTotalValue = 0; 
+            const calcTotal = document.getElementById('calcTotal');
+            if (calcTotal) calcTotal.innerText = "0,00";
+            
+            const novoConteudo = document.getElementById('boardContent').innerHTML;
+
+            try {
+                // Salva cópia local por segurança (Offline Fallback)
+                localStorage.setItem(KEY_POS_BOARD, novoConteudo);
+                localStorage.setItem('jm_fontsize_premium', currentFontSize); 
+                posCarts = {1:[],2:[],3:[]}; 
+                localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts));
+
+                // ENVIA PARA A NUVEM (FIREBASE)
+                await dbCloud.collection("configuracoes").doc("tabela_precos").set({
+                    html: novoConteudo,
+                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                    versao: 3
+                });
+
+                showToast("Tabela sincronizada na Nuvem!");
+            } catch (e) {
+                console.error("Erro ao salvar na nuvem:", e);
+                showToast("Erro ao sincronizar. Salvo apenas localmente.", true);
+            }
         }
 
         function toggleEditModePOS() {
