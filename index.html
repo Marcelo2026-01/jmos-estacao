@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* ================= TEMA BALCÃO SMART (CORES ORIGINAIS) ================= */
+        /* ================= TEMA BALCÃO SMART ================= */
         :root {
             --win-bg: #202020;
             --win-mica: rgba(32, 32, 32, 0.85);
@@ -26,7 +26,7 @@
             --win-border-light: rgba(255, 255, 255, 0.15);
             --win-text: #ffffff;
             --win-text-muted: #a0a0a0;
-            --win-accent: #f59e0b; /* Laranja/Âmbar do Balcão Smart */
+            --win-accent: #f59e0b; 
             --win-accent-hover: #fbbf24;
             --win-danger: #ef4444; 
             --win-success: #10b981;
@@ -62,16 +62,45 @@
             overflow: hidden; padding: 2vh 2vw; transition: background 0.4s ease, color 0.4s ease;
         }
 
-        /* --- ADAPTAÇÃO PARA TELA CHEIA (FULLSCREEN) --- */
-        body.is-fullscreen {
-            padding: 0 !important;
+        body.is-fullscreen { padding: 0 !important; }
+        body.is-fullscreen .app-window { max-width: 100% !important; height: 100vh !important; border-radius: 0 !important; border: none !important; }
+
+        /* ================= TELA DE BLOQUEIO (AUTH FIREBASE) ================= */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--win-mica);
+            backdrop-filter: blur(30px) saturate(150%);
+            -webkit-backdrop-filter: blur(30px) saturate(150%);
+            z-index: 99998; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
         }
-        body.is-fullscreen .app-window {
-            max-width: 100% !important;
-            height: 100vh !important;
-            border-radius: 0 !important;
-            border: none !important;
+        #lock-screen.unlocked { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.1); }
+        
+        .lock-avatar {
+            width: 100px; height: 100px; border-radius: 50%; background: var(--win-surface);
+            border: 3px solid var(--win-accent); margin-bottom: 20px; display: flex;
+            align-items: center; justify-content: center; font-size: 40px; color: var(--win-accent);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
         }
+        .lock-title { font-size: 26px; font-weight: 700; color: var(--win-text); margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .lock-subtitle { font-size: 13px; color: var(--win-text-muted); margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+        
+        .lock-form { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
+        .lock-input-wrapper { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 8px; border: 1px solid var(--win-border-light); display: flex; align-items: center; transition: 0.3s; }
+        .lock-input-wrapper:focus-within { border-color: var(--win-accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
+        .lock-input-wrapper i { color: var(--win-text-muted); margin: 0 15px; font-size: 14px;}
+        .lock-input { flex: 1; background: transparent; border: none; outline: none; color: var(--win-text); padding: 10px 0; font-size: 15px; }
+        .lock-input::placeholder { color: var(--win-text-muted); }
+        
+        .lock-btn { width: 100%; background: var(--win-accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .lock-btn:hover { background: var(--win-accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);}
+        
+        .lock-error { color: var(--win-danger); font-size: 13px; margin-top: 15px; font-weight: 600; opacity: 0; transform: translateY(-10px); transition: 0.3s; background: rgba(239, 68, 68, 0.1); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.3); text-align: center;}
+        .lock-error.show { opacity: 1; transform: translateY(0); }
+        
+        .lock-footer { position: absolute; bottom: 30px; font-size: 12px; color: var(--win-text-muted); font-weight: 600; letter-spacing: 1px;}
+        .lock-footer span { color: var(--win-accent); }
 
         /* ================= SCROLLBAR E LOADER ================= */
         ::-webkit-scrollbar { width: 14px; }
@@ -106,36 +135,19 @@
         }
         body.light-theme .app-window { box-shadow: 0 12px 48px rgba(245, 158, 11, 0.08); }
 
-        .title-bar {
-            height: 48px; background: rgba(0,0,0,0.2);
-            display: flex; align-items: center; padding: 0 16px;
-            border-bottom: 1px solid var(--win-border); user-select: none; transition: 0.4s ease;
-        }
+        .title-bar { height: 48px; background: rgba(0,0,0,0.2); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--win-border); user-select: none; transition: 0.4s ease;}
         body.light-theme .title-bar { background: rgba(255,255,255,0.4); }
         .app-title { font-size: 13px; color: var(--win-text); display: flex; align-items: center; gap: 8px; width: 140px; font-weight: 700;}
         .app-logo-small { width: 20px; height: 20px; display: flex; align-items: center; }
         
-        /* Alternador de Apps (QuickLinks vs Balcão) */
         .app-switcher { display: flex; gap: 4px; margin-left: 10px; height: 100%; align-items: flex-end; }
-        .app-tab { 
-            background: transparent; color: var(--win-text-muted); border: none; 
-            padding: 8px 24px; border-radius: 8px 8px 0 0; cursor: pointer; 
-            font-size: 13px; font-weight: 600; transition: 0.2s; position: relative; 
-        }
+        .app-tab { background: transparent; color: var(--win-text-muted); border: none; padding: 8px 24px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; position: relative; }
         .app-tab:hover { background: rgba(128,128,128,0.1); }
-        .app-tab.active { 
-            background: var(--win-surface); color: var(--win-accent); 
-            border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border);
-        }
+        .app-tab.active { background: var(--win-surface); color: var(--win-accent); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border);}
         .app-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-accent); border-radius: 3px; transition: 0.4s; }
 
-        /* Abas do POS (Apenas aparecem no Balcão) */
         .pos-tabs { display: none; gap: 4px; margin-left: 20px; height: 100%; align-items: flex-end;}
-        .pos-tab {
-            background: transparent; color: var(--win-text-muted); border: none;
-            padding: 8px 20px; border-radius: 8px 8px 0 0; cursor: pointer;
-            font-size: 12px; font-weight: 600; transition: 0.2s; position: relative;
-        }
+        .pos-tab { background: transparent; color: var(--win-text-muted); border: none; padding: 8px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; position: relative;}
         .pos-tab:hover { background: rgba(128,128,128,0.1); }
         .pos-tab.active { background: var(--win-surface); color: var(--win-text); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border); }
         .pos-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-success); border-radius: 3px; transition: 0.4s; }
@@ -144,20 +156,11 @@
         .clock-time { font-size: 1.1rem; font-weight: 600; color: var(--win-text); }
         .clock-date { font-size: 0.8rem; color: var(--win-text-muted); }
 
-        /* Botão Fullscreen */
         .btn-fullscreen { background: transparent; border: none; color: var(--win-text); cursor: pointer; padding: 6px 10px; border-radius: 4px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
         .btn-fullscreen:hover { background: rgba(128,128,128,0.2); }
 
-        .command-bar {
-            height: 56px; background: var(--win-surface);
-            display: flex; align-items: center; padding: 0 20px; gap: 8px;
-            border-bottom: 1px solid var(--win-border); flex-shrink: 0;
-        }
-        .cmd-btn {
-            background: transparent; border: 1px solid transparent; color: var(--win-text);
-            padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-            font-size: 13px; transition: 0.1s;
-        }
+        .command-bar { height: 56px; background: var(--win-surface); display: flex; align-items: center; padding: 0 20px; gap: 8px; border-bottom: 1px solid var(--win-border); flex-shrink: 0;}
+        .cmd-btn { background: transparent; border: 1px solid transparent; color: var(--win-text); padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.1s;}
         .cmd-btn:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border); }
         .cmd-btn i { font-size: 15px; color: var(--win-accent); transition: 0.4s; }
         .cmd-divider { width: 1px; height: 24px; background: var(--win-border); margin: 0 8px; }
@@ -249,7 +252,6 @@
         body.edit-mode-pos-active .btn-add-item { display: block; opacity: 0; }
         body.edit-mode-pos-active .category-box:hover .btn-add-item { opacity: 1; }
         body.edit-mode-pos-active .btn-add-item:hover { background: rgba(245, 158, 11, 0.1); }
-        body.light-theme.edit-mode-pos-active .btn-add-item:hover { background: rgba(234, 88, 12, 0.1); }
         body.edit-mode-pos-active .service-item:hover .btn-remove { display: flex; opacity: 1; left: -20px; }
         body.edit-mode-pos-active .s-name:hover, body.edit-mode-pos-active .s-price:hover, body.edit-mode-pos-active .editable-text:hover { background: rgba(128,128,128,0.2); cursor: text; }
 
@@ -315,41 +317,42 @@
             .footer-info { margin-top: 15px; border-color: #ccc; background: transparent; padding: 10px;}
         }
 
-        /* ================= RESPONSIVIDADE (MOBILE / CELULAR) ================= */
+        /* ================= RESPONSIVIDADE (MOBILE) ================= */
         @media (max-width: 800px) {
             body { padding: 0; }
             .app-window { height: 100dvh; border-radius: 0; border: none; }
             .title-bar { padding: 0 10px; }
             .app-title { width: auto; font-size: 12px; }
             .app-switcher { margin-left: auto; } 
-            .clock-widget { display: none; } /* Esconde o relógio no celular para caber as abas */
+            .clock-widget { display: none; } 
             
-            /* Permite arrastar a barra de botões pro lado */
             .command-bar { overflow-x: auto; white-space: nowrap; padding: 0 10px; scrollbar-width: none; }
             .command-bar::-webkit-scrollbar { display: none; }
             
-            /* QuickLinks: 1 Coluna */
             .main-layout { grid-template-columns: 1fr; gap: 15px; }
             .sidebar-area { order: 2; margin-top: 10px; }
             .content-area { order: 1; padding-right: 0; }
             
-            /* Balcão Smart: 1 Coluna, Rola o centro, Calc embaixo */
             #app-balcao .app-body { flex-direction: column; overflow-y: auto; padding: 10px; display: block; }
             .paper-area { padding: 0; overflow: visible; display: block; height: auto; margin-bottom: 20px; }
             .pos-grid-container { grid-template-columns: 1fr; gap: 15px; }
             .pos-panel { width: 100%; border-left: none; border-top: 1px solid var(--win-border); border-radius: 8px; margin: 0 auto; display: block; height: auto; }
             
-            /* Ajuste Central de Cartões para caber na tela do celular */
             #area-cartoes { flex-direction: column; padding: 10px; gap: 40px; overflow-x: hidden; }
             .card-wrapper { width: 100%; align-items: center; }
             .premium-card { transform: scale(0.85); transform-origin: top center; margin-bottom: -30px; }
             #cartao-sus { transform: scale(0.65); margin-bottom: -100px; }
             .btn-modal { font-size: 12px; padding: 10px; }
+            
+            .lock-avatar { width: 80px; height: 80px; font-size: 30px; }
+            .lock-title { font-size: 22px; }
+            .lock-subtitle { font-size: 12px; }
         }
     </style>
 
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyAFZ8DbCuVAib1f-6n8vtoI0XN5Wu9AW_c",
@@ -359,12 +362,33 @@
             messagingSenderId: "197528459298",
             appId: "1:197528459298:web:b31e37f67011c9b5ab127b"
         };
-
         firebase.initializeApp(firebaseConfig);
         const dbCloud = firebase.firestore();
+        const auth = firebase.auth();
     </script>
-    </head>
+</head>
 <body>
+
+    <div id="lock-screen">
+        <div class="lock-avatar"><i class="fas fa-shield-alt"></i></div>
+        <div class="lock-title">JM OS Security</div>
+        <div class="lock-subtitle">ACESSO AUTENTICADO</div>
+        
+        <div class="lock-form">
+            <div class="lock-input-wrapper">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="lockEmail" class="lock-input" placeholder="E-mail do Administrador">
+            </div>
+            <div class="lock-input-wrapper">
+                <i class="fas fa-key"></i>
+                <input type="password" id="lockPassword" class="lock-input" placeholder="Senha" onkeypress="if(event.key === 'Enter') unlockSystem()">
+            </div>
+            <button class="lock-btn" id="btnAuth" onclick="unlockSystem()">Entrar no Sistema</button>
+        </div>
+        
+        <div id="lockError" class="lock-error"></div>
+        <div class="lock-footer">Desenvolvido por <span>José Marcelo</span></div>
+    </div>
 
     <div id="jmLoader" class="loader-overlay">
         <div class="loader-logo-container">
@@ -381,7 +405,7 @@
                 <polygon points="50,30 67,40 67,60 50,70 33,60 33,40" fill="url(#gradLoader)" opacity="0.9"/>
             </svg>
         </div>
-        <div class="loader-text">Iniciando JM OS</div>
+        <div class="loader-text">Autenticando...</div>
     </div>
 
     <div id="mobile-view" style="display: none; flex-direction: column; align-items: center; justify-content: center; height: 100vh; width: 100%; position: absolute; top:0; left:0; background: var(--win-bg); z-index: 99999; text-align: center; padding: 20px;">
@@ -396,7 +420,6 @@
     </div>
 
     <div class="app-window" id="pc-view" style="display: none;">
-        
         <div class="title-bar">
             <div class="app-title">
                 <div class="app-logo-small">
@@ -424,6 +447,9 @@
             <div class="clock-widget">
                 <button class="btn-fullscreen" onclick="toggleFullScreen()" title="Expandir para Tela Cheia">
                     <i class="fas fa-expand"></i>
+                </button>
+                <button class="btn-fullscreen" onclick="lockSystem()" title="Sair / Bloquear Sistema" style="margin-left: 5px; color: var(--win-danger);">
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
                 <div class="clock-date" id="clockDate">---, -- de ---</div>
                 <div class="clock-time" id="clockTime">--:--</div>
@@ -487,8 +513,7 @@
             </div>
 
             <div class="app-body">
-                <div class="paper-area" id="boardContent">
-                    </div>
+                <div class="paper-area" id="boardContent"></div>
 
                 <div class="pos-panel">
                     <div class="pos-total-box">
@@ -525,7 +550,6 @@
                 </div>
             </div>
         </div>
-
     </div>
 
     <div class="toast" id="toastMsg"><i class="fas fa-check-circle" style="color: var(--win-accent);"></i> <span>Mensagem</span></div>
@@ -674,25 +698,46 @@
     </div>
 
     <script>
-        // === TELA CHEIA (FULLSCREEN) ===
-        function toggleFullScreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    showToast(`Erro ao ativar tela cheia: ${err.message}`, true);
+        // ================= SISTEMA DE SENHA (FIREBASE AUTH) =================
+        function unlockSystem() {
+            const email = document.getElementById('lockEmail').value;
+            const pass = document.getElementById('lockPassword').value;
+            const btn = document.getElementById('btnAuth');
+            
+            if(!email || !pass) return;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...';
+            
+            auth.signInWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    btn.innerHTML = 'Entrar no Sistema';
+                    // O onAuthStateChanged vai abrir a tela automaticamente
+                })
+                .catch((error) => {
+                    btn.innerHTML = 'Entrar no Sistema';
+                    const err = document.getElementById('lockError');
+                    err.innerHTML = '<i class="fas fa-exclamation-triangle"></i> E-mail ou senha incorretos.';
+                    err.classList.add('show');
+                    setTimeout(() => err.classList.remove('show'), 3000);
                 });
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                }
-            }
         }
 
+        function lockSystem() {
+            auth.signOut().then(() => {
+                document.getElementById('lockEmail').value = '';
+                document.getElementById('lockPassword').value = '';
+                document.getElementById('lockEmail').focus();
+            });
+        }
+
+        // === TELA CHEIA (FULLSCREEN) ===
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) { document.documentElement.requestFullscreen().catch(err=>{}); } 
+            else { if (document.exitFullscreen) { document.exitFullscreen(); } }
+        }
         document.addEventListener('fullscreenchange', (event) => {
-            if (document.fullscreenElement) {
-                document.body.classList.add('is-fullscreen');
-            } else {
-                document.body.classList.remove('is-fullscreen');
-            }
+            if (document.fullscreenElement) document.body.classList.add('is-fullscreen');
+            else document.body.classList.remove('is-fullscreen');
         });
 
         // === STORAGE KEYS ===
@@ -707,17 +752,10 @@
         let fechoCaixa = { total: 0, clientes: 0 };
         let posCarts = { 1: [], 2: [], 3: [] };
         
-        let isEditModeQL = false;
-        let isEditModePOS = false;
-        let currentPosTab = 1;
-        let calcVal = '';
-        let calcTotalValue = 0;
-        let currentFontSize = 14;
-        let toastTimeout;
-        let transferConn = null;
-        let receivedFiles = [];
+        let isEditModeQL = false; let isEditModePOS = false; let currentPosTab = 1;
+        let calcVal = ''; let calcTotalValue = 0; let currentFontSize = 14;
+        let toastTimeout; let transferConn = null; let receivedFiles = [];
 
-        // BASE COMPLETA DO QUICKLINKS ORIGINAL! NENHUM LINK REMOVIDO.
         const defaultQLDB = [
             { title: "Título de Eleitor", icon: "fas fa-vote-yea", links: [ { name: "Autoatendimento Eleitoral", url: "https://www.tse.jus.br/servicos-eleitorais/autoatendimento-eleitoral#/" }, { name: "Situação Cadastral", url: "https://www.tre-pe.jus.br/servicos-eleitorais/situacao-eleitoral/situacao-eleitoral-consultas" }, { name: "Certidão Quitação", url: "https://www.tse.jus.br/servicos-eleitorais/certidoes/certidao-de-quitacao-eleitoral" }, { name: "Multas Eleitorais", url: "https://www.tse.jus.br/servicos-eleitorais/titulo-eleitoral/quitacao-de-multas" } ] },
             { title: "CPF & Receita", icon: "fas fa-id-card", links: [ { name: "Imprimir CPF", url: "https://servicos.receita.fazenda.gov.br/servicos/cpf/impressaocomprovante/consultaimpressao.asp" }, { name: "Consulta Situação", url: "https://servicos.receita.fazenda.gov.br/servicos/cpf/consultasituacao/consultapublica.asp" }, { name: "Alterar Dados", url: "https://servicos.receita.fazenda.gov.br/servicos/cpf/alterar/default.asp" }, { name: "Regularizar CPF", url: "https://servicos.receita.fazenda.gov.br/Servicos/cpf/Regularizar/default.asp" } ] },
@@ -728,7 +766,6 @@
             { title: "Úteis", icon: "fas fa-tools", links: [ { name: "WhatsApp Web", url: "https://web.whatsapp.com/" }, { name: "IlovePDF", url: "https://www.ilovepdf.com/pt" }, { name: "RemoveBG", url: "https://www.remove.bg/pt-br/" }, { name: "Canva", url: "https://www.canva.com/pt_br/" } ] }
         ];
 
-        // BASE COMPLETA DO BALCÃO SMART!
         const defaultPOSHTML = `
             <div class="paper-header">
                 <div><h1 class="editable-text" contenteditable="false" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">GEONET INFORMÁTICA</h1><p class="editable-text" contenteditable="false" style="color: var(--win-text-muted);">Tabela de Preços - Serviços Lan House</p></div>
@@ -847,35 +884,46 @@
                 return;
             }
 
-            // Load Data
             db = safelyParseJSON(KEY_QL_DB, defaultQLDB);
             favorites = safelyParseJSON(KEY_QL_FAVS, []);
             configPix = safelyParseJSON('jm_tabela_pix', configPix);
             fechoCaixa = safelyParseJSON('jm_pos_fecho', fechoCaixa);
             posCarts = safelyParseJSON('jm_pos_carts', posCarts);
             
-            // Load Theme
             if (localStorage.getItem('jm_os_theme') === 'light') {
                 document.body.classList.add('light-theme');
                 document.querySelectorAll('.theme-btn').forEach(btn => btn.innerHTML = '<i class="fas fa-moon"></i> Tema Escuro');
             }
 
-            // Build UI
-            renderLinks(db);
-            renderFavorites();
-            buildIconSelector();
-            startClock();
-            loadNote();
-            loadBoard();
+            renderLinks(db); renderFavorites(); buildIconSelector(); startClock(); loadNote();
 
-            // Reveal
-            setTimeout(() => {
+            // Monitorador de Login do Firebase
+            auth.onAuthStateChanged((user) => {
                 const loader = document.getElementById('jmLoader');
-                loader.classList.add('hidden');
-                setTimeout(() => { loader.style.display = 'none'; document.getElementById('pc-view').style.display = 'flex'; }, 500);
-            }, 800);
+                
+                if (user) {
+                    // Usuário Logado - Mostra o Sistema
+                    document.getElementById('lock-screen').classList.add('unlocked');
+                    document.getElementById('pc-view').style.display = 'flex';
+                    
+                    if(loader && !loader.classList.contains('hidden')) {
+                        loader.classList.add('hidden');
+                        setTimeout(() => loader.style.display = 'none', 500);
+                    }
+                    
+                    loadBoard(); // Só tenta carregar do banco de dados DEPOIS que estiver logado
+                } else {
+                    // Deslogado - Mostra a Tela de Bloqueio
+                    document.getElementById('lock-screen').classList.remove('unlocked');
+                    document.getElementById('pc-view').style.display = 'none';
+                    
+                    if(loader && !loader.classList.contains('hidden')) {
+                        loader.classList.add('hidden');
+                        setTimeout(() => loader.style.display = 'none', 500);
+                    }
+                }
+            });
 
-            // Last App State
             const lastApp = localStorage.getItem('jm_last_app') || 'quicklinks';
             switchApp(lastApp);
 
@@ -913,15 +961,12 @@
         function saveNote() { localStorage.setItem(KEY_NOTE, document.getElementById('quickNote').value); }
         function loadNote() { const text = localStorage.getItem(KEY_NOTE); if(text) document.getElementById('quickNote').value = text; }
 
-        // === APP SWITCHER ===
         function switchApp(app) {
             document.getElementById('app-quicklinks').style.display = app === 'quicklinks' ? 'flex' : 'none';
             document.getElementById('app-balcao').style.display = app === 'balcao' ? 'flex' : 'none';
-            
             document.getElementById('tab-quicklinks').classList.toggle('active', app === 'quicklinks');
             document.getElementById('tab-balcao').classList.toggle('active', app === 'balcao');
             document.getElementById('pos-tabs-container').style.display = app === 'balcao' ? 'flex' : 'none';
-            
             localStorage.setItem('jm_last_app', app);
         }
 
@@ -1063,18 +1108,10 @@
         // ==========================================
         async function loadBoard() {
             try {
-                // Tenta buscar da Nuvem primeiro
                 const doc = await dbCloud.collection("configuracoes").doc("tabela_precos").get();
-                
                 let conteudoHTML;
-                if (doc.exists) {
-                    conteudoHTML = doc.data().html;
-                    console.log("Dados carregados da Nuvem ☁️");
-                } else {
-                    // Se não houver nada na nuvem, usa o local ou o padrão
-                    const local = localStorage.getItem(KEY_POS_BOARD);
-                    conteudoHTML = (local && local !== "undefined" && local !== "null") ? local : defaultPOSHTML;
-                }
+                if (doc.exists) { conteudoHTML = doc.data().html; } 
+                else { const local = localStorage.getItem(KEY_POS_BOARD); conteudoHTML = (local && local !== "undefined" && local !== "null") ? local : defaultPOSHTML; }
 
                 const boardContent = document.getElementById('boardContent');
                 if(boardContent) boardContent.innerHTML = conteudoHTML;
@@ -1082,16 +1119,10 @@
                 const sf = localStorage.getItem('jm_fontsize_premium');
                 if(sf) { currentFontSize = parseInt(sf); document.documentElement.style.setProperty('--service-font-size', currentFontSize + 'px'); }
 
-                // Reaplica bloqueio de edição
                 document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
                 document.body.classList.remove('edit-mode-pos-active');
-                isEditModePOS = false; 
-                
-                initCalculator(); 
-                switchPosTab(1);
+                isEditModePOS = false; initCalculator(); switchPosTab(1);
             } catch (err) {
-                console.error("Erro ao carregar do Firebase, usando backup local", err);
-                // Fallback para LocalStorage se a internet falhar
                 const backupLocal = localStorage.getItem(KEY_POS_BOARD);
                 const boardContent = document.getElementById('boardContent');
                 if (boardContent) boardContent.innerHTML = (backupLocal && backupLocal !== "undefined" && backupLocal !== "null") ? backupLocal : defaultPOSHTML;
@@ -1101,38 +1132,24 @@
                 
                 document.querySelectorAll('#app-balcao .s-name, #app-balcao .s-price, #app-balcao .editable-text').forEach(el => el.setAttribute('contenteditable', false));
                 document.body.classList.remove('edit-mode-pos-active');
-                isEditModePOS = false; 
-                initCalculator(); switchPosTab(1);
+                isEditModePOS = false; initCalculator(); switchPosTab(1);
             }
         }
 
         async function saveBoard() {
             document.querySelectorAll('#app-balcao .selected-calc').forEach(i => { i.classList.remove('selected-calc'); const b = i.querySelector('.qty-badge'); if(b) b.remove(); delete i.dataset.qtd; });
-            calcTotalValue = 0; 
-            const calcTotal = document.getElementById('calcTotal');
-            if (calcTotal) calcTotal.innerText = "0,00";
+            calcTotalValue = 0; const calcTotal = document.getElementById('calcTotal'); if (calcTotal) calcTotal.innerText = "0,00";
             
             const novoConteudo = document.getElementById('boardContent').innerHTML;
 
             try {
-                // Salva cópia local por segurança (Offline Fallback)
                 localStorage.setItem(KEY_POS_BOARD, novoConteudo);
                 localStorage.setItem('jm_fontsize_premium', currentFontSize); 
-                posCarts = {1:[],2:[],3:[]}; 
-                localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts));
+                posCarts = {1:[],2:[],3:[]}; localStorage.setItem('jm_pos_carts', JSON.stringify(posCarts));
 
-                // ENVIA PARA A NUVEM (FIREBASE)
-                await dbCloud.collection("configuracoes").doc("tabela_precos").set({
-                    html: novoConteudo,
-                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    versao: 3
-                });
-
+                await dbCloud.collection("configuracoes").doc("tabela_precos").set({ html: novoConteudo, ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(), versao: 3 });
                 showToast("Tabela sincronizada na Nuvem!");
-            } catch (e) {
-                console.error("Erro ao salvar na nuvem:", e);
-                showToast("Erro ao sincronizar. Salvo apenas localmente.", true);
-            }
+            } catch (e) { showToast("Erro ao sincronizar. Salvo apenas localmente.", true); }
         }
 
         function toggleEditModePOS() {
@@ -1378,12 +1395,21 @@
         document.addEventListener('keydown', (e) => {
             if(e.key === 'Escape') { closeModal('catModal'); closeModal('linkModal'); closeModal('pixModal'); closeModal('transferOverlay'); closeModal('cardsOverlay'); }
             const currApp = document.getElementById('app-balcao').style.display;
-            if(currApp === 'flex' && !isEditModePOS && document.getElementById('cardsOverlay').style.display !== 'flex' && document.getElementById('transferOverlay').style.display !== 'flex' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            const lockScreenVisible = !document.getElementById('lock-screen').classList.contains('unlocked');
+            
+            if(currApp === 'flex' && !isEditModePOS && !lockScreenVisible && document.getElementById('cardsOverlay').style.display !== 'flex' && document.getElementById('transferOverlay').style.display !== 'flex' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                 if(/[0-9\/\*\-\+\.]/.test(e.key)) { e.preventDefault(); inputCalc(e.key); }
                 if(e.key === 'Enter' || e.key === '=') { e.preventDefault(); evalCalc(); }
                 if(e.key === 'Backspace' || e.key === 'Delete') { e.preventDefault(); calcVal = calcVal.slice(0,-1); document.getElementById('calcDisplay').value = calcVal||''; }
             }
         });
+        
+        // Ativar SW
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
     </script>
 </body>
 </html>
