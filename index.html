@@ -96,6 +96,15 @@
         .lock-input { flex: 1; background: transparent; border: none; outline: none; color: var(--win-text); padding: 10px 0; font-size: 15px; }
         .lock-input::placeholder { color: var(--win-text-muted); }
         
+        /* CORREÇÃO DO FUNDO BRANCO DO CHROME AUTOFILL */
+        .lock-input:-webkit-autofill,
+        .lock-input:-webkit-autofill:hover, 
+        .lock-input:-webkit-autofill:focus, 
+        .lock-input:-webkit-autofill:active {
+            transition: background-color 5000s ease-in-out 0s;
+            -webkit-text-fill-color: var(--win-text) !important;
+        }
+        
         .lock-btn { width: 100%; background: var(--win-accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .lock-btn:hover { background: var(--win-accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);}
         
@@ -384,7 +393,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyAFZ8DbCuVAIb1f-6n8vtoI0XN5Wu9AW_c", // <-- CHAVE CORRETA COM O "I" MAIÚSCULO
+            apiKey: "AIzaSyAFZ8DbCuVAIb1f-6n8vtoI0XN5Wu9AW_c",
             authDomain: "jmos-estacao.firebaseapp.com",
             projectId: "jmos-estacao",
             storageBucket: "jmos-estacao.firebasestorage.app",
@@ -394,7 +403,7 @@
 
         firebase.initializeApp(firebaseConfig);
         const dbCloud = firebase.firestore();
-        const auth = firebase.auth(); // <-- ATIVADOR DE SEGURANÇA
+        const auth = firebase.auth(); 
     </script>
 </head>
 <body>
