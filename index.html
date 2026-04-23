@@ -16,7 +16,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
     <style>
-        /* ================= TEMA BALCÃO SMART ================= */
+        /* ================= TEMA BALCÃO SMART (VISUAL PREMIUM) ================= */
         :root {
             --win-bg: #202020;
             --win-mica: rgba(32, 32, 32, 0.85);
@@ -35,8 +35,6 @@
 
         body.light-theme {
             background-color: #eef2f5;
-            background-image: radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.08), transparent 40%),
-                              radial-gradient(circle at 80% 70%, rgba(239, 68, 68, 0.05), transparent 40%);
             --win-bg: #f3f3f3;
             --win-mica: rgba(250, 250, 250, 0.85);
             --win-acrylic: rgba(255, 255, 255, 0.7);
@@ -51,22 +49,20 @@
             --win-success: #15803d;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI Variable Display', 'Segoe UI', system-ui, sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
 
         body { 
             background-color: #111;
-            background-image: radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.15), transparent 40%),
-                              radial-gradient(circle at 80% 70%, rgba(239, 68, 68, 0.1), transparent 40%);
+            background-image: radial-gradient(circle at 20% 30%, rgba(245, 158, 11, 0.15), transparent 40%);
             color: var(--win-text); 
             min-height: 100vh; display: flex; align-items: center; justify-content: center;
-            overflow: hidden; padding: 2vh 2vw; transition: background 0.4s ease, color 0.4s ease;
+            overflow: hidden; padding: 2vh 2vw; transition: background 0.4s ease;
         }
 
-        /* --- ADAPTAÇÃO PARA TELA CHEIA --- */
         body.is-fullscreen { padding: 0 !important; }
         body.is-fullscreen .app-window { max-width: 100% !important; height: 100vh !important; border-radius: 0 !important; border: none !important; }
 
-        /* ================= TELA DE BLOQUEIO (AUTH FIREBASE) ================= */
+        /* ================= TELA DE BLOQUEIO (FIREBASE AUTH) ================= */
         #lock-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--win-mica);
@@ -74,52 +70,19 @@
             -webkit-backdrop-filter: blur(30px) saturate(150%);
             z-index: 99998; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.6s;
+            transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
         #lock-screen.unlocked { opacity: 0; visibility: hidden; pointer-events: none; transform: scale(1.1); }
-        
-        .lock-avatar {
-            width: 100px; height: 100px; border-radius: 50%; background: var(--win-surface);
-            border: 3px solid var(--win-accent); margin-bottom: 20px; display: flex;
-            align-items: center; justify-content: center; font-size: 40px; color: var(--win-accent);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-        }
-        .lock-title { font-size: 26px; font-weight: 700; color: var(--win-text); margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .lock-subtitle { font-size: 13px; color: var(--win-text-muted); margin-bottom: 35px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
-        
+        .lock-avatar { width: 100px; height: 100px; border-radius: 50%; background: var(--win-surface); border: 3px solid var(--win-accent); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; color: var(--win-accent); box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
+        .lock-title { font-size: 26px; font-weight: 700; color: var(--win-text); margin-bottom: 5px; }
+        .lock-subtitle { font-size: 13px; color: var(--win-text-muted); margin-bottom: 35px; font-weight: 600; letter-spacing: 1px; }
         .lock-form { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 320px; }
-        .lock-input-wrapper { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 8px; border: 1px solid var(--win-border-light); display: flex; align-items: center; transition: 0.3s; }
-        .lock-input-wrapper:focus-within { border-color: var(--win-accent); background: rgba(0,0,0,0.6); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        .lock-input-wrapper i { color: var(--win-text-muted); margin: 0 15px; font-size: 14px;}
+        .lock-input-wrapper { background: rgba(0,0,0,0.4); padding: 5px; border-radius: 8px; border: 1px solid var(--win-border-light); display: flex; align-items: center; }
+        .lock-input-wrapper i { color: var(--win-text-muted); margin: 0 15px; font-size: 14px; }
         .lock-input { flex: 1; background: transparent; border: none; outline: none; color: var(--win-text); padding: 10px 0; font-size: 15px; }
-        .lock-input::placeholder { color: var(--win-text-muted); }
-        
-        .lock-btn { width: 100%; background: var(--win-accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px;}
-        .lock-btn:hover { background: var(--win-accent-hover); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(245, 158, 11, 0.3);}
-        
-        .lock-error { color: var(--win-danger); font-size: 13px; margin-top: 15px; font-weight: 600; opacity: 0; transform: translateY(-10px); transition: 0.3s; background: rgba(239, 68, 68, 0.1); padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.3); text-align: center;}
-        .lock-error.show { opacity: 1; transform: translateY(0); }
-        
-        .lock-footer { position: absolute; bottom: 30px; font-size: 12px; color: var(--win-text-muted); font-weight: 600; letter-spacing: 1px;}
-        .lock-footer span { color: var(--win-accent); }
-
-        /* ================= SCROLLBAR E LOADER ================= */
-        ::-webkit-scrollbar { width: 14px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background-color: rgba(128, 128, 128, 0.3); border-radius: 10px; border: 4px solid var(--win-bg); }
-        ::-webkit-scrollbar-thumb:hover { background-color: rgba(128, 128, 128, 0.5); }
-
-        .loader-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--win-bg); z-index: 100000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.6s ease, visibility 0.6s ease;
-        }
-        body.light-theme .loader-overlay { background: #ffffff; }
-        .loader-overlay.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .loader-logo-container { width: 90px; height: 90px; margin-bottom: 25px; animation: spin 3s linear infinite; filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.4));}
-        .loader-text { font-size: 0.85rem; color: var(--win-text-muted); font-weight: 700; letter-spacing: 3px; text-transform: uppercase; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .lock-btn { width: 100%; background: var(--win-accent); color: #000; border: none; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; font-size: 15px; }
+        .lock-error { color: var(--win-danger); font-size: 13px; margin-top: 15px; font-weight: 600; opacity: 0; transition: 0.3s; text-align: center; }
+        .lock-error.show { opacity: 1; }
 
         /* ================= JANELA PRINCIPAL ================= */
         .app-window {
@@ -131,215 +94,63 @@
             border-radius: 12px;
             box-shadow: 0 12px 48px rgba(0,0,0,0.5);
             display: flex; flex-direction: column;
-            overflow: hidden; transition: all 0.4s ease;
+            overflow: hidden; display: none;
         }
-        body.light-theme .app-window { box-shadow: 0 12px 48px rgba(245, 158, 11, 0.08); }
 
-        .title-bar { height: 48px; background: rgba(0,0,0,0.2); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--win-border); user-select: none; transition: 0.4s ease;}
-        body.light-theme .title-bar { background: rgba(255,255,255,0.4); }
-        .app-title { font-size: 13px; color: var(--win-text); display: flex; align-items: center; gap: 8px; width: 140px; font-weight: 700;}
-        .app-logo-small { width: 20px; height: 20px; display: flex; align-items: center; }
-        
+        .title-bar { height: 48px; background: rgba(0,0,0,0.2); display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--win-border); user-select: none; }
         .app-switcher { display: flex; gap: 4px; margin-left: 10px; height: 100%; align-items: flex-end; }
         .app-tab { background: transparent; color: var(--win-text-muted); border: none; padding: 8px 24px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; position: relative; }
-        .app-tab:hover { background: rgba(128,128,128,0.1); }
-        .app-tab.active { background: var(--win-surface); color: var(--win-accent); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border);}
-        .app-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-accent); border-radius: 3px; transition: 0.4s; }
-
-        .pos-tabs { display: none; gap: 4px; margin-left: 20px; height: 100%; align-items: flex-end;}
-        .pos-tab { background: transparent; color: var(--win-text-muted); border: none; padding: 8px 20px; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; position: relative;}
-        .pos-tab:hover { background: rgba(128,128,128,0.1); }
-        .pos-tab.active { background: var(--win-surface); color: var(--win-text); border-top: 1px solid var(--win-border-light); border-left: 1px solid var(--win-border); border-right: 1px solid var(--win-border); }
-        .pos-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-success); border-radius: 3px; transition: 0.4s; }
+        .app-tab.active { background: var(--win-surface); color: var(--win-accent); border-top: 1px solid var(--win-border-light); }
+        .app-tab.active::after { content: ''; position: absolute; bottom: 4px; left: 25%; width: 50%; height: 3px; background: var(--win-accent); border-radius: 3px; }
 
         .clock-widget { text-align: right; line-height: 1.1; margin-left: auto; display: flex; gap: 15px; align-items: center; }
         .clock-time { font-size: 1.1rem; font-weight: 600; color: var(--win-text); }
-        .clock-date { font-size: 0.8rem; color: var(--win-text-muted); }
-
-        .btn-fullscreen { background: transparent; border: none; color: var(--win-text); cursor: pointer; padding: 6px 10px; border-radius: 4px; transition: 0.2s; display: flex; align-items: center; justify-content: center; }
-        .btn-fullscreen:hover { background: rgba(128,128,128,0.2); }
+        .btn-fullscreen { background: transparent; border: none; color: var(--win-text); cursor: pointer; padding: 6px; border-radius: 4px; }
 
         .command-bar { height: 56px; background: var(--win-surface); display: flex; align-items: center; padding: 0 20px; gap: 8px; border-bottom: 1px solid var(--win-border); flex-shrink: 0;}
-        .cmd-btn { background: transparent; border: 1px solid transparent; color: var(--win-text); padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px; transition: 0.1s;}
-        .cmd-btn:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border); }
-        .cmd-btn i { font-size: 15px; color: var(--win-accent); transition: 0.4s; }
-        .cmd-divider { width: 1px; height: 24px; background: var(--win-border); margin: 0 8px; }
-
-        /* ================= APP: QUICKLINKS ================= */
-        .search-container { position: relative; width: 280px; }
-        .search-input { width: 100%; padding: 8px 35px 8px 12px; border-radius: 4px; border: 1px solid var(--win-border); background: rgba(128,128,128,0.1); color: var(--win-text); font-size: 0.9rem; outline: none; transition: 0.2s; border-bottom: 2px solid var(--win-border); }
-        .search-input:focus { background: rgba(128,128,128,0.2); border-bottom-color: var(--win-accent); }
-        .search-icon { position: absolute; right: 12px; top: 10px; color: var(--win-text-muted); font-size: 0.9rem; }
-
-        .app-body { display: flex; flex: 1; overflow: hidden; padding: 20px; }
-        .main-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; width: 100%; height: 100%; overflow: hidden; }
-        .content-area { overflow-y: auto; padding-right: 10px; }
-        .sidebar-area { display: flex; flex-direction: column; gap: 20px; overflow-y: auto;}
-
-        .sidebar-widget { background: var(--win-surface); border-radius: 8px; padding: 16px; border: 1px solid var(--win-border); display: flex; flex-direction: column; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .sidebar-widget.notepad { flex: 1; min-height: 250px; }
-        .widget-header { font-weight: 600; font-size: 0.95rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; color: var(--win-text); padding-bottom: 8px; border-bottom: 1px solid var(--win-border); }
-        .notepad-area { flex: 1; background: transparent; border: none; resize: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.5; color: var(--win-text); }
-        .notepad-area::placeholder { color: var(--win-text-muted); }
-
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; width: 100%; padding-bottom: 20px;}
-        .category-card { background: var(--win-surface); border: 1px solid var(--win-border); border-radius: 8px; padding: 16px; transition: 0.2s; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .category-card.edit-mode { border: 1px dashed var(--win-accent); background: rgba(245, 158, 11, 0.05); }
-
-        .cat-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-        .cat-info { display: flex; align-items: center; gap: 10px; }
-        .cat-icon { width: 32px; height: 32px; background: rgba(128,128,128,0.05); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--win-accent); font-size: 1rem; border: 1px solid var(--win-border); }
-        .cat-title { font-weight: 600; font-size: 0.95rem; text-transform: uppercase;}
-
-        .card-actions { display: none; gap: 5px; }
-        .edit-active .card-actions { display: flex; }
-        .btn-mini { width: 28px; height: 28px; border-radius: 4px; border: 1px solid var(--win-border); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--win-text); font-size: 0.8rem; background: var(--win-surface); }
-        .btn-mini:hover { background: rgba(128,128,128,0.1); }
-        .btn-del:hover { background: var(--win-danger); color: #FFF; border-color: var(--win-danger); }
-
-        .link-list { display: flex; flex-direction: column; gap: 4px; }
-        .service-link-wrapper { position: relative; display: flex; align-items: center; gap: 4px; }
-        .service-link { flex: 1; text-decoration: none; color: var(--win-text-muted); padding: 8px 10px; border-radius: 4px; font-size: 0.85rem; transition: 0.1s; display: flex; align-items: center; gap: 8px; border-bottom: 1px dashed var(--win-border); }
-        .service-link:hover { background: rgba(128,128,128,0.1); color: var(--win-text); border-bottom-style: solid; }
-        .link-side-btn { background: transparent; border: none; color: var(--win-text-muted); cursor: pointer; width: 30px; height: 30px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-        .link-side-btn:hover { background: rgba(128,128,128,0.1); color: var(--win-text); }
-        .fav-active { color: var(--win-accent) !important; }
-
-        .favorites-section { width: 100%; margin-bottom: 24px; display: none; }
-        .favorites-section.show { display: block; animation: fadeIn 0.3s; }
-        .fav-title { font-size: 0.85rem; color: var(--win-text-muted); margin-bottom: 12px; font-weight: 600; text-transform: uppercase; }
-        .fav-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-        .fav-item { background: var(--win-surface); border: 1px solid var(--win-border); padding: 8px 16px; border-radius: 6px; color: var(--win-text); text-decoration: none; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; }
-        .fav-item:hover { background: rgba(128,128,128,0.1); border-color: var(--win-border-light); transform: translateY(-1px); }
-        .fav-item i { color: var(--win-accent); }
-
-        .btn-add-link { width: 100%; padding: 8px; margin-top: 12px; background: transparent; color: var(--win-accent); border: 1px dashed var(--win-border); border-radius: 4px; cursor: pointer; display: none; font-size: 0.85rem; font-weight: 600; }
-        .edit-active .btn-add-link { display: block; }
-        .btn-new-cat { border: 1px dashed var(--win-border); border-radius: 8px; display: none; align-items: center; justify-content: center; flex-direction: column; color: var(--win-text-muted); cursor: pointer; min-height: 120px; background: transparent; }
-        .edit-active .btn-new-cat { display: flex; }
+        .cmd-btn { background: transparent; border: 1px solid transparent; color: var(--win-text); padding: 6px 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 13px;}
+        .cmd-btn:hover { background: rgba(128,128,128,0.1); }
+        .cmd-btn i { color: var(--win-accent); }
 
         /* ================= APP: BALCÃO SMART ================= */
-        .paper-area { flex: 1; overflow-y: auto; padding: 0 30px 30px 0; background: transparent; display: flex; flex-direction: column; }
-        .paper-header { margin-bottom: 30px; border-bottom: 2px solid var(--win-accent); padding-bottom: 15px; display: flex; justify-content: space-between; align-items: flex-end;}
-        .editable-text { outline: none; border-radius: 4px; padding: 2px 4px; transition: 0.2s; cursor: default; display: inline-block; }
+        .app-body { display: flex; flex: 1; overflow: hidden; padding: 20px; }
+        .paper-area { flex: 1; overflow-y: auto; padding-right: 20px; }
+        .pos-panel { width: 320px; background: var(--win-acrylic); border-left: 1px solid var(--win-border); display: flex; flex-direction: column; padding: 20px; border-radius: 8px; }
+        .pos-total-box { background: var(--win-bg); border: 1px solid var(--win-border); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .pos-total-value { font-size: 32px; font-weight: 700; color: var(--win-success); font-family: 'JetBrains Mono', monospace; }
         
-        .pos-grid-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex: 1; align-content: start; }
-        .category-box { background: var(--win-surface); border: 1px solid var(--win-border); border-radius: 8px; overflow: hidden; margin-bottom: 15px; }
-        .pos-cat-header { background: rgba(128,128,128,0.05); padding: 12px 16px; font-weight: 600; font-size: var(--service-font-size); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--win-border); color: var(--win-text); text-transform: uppercase; }
-        .service-list { padding: 8px; }
-        
-        .service-item { display: flex; align-items: center; padding: 8px 10px; border-radius: 6px; font-size: var(--service-font-size); cursor: pointer; position: relative; border-bottom: 1px dashed var(--win-border); }
-        .service-item:last-child { border-bottom: none; }
+        .category-box { background: var(--win-surface); border: 1px solid var(--win-border); border-radius: 8px; margin-bottom: 15px; overflow: hidden; }
+        .pos-cat-header { background: rgba(128,128,128,0.05); padding: 12px; font-weight: 600; border-bottom: 1px solid var(--win-border); color: var(--win-accent); }
+        .service-item { display: flex; align-items: center; padding: 8px 12px; border-bottom: 1px dashed var(--win-border); cursor: pointer; font-size: var(--service-font-size); }
         .service-item:hover { background: rgba(128,128,128,0.1); }
-        .service-item.obs { background: rgba(245, 158, 11, 0.08); color: var(--win-accent); font-size: calc(var(--service-font-size) * 0.85); padding: 10px; border-left: 3px solid var(--win-accent); font-weight: 600; cursor: default;}
+        .service-item.selected-calc { background: rgba(245, 158, 11, 0.12); border-left: 4px solid var(--win-accent); }
+        .s-name { flex: 1; outline: none; }
+        .s-price { font-weight: 600; min-width: 80px; text-align: right; }
+        .qty-badge { display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 12px; margin-right: 10px; }
         
-        .service-item.selected-calc { background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.2); border-bottom: 1px solid rgba(245, 158, 11, 0.2); }
-        .service-item.selected-calc::before { content: ''; position: absolute; left: 0; top: 20%; height: 60%; width: 3px; background: var(--win-accent); border-radius: 3px; }
+        .pos-actions { display: flex; flex-direction: column; gap: 10px; }
+        .action-btn { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .action-btn.whatsapp { background: #25d366; color: #fff; }
+        .action-btn.pdf { background: #ef4444; color: #fff; }
 
-        .s-name { flex: 1; outline: none; border-radius: 4px; padding: 2px 4px; color: var(--win-text); }
-        .s-price { font-weight: 600; color: var(--win-text); background: rgba(128,128,128,0.15); padding: 4px 8px; border-radius: 4px; outline: none; margin-left: 10px; min-width: 80px; text-align: right;}
-        
-        .qty-badge { display: flex; align-items: center; gap: 4px; background: var(--win-bg); border: 1px solid var(--win-border-light); border-radius: 6px; padding: 2px; margin-right: 10px; margin-left: auto; }
-        .qty-btn { background: transparent; border: none; width: 22px; height: 22px; border-radius: 4px; color: var(--win-text); cursor: pointer; }
-        .qty-btn:hover { background: rgba(128,128,128,0.2); }
-        .qty-val { font-weight: 600; font-size: 13px; min-width: 20px; text-align: center; color: var(--win-text);}
-
-        .btn-remove { display: none; position: absolute; left: -10px; color: var(--win-danger); cursor: pointer; background: transparent; border: none; font-size: 14px;}
-        .btn-add-item { display: none; width: 100%; padding: 10px; background: transparent; color: var(--win-accent); border: none; border-top: 1px solid var(--win-border); font-size: 12px; font-weight: 600; cursor: pointer; opacity: 0;}
-        
-        body.edit-mode-pos-active .btn-add-item { display: block; opacity: 0; }
-        body.edit-mode-pos-active .category-box:hover .btn-add-item { opacity: 1; }
-        body.edit-mode-pos-active .btn-add-item:hover { background: rgba(245, 158, 11, 0.1); }
-        body.edit-mode-pos-active .service-item:hover .btn-remove { display: flex; opacity: 1; left: -20px; }
-        body.edit-mode-pos-active .s-name:hover, body.edit-mode-pos-active .s-price:hover, body.edit-mode-pos-active .editable-text:hover { background: rgba(128,128,128,0.2); cursor: text; }
-
-        .footer-info { margin-top: 30px; background: rgba(128,128,128,0.05); padding: 20px 25px; border-radius: 12px; display: flex; justify-content: center; align-items: center; border-left: 6px solid var(--win-accent); border: 1px solid var(--win-border); }
-
-        /* Calculadora do Balcão */
-        .pos-panel { width: 320px; background: var(--win-acrylic); border-left: 1px solid var(--win-border); display: flex; flex-direction: column; padding: 20px; overflow-y: auto; overflow-x: hidden; border-radius: 8px;}
-        .pos-total-box { background: var(--win-bg); border: 1px solid var(--win-border); border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 20px; flex-shrink: 0; }
-        .pos-total-label { font-size: 12px; text-transform: uppercase; color: var(--win-text-muted); font-weight: 600; letter-spacing: 1px;}
-        .pos-total-value { font-size: 32px; font-weight: 700; color: var(--win-success); font-family: 'JetBrains Mono', monospace; margin-top: 5px;}
-        
-        .pos-keypad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 20px; flex-shrink: 0;}
-        .k-btn { background: var(--win-surface); border: 1px solid var(--win-border); color: var(--win-text); border-radius: 6px; padding: 12px 0; font-size: 16px; cursor: pointer; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
-        .k-btn:hover { background: rgba(128,128,128,0.08); }
-        .k-btn.op { color: var(--win-accent); }
-        .k-btn.clear { color: var(--win-danger); }
-        .k-btn.eq { background: var(--win-accent); color: white; font-weight: bold; border: none;}
-
-        .pos-actions { display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
-        .action-btn { background: var(--win-surface); border: 1px solid var(--win-border); color: var(--win-text); padding: 12px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; font-weight: 600; font-size: 14px; }
-        .action-btn.whatsapp { background: rgba(16, 124, 16, 0.15); border-color: rgba(16, 124, 16, 0.3); color: var(--win-success); }
-        .action-btn.pdf { background: rgba(209, 52, 56, 0.15); border-color: rgba(209, 52, 56, 0.3); color: var(--win-danger); }
-
-        /* ================= MODAIS ================= */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); z-index: 9000; display: none; align-items: center; justify-content: center; }
-        .modal { background: var(--win-surface); border: 1px solid var(--win-border-light); border-radius: 8px; width: 90%; max-width: 400px; padding: 25px; box-shadow: 0 24px 48px rgba(0,0,0,0.5); animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal h3 { margin-bottom: 20px; font-weight: 600; font-size: 18px; display: flex; align-items: center; gap: 10px; color: var(--win-text);}
-        .form-label { display: block; font-size: 12px; color: var(--win-text-muted); margin-bottom: 6px; font-weight: 600;}
-        .form-input { width: 100%; padding: 10px 12px; background: rgba(128,128,128,0.1); border: 1px solid var(--win-border); border-radius: 4px; color: var(--win-text); outline: none; margin-bottom: 15px; font-size: 14px;}
-        .form-input:focus { border-color: var(--win-accent); border-bottom-width: 2px; }
-        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-        .btn-modal { padding: 8px 20px; border-radius: 4px; font-weight: 600; font-size: 13px; cursor: pointer; border: 1px solid transparent; }
-        .btn-cancel { background: rgba(128,128,128,0.1); border-color: var(--win-border); color: var(--win-text);}
-        .btn-save-modal { background: var(--win-accent); color: white;}
-
-        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--win-surface); border: 1px solid var(--win-border-light); color: var(--win-text); padding: 16px 24px; border-radius: 6px; font-weight: 500; font-size: 14px; opacity: 0; transform: translateX(100px); transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); z-index: 10000; box-shadow: 0 8px 24px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 12px; border-left: 4px solid var(--win-accent);}
-        .toast.show { transform: translateX(0); opacity: 1; }
-
-        /* Estilos Cartões e Wi-Fi */
-        #area-cartoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; padding: 20px; }
-        .card-wrapper { display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .premium-card { width: 360px; height: 230px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); display: flex; flex-direction: column; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.2); }
+        /* ================= CENTRAL DE CARTÕES ================= */
+        #area-cartoes { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; padding: 10px; }
+        .premium-card { width: 360px; height: 230px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.2); position: relative; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
         .card-gov { background: linear-gradient(135deg, #1351B4 0%, #0c3373 100%); color: white; }
         .card-email { background: linear-gradient(135deg, #2C3E50 0%, #1a252f 100%); color: white; }
-        .editable-input-card { border: none; background: transparent; padding: 0; font-size: 22px; font-weight: 700; color: white; font-family: 'Share Tech Mono', monospace; outline: none; border-bottom: 1px dashed rgba(255,255,255,0.3); width: 100%; }
-        
-        @media print {
-            body { background: white; padding: 0; color: black;}
-            .app-window { box-shadow: none; border: none; height: auto; max-width: 100%; display: block; filter: none !important;}
-            .title-bar, .command-bar, .pos-panel, .loader-overlay, .toast, .btn-add-item, .btn-remove, .qty-badge, #app-quicklinks, #mobile-view, #cardsOverlay, #transferOverlay, #pixModal, #catModal, #linkModal { display: none !important; }
-            #app-balcao { display: flex !important; }
-            .paper-area { padding: 0; overflow: visible;}
-            .category-box { border-color: #ccc; break-inside: avoid; color: black; background: white; box-shadow: none; margin-bottom: 10px;}
-            .pos-cat-header { background: #eee; color: black; border-bottom: 1px solid #ccc; font-size: 13px;}
-            .s-name, .s-price, .editable-text { color: black; background: transparent; }
-            .service-item { border-bottom: 1px dashed #ccc; padding: 4px 0;}
-            .service-item.selected-calc { background: transparent; border: none; border-bottom: 1px dashed #ccc;}
-            .service-item.selected-calc::before { display: none; }
-            .footer-info { margin-top: 15px; border-color: #ccc; background: transparent; padding: 10px;}
-        }
+        .editable-input-card { border: none; background: transparent; color: white; font-family: 'Share Tech Mono'; font-size: 20px; width: 100%; border-bottom: 1px dashed rgba(255,255,255,0.3); outline: none; }
 
-        /* ================= RESPONSIVIDADE (MOBILE) ================= */
+        /* ================= MODAIS ================= */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); z-index: 9000; display: none; align-items: center; justify-content: center; }
+        .modal { background: var(--win-surface); border: 1px solid var(--win-border-light); border-radius: 12px; width: 90%; max-width: 500px; padding: 25px; }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: var(--win-surface); color: white; padding: 12px 24px; border-radius: 8px; border-left: 4px solid var(--win-accent); opacity: 0; transition: 0.4s; z-index: 10000; }
+        .toast.show { opacity: 1; transform: translateY(-10px); }
+
         @media (max-width: 800px) {
             body { padding: 0; }
-            .app-window { height: 100dvh; border-radius: 0; border: none; }
-            .title-bar { padding: 0 10px; }
-            .app-title { width: auto; font-size: 12px; }
-            .app-switcher { margin-left: auto; } 
-            .clock-widget { display: none; } 
-            
-            .command-bar { overflow-x: auto; white-space: nowrap; padding: 0 10px; scrollbar-width: none; }
-            .command-bar::-webkit-scrollbar { display: none; }
-            
-            .main-layout { grid-template-columns: 1fr; gap: 15px; }
-            .sidebar-area { order: 2; margin-top: 10px; }
-            .content-area { order: 1; padding-right: 0; }
-            
-            #app-balcao .app-body { flex-direction: column; overflow-y: auto; padding: 10px; display: block; }
-            .paper-area { padding: 0; overflow: visible; display: block; height: auto; margin-bottom: 20px; }
-            .pos-grid-container { grid-template-columns: 1fr; gap: 15px; }
-            .pos-panel { width: 100%; border-left: none; border-top: 1px solid var(--win-border); border-radius: 8px; margin: 0 auto; display: block; height: auto; }
-            
-            #area-cartoes { flex-direction: column; padding: 10px; gap: 40px; overflow-x: hidden; }
-            .card-wrapper { width: 100%; align-items: center; }
-            .premium-card { transform: scale(0.85); transform-origin: top center; margin-bottom: -30px; }
-            #cartao-sus { transform: scale(0.65); margin-bottom: -100px; }
-            
-            .lock-avatar { width: 80px; height: 80px; font-size: 30px; }
-            .lock-title { font-size: 22px; }
-            .lock-subtitle { font-size: 12px; }
+            .app-window { height: 100vh; border-radius: 0; }
+            .app-body { flex-direction: column; overflow-y: auto; }
+            .pos-panel { width: 100%; border-left: none; border-top: 1px solid var(--win-border); }
         }
     </style>
 
@@ -347,7 +158,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script>
-        // COLOQUE A SUA NOVA CHAVE DE API AQUI SE FOR DIFERENTE
         const firebaseConfig = {
             apiKey: "AIzaSyAFZ8DbCuVAIb1f-6n8vtoI0XN5Wu9AW_c",
             authDomain: "jmos-estacao.firebaseapp.com",
@@ -367,124 +177,127 @@
         <div class="lock-avatar"><i class="fas fa-shield-alt"></i></div>
         <div class="lock-title">JM OS Security</div>
         <div class="lock-subtitle">ACESSO AUTENTICADO</div>
-        
         <div class="lock-form">
-            <div class="lock-input-wrapper">
-                <i class="fas fa-envelope"></i>
-                <input type="email" id="lockEmail" class="lock-input" placeholder="E-mail do Administrador">
-            </div>
-            <div class="lock-input-wrapper">
-                <i class="fas fa-key"></i>
-                <input type="password" id="lockPassword" class="lock-input" placeholder="Senha" onkeypress="if(event.key === 'Enter') unlockSystem()">
-            </div>
-            <button class="lock-btn" id="btnAuth" onclick="unlockSystem()">Entrar no Sistema</button>
+            <div class="lock-input-wrapper"><i class="fas fa-envelope"></i><input type="email" id="lockEmail" class="lock-input" placeholder="E-mail"></div>
+            <div class="lock-input-wrapper"><i class="fas fa-key"></i><input type="password" id="lockPassword" class="lock-input" placeholder="Senha" onkeypress="if(event.key === 'Enter') unlockSystem()"></div>
+            <button class="lock-btn" onclick="unlockSystem()">Entrar no Sistema</button>
         </div>
-        
-        <div id="lockError" class="lock-error"></div>
-        <div class="lock-footer">Desenvolvido por <span>José Marcelo</span></div>
+        <div id="lockError" class="lock-error"><i class="fas fa-exclamation-triangle"></i> E-mail ou senha incorretos.</div>
+        <div class="lock-footer" style="margin-top:50px; font-size:12px; color:var(--win-text-muted)">Desenvolvido por <span style="color:var(--win-accent)">José Marcelo</span></div>
     </div>
 
-    <div id="jmLoader" class="loader-overlay">
-        <div class="loader-logo-container">
-            <svg viewBox="0 0 100 100" width="100%" height="100%">
-                <defs>
-                    <linearGradient id="gradLoader" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#f59e0b"/>
-                        <stop offset="100%" stop-color="#ef4444"/>
-                    </linearGradient>
-                </defs>
-                <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" stroke-width="4" opacity="0.15"/>
-                <path d="M 50,10 A 40,40 0 0,1 90,50" fill="none" stroke="url(#gradLoader)" stroke-width="6" stroke-linecap="round"/>
-                <path d="M 50,90 A 40,40 0 0,1 10,50" fill="none" stroke="url(#gradLoader)" stroke-width="6" stroke-linecap="round"/>
-                <polygon points="50,30 67,40 67,60 50,70 33,60 33,40" fill="url(#gradLoader)" opacity="0.9"/>
-            </svg>
-        </div>
-        <div class="loader-text">Autenticando...</div>
-    </div>
-
-    <div class="app-window" id="pc-view" style="display: none;">
+    <div class="app-window" id="pc-view">
         <div class="title-bar">
-            <div class="app-title">JM OS</div>
+            <div style="font-weight: 700; font-size: 13px; color: var(--win-accent)">JM OS</div>
             <div class="app-switcher">
-                <button class="app-tab active" id="tab-quicklinks" onclick="switchApp('quicklinks')">QuickLinks</button>
-                <button class="app-tab" id="tab-balcao" onclick="switchApp('balcao')">Balcão Smart</button>
-            </div>
-            <div class="pos-tabs" id="pos-tabs-container">
-                <button class="pos-tab active" id="posTabBtn1" onclick="switchPosTab(1)">Caixa 1</button>
-                <button class="pos-tab" id="posTabBtn2" onclick="switchPosTab(2)">Caixa 2</button>
-                <button class="pos-tab" id="posTabBtn3" onclick="switchPosTab(3)">Caixa 3</button>
+                <button class="app-tab active" id="tab-balcao" onclick="switchApp('balcao')">Balcão Smart</button>
+                <button class="app-tab" id="tab-quicklinks" onclick="switchApp('quicklinks')">QuickLinks</button>
             </div>
             <div class="clock-widget">
                 <button class="btn-fullscreen" onclick="toggleFullScreen()"><i class="fas fa-expand"></i></button>
-                <button class="btn-fullscreen" onclick="lockSystem()" style="color: var(--win-danger);"><i class="fas fa-sign-out-alt"></i></button>
-                <div class="clock-time" id="clockTime">--:--</div>
+                <button class="btn-fullscreen" onclick="lockSystem()" style="color: var(--win-danger)"><i class="fas fa-sign-out-alt"></i></button>
+                <div class="clock-time" id="clockTime">00:00</div>
             </div>
         </div>
 
-        <div id="app-quicklinks" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        <div id="app-balcao" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
             <div class="command-bar">
-                <div class="search-container">
-                    <input type="text" id="searchInput" class="search-input" placeholder="Pesquisar links..." onkeyup="filterLinks()">
-                </div>
-                <button class="cmd-btn" id="btnEditToggleQL" onclick="toggleEditModeQL()"><i class="fas fa-pen"></i> Editar</button>
-            </div>
-            <div class="app-body">
-                <div class="main-layout">
-                    <div class="content-area">
-                        <div class="favorites-section" id="favSection"></div>
-                        <div class="services-grid" id="gridContainer"></div>
-                    </div>
-                    <div class="sidebar-area">
-                        <textarea class="notepad-area" id="quickNote" placeholder="Rascunho..." oninput="saveNote()"></textarea>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="app-balcao" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
-            <div class="command-bar">
-                <button class="cmd-btn" id="btnEditTogglePOS" onclick="toggleEditModePOS()"><i class="fas fa-pen"></i> Tabela</button>
-                <button class="cmd-btn" onclick="openCards()"><i class="fas fa-id-card"></i> Cartões</button>
+                <button class="cmd-btn" onclick="toggleEditModePOS()"><i class="fas fa-edit"></i> Editar Tabela</button>
+                <button class="cmd-btn" onclick="openModal('cardsModal')"><i class="fas fa-id-card"></i> Central de Cartões</button>
+                <button class="cmd-btn" onclick="openModal('transferModal')"><i class="fas fa-wifi"></i> Wi-Fi Transfer</button>
                 <button class="cmd-btn" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
             </div>
             <div class="app-body">
-                <div class="paper-area" id="boardContent"></div>
+                <div class="paper-area" id="boardContent">
+                    </div>
                 <div class="pos-panel">
                     <div class="pos-total-box">
+                        <div style="font-size:11px; color:var(--win-text-muted); text-transform:uppercase">Total do Orçamento</div>
                         <div class="pos-total-value">R$ <span id="calcTotal">0,00</span></div>
                     </div>
                     <div class="pos-actions">
-                        <button class="action-btn whatsapp" onclick="gerarReciboCliente()">WhatsApp</button>
-                        <button class="action-btn pdf" onclick="gerarPDF()">PDF</button>
+                        <button class="action-btn whatsapp" onclick="gerarReciboWhatsApp()"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                        <button class="action-btn pdf" onclick="gerarPDF()"><i class="fas fa-file-pdf"></i> Imprimir PDF</button>
+                        <button class="action-btn" onclick="clearCart()" style="background:transparent; border:1px dashed var(--win-border); color:var(--win-text); margin-top:10px"><i class="fas fa-trash"></i> Esvaziar</button>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <div id="app-quicklinks" style="display: none; flex-direction: column; flex: 1; overflow: hidden;">
+             <div class="command-bar">
+                <input type="text" placeholder="Pesquisar links..." style="padding:8px; border-radius:4px; border:1px solid var(--win-border); background:rgba(0,0,0,0.2); color:white; width:300px">
+             </div>
+             <div class="app-body">
+                 <div id="gridContainer" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap:15px; width:100%"></div>
+             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cardsModal">
+        <div class="modal" style="max-width: 850px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:20px">
+                <h3><i class="fas fa-id-badge"></i> Central de Cartões Premium</h3>
+                <button onclick="closeModal('cardsModal')" style="background:transparent; border:none; color:white; cursor:pointer"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="area-cartoes">
+                <div class="premium-card card-gov" id="card-gov">
+                    <div style="padding:20px">
+                        <div style="font-weight:900; font-size:24px; font-style:italic">gov.br</div>
+                        <div style="margin-top:30px">
+                            <label style="font-size:10px; opacity:0.7">CPF</label>
+                            <input type="text" class="editable-input-card" placeholder="000.000.000-00">
+                            <label style="font-size:10px; opacity:0.7; display:block; margin-top:15px">SENHA</label>
+                            <input type="text" class="editable-input-card" placeholder="Sua Senha">
+                        </div>
+                    </div>
+                </div>
+                <div class="premium-card card-email" id="card-email">
+                    <div style="padding:20px">
+                        <div style="font-weight:800; font-size:20px">E-MAIL</div>
+                        <div style="margin-top:30px">
+                            <label style="font-size:10px; opacity:0.7">ENDEREÇO</label>
+                            <input type="text" class="editable-input-card" placeholder="usuario@gmail.com">
+                            <label style="font-size:10px; opacity:0.7; display:block; margin-top:15px">SENHA</label>
+                            <input type="text" class="editable-input-card" placeholder="Sua Senha">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="text-align:center; margin-top:20px">
+                <button class="lock-btn" onclick="baixarPNGCartao('card-gov', 'Cartao_Gov.png')" style="width:auto; padding:10px 20px">Baixar Gov.br (PNG)</button>
             </div>
         </div>
     </div>
 
-    <div class="toast" id="toastMsg"></div>
+    <div class="modal-overlay" id="transferModal">
+        <div class="modal" style="text-align:center">
+            <h3><i class="fas fa-wifi"></i> Wi-Fi Transfer</h3>
+            <p style="font-size:13px; color:var(--win-text-muted); margin:15px 0">Escaneie o QR Code abaixo no celular para enviar arquivos diretamente para este computador.</p>
+            <div id="qrcode-transfer" style="background:white; padding:15px; display:inline-block; border-radius:12px"></div>
+            <div id="transfer-file-list" style="margin-top:20px; text-align:left; max-height:200px; overflow-y:auto"></div>
+            <button class="lock-btn" onclick="closeModal('transferModal')" style="margin-top:20px">Fechar</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toastMsg">Sincronizado com Sucesso!</div>
 
     <script>
-        // AUTH LOGIC
+        // --- LOGICA DE LOGIN ---
         function unlockSystem() {
             const email = document.getElementById('lockEmail').value;
             const pass = document.getElementById('lockPassword').value;
-            const btn = document.getElementById('btnAuth');
             if(!email || !pass) return;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+            
             auth.signInWithEmailAndPassword(email, pass).catch(e => {
-                btn.innerHTML = 'Entrar no Sistema';
-                const err = document.getElementById('lockError');
-                err.innerHTML = 'E-mail ou senha incorretos.';
-                err.classList.add('show');
-                setTimeout(() => err.classList.remove('show'), 3000);
+                document.getElementById('lockError').classList.add('show');
+                setTimeout(() => document.getElementById('lockError').classList.remove('show'), 3000);
             });
         }
 
         function lockSystem() { auth.signOut(); }
 
         auth.onAuthStateChanged((user) => {
-            const loader = document.getElementById('jmLoader');
             if (user) {
                 document.getElementById('lock-screen').classList.add('unlocked');
                 document.getElementById('pc-view').style.display = 'flex';
@@ -493,44 +306,112 @@
                 document.getElementById('lock-screen').classList.remove('unlocked');
                 document.getElementById('pc-view').style.display = 'none';
             }
-            if(loader) { loader.classList.add('hidden'); setTimeout(() => loader.style.display = 'none', 500); }
         });
 
-        // RECALC E LOADBOARD ADAPTADOS PARA FIREBASE
+        // --- LOGICA DO BALCÃO (FIRESTORE) ---
+        let calcTotalValue = 0;
+        let isEditMode = false;
+
         async function loadBoard() {
             try {
                 const doc = await dbCloud.collection("configuracoes").doc("tabela_precos").get();
-                if (doc.exists) document.getElementById('boardContent').innerHTML = doc.data().html;
-                initCalculator(); switchPosTab(1);
-            } catch (e) { showToast("Erro ao carregar nuvem", true); }
+                if (doc.exists) {
+                    document.getElementById('boardContent').innerHTML = doc.data().html;
+                } else {
+                    document.getElementById('boardContent').innerHTML = "<h1>Clique em 'Editar' para criar sua primeira tabela!</h1>";
+                }
+                initCalculator();
+            } catch (e) { showToast("Erro ao carregar dados", true); }
         }
 
         async function saveBoard() {
             const html = document.getElementById('boardContent').innerHTML;
             try {
-                await dbCloud.collection("configuracoes").doc("tabela_precos").set({ html, ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp() });
-                showToast("Sincronizado!");
+                await dbCloud.collection("configuracoes").doc("tabela_precos").set({ 
+                    html: html, 
+                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp() 
+                });
+                showToast("Sincronizado na Nuvem!");
             } catch (e) { showToast("Erro ao salvar", true); }
         }
 
-        // FUNÇÕES BÁSICAS
+        function toggleEditModePOS() {
+            isEditMode = !isEditMode;
+            document.querySelectorAll('#boardContent [contenteditable]').forEach(el => el.setAttribute('contenteditable', isEditMode));
+            if(!isEditMode) saveBoard();
+            showToast(isEditMode ? "Modo Edição Ativado" : "Alterações Salvas");
+        }
+
+        function initCalculator() {
+            document.querySelectorAll('.service-item').forEach(item => {
+                item.onclick = function(e) {
+                    if(isEditMode || e.target.isContentEditable) return;
+                    this.classList.toggle('selected-calc');
+                    recalcTotal();
+                };
+            });
+        }
+
+        function recalcTotal() {
+            let total = 0;
+            document.querySelectorAll('.selected-calc').forEach(item => {
+                const priceText = item.querySelector('.s-price').innerText;
+                const price = parseFloat(priceText.replace('R$','').replace(',','.').trim());
+                total += isNaN(price) ? 0 : price;
+            });
+            calcTotalValue = total;
+            document.getElementById('calcTotal').innerText = total.toLocaleString('pt-BR', {minimumFractionDigits:2});
+        }
+
+        function clearCart() {
+            document.querySelectorAll('.selected-calc').forEach(i => i.classList.remove('selected-calc'));
+            recalcTotal();
+        }
+
+        // --- UTILITÁRIOS ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+        
+        function showToast(msg, error=false) {
+            const t = document.getElementById('toastMsg');
+            t.innerText = msg;
+            t.style.borderLeftColor = error ? "#ef4444" : "#f59e0b";
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
         function switchApp(app) {
-            document.getElementById('app-quicklinks').style.display = app === 'quicklinks' ? 'flex' : 'none';
             document.getElementById('app-balcao').style.display = app === 'balcao' ? 'flex' : 'none';
+            document.getElementById('app-quicklinks').style.display = app === 'quicklinks' ? 'flex' : 'none';
+            document.getElementById('tab-balcao').classList.toggle('active', app === 'balcao');
+            document.getElementById('tab-quicklinks').classList.toggle('active', app === 'quicklinks');
         }
 
-        function showToast(m, e=false) {
-            const t = document.getElementById('toastMsg'); t.innerText = m;
-            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3000);
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else document.exitFullscreen();
         }
 
-        // SW E RELÓGIO
         setInterval(() => {
             const now = new Date();
-            document.getElementById('clockTime').innerText = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute:'2-digit' });
+            document.getElementById('clockTime').innerText = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
         }, 1000);
 
-        if ('serviceWorker' in navigator) { window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js')); }
+        function baixarPNGCartao(id, nome) {
+            html2canvas(document.getElementById(id), {scale:3}).then(canvas => {
+                const link = document.createElement('a');
+                link.download = nome;
+                link.href = canvas.toDataURL();
+                link.click();
+            });
+        }
+
+        // --- SERVICE WORKER (PWA) ---
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
     </script>
 </body>
 </html>
