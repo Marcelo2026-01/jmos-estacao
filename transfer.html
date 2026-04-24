@@ -77,7 +77,6 @@
         .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0;}
         .status-badge.connected { background: rgba(16, 185, 129, 0.08); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
-        /* LISTA DINÂMICA DE CLIENTES CONECTADOS (PC) */
         #active-clients-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; margin-bottom: 25px; width: 100%; }
         .client-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; }
         .client-pill-close { cursor: pointer; opacity: 0.6; transition: 0.2s; }
@@ -116,6 +115,7 @@
         .tag-size { background: rgba(255,255,255,0.08); color: #d4d4d4; }
         .tag-res { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
         .tag-word { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+        .tag-zip { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
 
         .file-actions { display: flex; gap: 6px; }
         .btn-act { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--muted); cursor: pointer; transition: all 0.2s ease;}
@@ -140,7 +140,7 @@
 
         <div class="input-container">
             <i class="fas fa-envelope"></i>
-            <input type="email" id="loginEmail" placeholder="E-mail" autocomplete="username">
+            <input type="email" id="loginEmail" placeholder="E-mail do Administrador" autocomplete="username">
         </div>
         
         <div class="input-container">
@@ -196,7 +196,7 @@
         
         <div class="status-header" style="margin-bottom: 20px;">
             <div class="status-badge connected" id="mobile-client-badge">
-                <i class="fas fa-shield-check"></i> CONECTANDO...
+                <i class="fas fa-circle-notch fa-spin"></i> CONECTANDO...
             </div>
         </div>
         
@@ -251,14 +251,13 @@
         const isMobile = !!remoteId;
 
         // ==========================================
-        // NOVO MOTOR MULTI-CONEXÕES
+        // 2. MOTOR MULTI-CONEXÕES SEGURO
         // ==========================================
-        let clients = {}; // Guarda todos os clientes conectados { id: {conn, num, color} }
+        let clients = {}; 
         let clientCounter = 1;
-        let mobileConn = null; // Usado apenas no celular
+        let mobileConn = null; 
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
-        // CONTROLE DE TELAS FIREBASE
         if (isMobile) {
             document.getElementById('mobile-view').style.display = 'flex';
             iniciarPeerJSCelular();
@@ -293,14 +292,14 @@
 
         function fazerLogout() {
             auth.signOut().then(() => {
-                endSessionPC(); // Desconecta todos antes de sair
+                endSessionPC(); 
                 if(peer) { peer.destroy(); peer = null; }
                 showToast("Sistema bloqueado.");
             });
         }
 
         // ==========================================
-        // REDE P2P E ROTEAMENTO
+        // 3. REDE P2P ROBUSTA (AGORA COM CORREÇÃO DE DESCONEXÃO)
         // ==========================================
         function iniciarPeerJSPc() {
             peer = new Peer();
@@ -310,7 +309,6 @@
                 new QRCode(document.getElementById("qrcode"), { text: sessionUrl, width: 150, height: 150 });
             });
             
-            // QUANDO UM CLIENTE NOVO ENTRA NA FILA
             peer.on('connection', (c) => {
                 const currentNum = clientCounter++;
                 const assignedColor = colors[(currentNum - 1) % colors.length];
@@ -323,12 +321,15 @@
                 
                 renderActiveClients();
                 showToast(`Cliente #${currentNum} entrou na fila!`);
-                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
+                try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(err){}
 
-                // Envia o Crachá para o celular dele
-                c.on('open', () => {
+                if(c.open) {
                     c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
-                });
+                } else {
+                    c.on('open', () => {
+                        c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
+                    });
+                }
             });
         }
 
@@ -342,31 +343,43 @@
 
         function copySessionLink() { navigator.clipboard.writeText(sessionUrl).then(() => showToast("Link copiado!")); }
 
-        // DESCONECTA APENAS UM CLIENTE
+        // DESCONECTA APENAS UM CLIENTE (CORRIGIDO COM TIMER)
         function disconnectClient(peerId) {
             if(clients[peerId]) {
                 clients[peerId].conn.send({ type: 'command', action: 'disconnect' });
-                clients[peerId].conn.close();
-                delete clients[peerId];
-                renderActiveClients();
                 
-                if(Object.keys(clients).length === 0) {
-                    document.getElementById('pc-disconnect').style.display = 'none';
-                    document.getElementById('pc-action').classList.remove('show');
-                    document.getElementById('pc-file-list').innerHTML = ''; // Limpa tela se fila zerar
-                }
+                // Aguarda 500ms para o comando viajar pela rede antes de fechar de vez
+                setTimeout(() => {
+                    if(clients[peerId]) {
+                        clients[peerId].conn.close();
+                        delete clients[peerId];
+                        renderActiveClients();
+                        
+                        if(Object.keys(clients).length === 0) {
+                            document.getElementById('pc-disconnect').style.display = 'none';
+                            document.getElementById('pc-action').classList.remove('show');
+                            document.getElementById('pc-file-list').innerHTML = ''; 
+                        }
+                    }
+                }, 500);
             }
         }
 
-        // DESCONECTA TODO MUNDO
+        // DESCONECTA TODO MUNDO (CORRIGIDO COM TIMER)
         function endSessionPC() {
-            Object.values(clients).forEach(c => c.conn.send({ type: 'command', action: 'disconnect' }));
-            clients = {}; clientCounter = 1;
-            renderActiveClients();
-            document.getElementById('pc-disconnect').style.display = 'none';
-            document.getElementById('pc-action').classList.remove('show');
-            document.getElementById('pc-file-list').innerHTML = '';
-            showToast("Fila zerada com sucesso.");
+            Object.values(clients).forEach(c => {
+                c.conn.send({ type: 'command', action: 'disconnect' });
+                setTimeout(() => { c.conn.close(); }, 500);
+            });
+            
+            setTimeout(() => {
+                clients = {}; clientCounter = 1;
+                renderActiveClients();
+                document.getElementById('pc-disconnect').style.display = 'none';
+                document.getElementById('pc-action').classList.remove('show');
+                document.getElementById('pc-file-list').innerHTML = '';
+                showToast("Fila zerada com sucesso.");
+            }, 600);
         }
 
         function renderActiveClients() {
@@ -386,61 +399,126 @@
         function setupConnection(connection, type, peerId) {
             connection.on('data', (data) => { 
                 if(data.type === 'file') receiveFile(data, type, peerId); 
+                
                 if(data.type === 'command' && data.action === 'setClientInfo') {
-                    // Celular recebe seu número e cor
                     const badge = document.getElementById('mobile-client-badge');
                     badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${data.num}`;
                     badge.style.backgroundColor = data.color + '22';
                     badge.style.color = data.color;
                     badge.style.borderColor = data.color + '55';
                 }
+
+                // Quando o celular recebe a ordem de desconexão (CORRIGIDO DESIGN)
                 if(data.type === 'command' && data.action === 'disconnect') { 
-                    document.getElementById('mobile-view').innerHTML = `
-                        <i class="fas fa-check-circle" style="font-size: 50px; color: var(--success); margin-bottom: 20px;"></i>
-                        <h1 style="text-align:center; color: var(--text);">Sessão Encerrada</h1>
-                        <p style="color: var(--muted); margin-top:10px;">Obrigado! Pode fechar esta tela.</p>
+                    if(type === 'mobile' && mobileConn) mobileConn.close();
+                    
+                    const targetView = type === 'pc' ? 'pc-view' : 'mobile-view';
+                    document.getElementById(targetView).innerHTML = `
+                        <div style="padding: 60px 20px; text-align: center;">
+                            <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
+                            <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
+                            <p style="color: var(--muted); font-size: 14px;">Obrigado! A transferência foi concluída com segurança.</p>
+                        </div>
                     `;
                 }
             });
-            // Se o cliente fechar a aba no celular dele, remove da fila do PC
-            connection.on('close', () => { if(type === 'pc') { delete clients[peerId]; renderActiveClients(); } });
+            
+            // Tratamento caso a aba do celular seja fechada no "X" do navegador
+            connection.on('close', () => { 
+                if(type === 'pc' && clients[peerId]) { 
+                    delete clients[peerId]; 
+                    renderActiveClients(); 
+                    if(Object.keys(clients).length === 0) {
+                        document.getElementById('pc-disconnect').style.display = 'none';
+                        document.getElementById('pc-action').classList.remove('show');
+                        document.getElementById('pc-file-list').innerHTML = ''; 
+                    }
+                } 
+            });
         }
 
         // ==========================================
-        // GESTÃO DE ARQUIVOS (COM BROADCAST)
+        // 4. SISTEMA DE ARQUIVOS (BLINDADO)
         // ==========================================
         async function handleFiles(input, type) {
             const files = input.files; 
             if (!files.length) return;
-            if (type === 'mobile' && !mobileConn) return;
-            if (type === 'pc' && Object.keys(clients).length === 0) { showToast("Nenhum cliente na fila!"); return; }
             
-            const bar = document.getElementById(`${type}-progress-bar`), wrapper = document.getElementById(`${type}-progress-wrapper`);
+            if (type === 'mobile' && (!mobileConn || !mobileConn.open)) { 
+                showToast("Aguarde a conexão estabilizar..."); 
+                return; 
+            }
+            if (type === 'pc' && Object.keys(clients).length === 0) { 
+                showToast("Nenhum cliente na fila!"); 
+                return; 
+            }
+            
+            const bar = document.getElementById(`${type}-progress-bar`);
+            const wrapper = document.getElementById(`${type}-progress-wrapper`);
+            const label = document.getElementById(`${type}-prog-label`);
+            const perc = document.getElementById(`${type}-prog-perc`);
+            
             wrapper.style.display = 'block';
-            
-            const file = files[0];
-            const reader = new FileReader();
-            reader.onload = () => {
-                const payload = { type: 'file', file: reader.result, name: file.name, mime: file.type, size: file.size };
+
+            if (files.length > 1) {
+                label.innerText = `EMPACOTANDO ${files.length} ARQUIVOS...`;
+                const zip = new JSZip();
+                for (let i = 0; i < files.length; i++) { zip.file(files[i].name, files[i]); }
                 
-                if (type === 'pc') {
-                    // Envia arquivo do seu PC para TODOS os celulares conectados
-                    Object.values(clients).forEach(c => c.conn.send(payload));
-                } else {
-                    // Celular envia para o PC
-                    mobileConn.send(payload);
-                }
-                
-                bar.style.width = '100%'; showToast("Enviado com sucesso!");
-                setTimeout(() => { wrapper.style.display = 'none'; bar.style.width='0'; }, 2000);
-            };
-            reader.readAsArrayBuffer(file);
+                const content = await zip.generateAsync({type: "blob"}, (metadata) => {
+                    bar.style.width = metadata.percent + '%';
+                    if(perc) perc.innerText = Math.round(metadata.percent) + '%';
+                });
+                sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
+            } else {
+                label.innerText = "LENDO ARQUIVO...";
+                bar.style.width = '50%';
+                if(perc) perc.innerText = '50%';
+                const file = files[0];
+                sendData(file, file.name, file.type || 'application/octet-stream', type);
+            }
             input.value = ''; 
         }
 
+        function sendData(blob, name, mime, type) {
+            const bar = document.getElementById(`${type}-progress-bar`);
+            const perc = document.getElementById(`${type}-prog-perc`);
+            const label = document.getElementById(`${type}-prog-label`);
+
+            label.innerText = "ENVIANDO PARA A TELA...";
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                const payload = { type: 'file', file: reader.result, name: name, mime: mime, size: blob.size };
+                
+                try {
+                    if (type === 'pc') {
+                        Object.values(clients).forEach(c => c.conn.send(payload));
+                    } else {
+                        mobileConn.send(payload);
+                    }
+                    bar.style.width = '100%';
+                    if(perc) perc.innerText = '100%';
+                    label.innerText = "CONCLUÍDO!";
+                    showToast("Enviado com sucesso!");
+                } catch(e) {
+                    label.innerText = "ERRO DE REDE";
+                    showToast("Falha ao enviar. Tente novamente.");
+                }
+                setTimeout(() => { document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; bar.style.width='0'; }, 2000);
+            };
+            reader.readAsArrayBuffer(blob);
+        }
+
         async function receiveFile(data, type, peerId) {
-            const blob = new Blob([data.file], { type: data.mime });
-            const url = URL.createObjectURL(blob);
+            if(!data || !data.file) return;
+
+            let url;
+            try {
+                const blob = new Blob([data.file], { type: data.mime });
+                url = URL.createObjectURL(blob);
+            } catch(e) { return; }
+
             const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
             const fileId = 'file_' + Math.random().toString(36).substr(2, 9);
             
@@ -456,7 +534,9 @@
             let tags = `<span class="tag tag-size">${(data.size/1024/1024).toFixed(2)} MB</span>`;
             let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
-            const isWord = data.name.toLowerCase().endsWith('.doc') || data.name.toLowerCase().endsWith('.docx');
+            const safeFileName = data.name || "arquivo_sem_nome";
+            const nameLow = safeFileName.toLowerCase();
+            const isWord = nameLow.endsWith('.doc') || nameLow.endsWith('.docx');
 
             if (isWord) {
                 preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`;
@@ -466,20 +546,23 @@
                 tags += `<span class="tag tag-res">IMG</span>`;
             } else if (data.mime === 'application/pdf') {
                 preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
+            } else if (nameLow.endsWith('.zip') || data.mime === 'application/zip') {
+                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#f59e0b"></i>`;
+                tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
-            const safeName = data.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const cleanName = safeFileName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             let actionsHTML = '';
             if (type === 'pc') {
                 actionsHTML = `
-                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Imprimir"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${cleanName}')" title="Imprimir"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
                     <button class="btn-act btn-delete" onclick="document.getElementById('${fileId}').remove()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                 `;
             } else {
                 actionsHTML = `
-                    <a href="${url}" download="${data.name}" class="btn-act"><i class="fas fa-download"></i></a>
+                    <a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a>
                     <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()"><i class="fas fa-trash-alt"></i></button>
                 `;
             }
@@ -487,13 +570,16 @@
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
-                    <span class="file-name" title="${data.name}">${data.name}</span>
+                    <span class="file-name" title="${safeFileName}">${safeFileName}</span>
                     <div class="raio-x-tags">${clientTagHTML} ${tags}</div>
                 </div>
                 <div class="file-actions">${actionsHTML}</div>`;
+            
             list.prepend(item);
             
-            if(type === 'pc') new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
+            if(type === 'pc') {
+                try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(e){}
+            }
         }
 
         function smartPrint(url, mime, name) {
