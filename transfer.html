@@ -54,7 +54,6 @@
             margin-bottom: 25px; box-shadow: 0 0 20px rgba(255,255,255,0.1); 
         }
         
-        /* HEADER DE STATUS E DESCONEXÃO */
         .status-header { display: flex; gap: 12px; margin-bottom: 25px; justify-content: center; width: 100%; align-items: center;}
         
         .status-badge { 
@@ -64,28 +63,16 @@
         }
         .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
-        /* BOTÃO DE DESCONECTAR PREMIUM */
         .btn-disconnect {
             background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-            letter-spacing: 0.5px;
+            color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px;
+            display: none; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 12px; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); letter-spacing: 0.5px;
         }
         .btn-disconnect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
             background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
         }
         .btn-disconnect:active { transform: translateY(1px); }
@@ -101,13 +88,11 @@
         }
         .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
 
-        /* PROGRESSO */
         .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
         .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
         .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
         .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; transition: width 0.3s ease; }
 
-        /* LISTA DE ARQUIVOS */
         .file-list { 
             text-align: left; display: flex; flex-direction: column; gap: 12px; 
             margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; 
@@ -119,8 +104,7 @@
         
         .file-preview-box { 
             width: 50px; height: 50px; border-radius: 8px; overflow: hidden; 
-            background: #000; flex-shrink: 0; display: flex; align-items: center; 
-            justify-content: center; border: 1px solid var(--border); 
+            background: #000; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); 
         }
         .file-preview-img { width: 100%; height: 100%; object-fit: cover; }
 
@@ -178,7 +162,6 @@
             <div id="pc-status" class="status-badge">
                 <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
             </div>
-            
             <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" title="Desconectar este Cliente">
                 <i class="fas fa-power-off"></i> Encerrar Sessão
             </button>
@@ -222,7 +205,7 @@
                 </div>
 
                 <div class="file-list" id="mobile-file-list" style="margin-top: 25px;">
-                    <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Recebidos do Balcão:</h3>
+                    <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Arquivos:</h3>
                 </div>
             </div>
         </div>
@@ -252,10 +235,8 @@
                 document.getElementById('qr-container').style.display = 'none';
                 document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
                 document.getElementById('pc-status').classList.add('connected');
-                
                 document.getElementById('pc-disconnect').style.display = 'flex';
                 document.getElementById('pc-action').classList.add('show');
-                
                 showToast("Dispositivo Conectado!");
             });
         } else {
@@ -268,24 +249,12 @@
             });
         }
 
-        // ==========================================
-        // COMUNICAÇÃO DE ENCERRAMENTO (CORRIGIDA)
-        // ==========================================
         function endSessionPC() {
-            // 1. Manda um pacote de dados especial para o celular mudar de tela
-            if(conn) {
-                conn.send({ type: 'command', action: 'disconnect' });
-            }
-            
+            if(conn) { conn.send({ type: 'command', action: 'disconnect' }); }
             showToast("Desconectando cliente...");
-            
-            // 2. Aguarda meio segundo para garantir que o sinal chegou lá e reseta o PC
-            setTimeout(() => {
-                window.location.reload(); 
-            }, 500);
+            setTimeout(() => { window.location.reload(); }, 500);
         }
 
-        // TELA DE SUCESSO NO CELULAR
         function showDisconnectedScreen() {
             if(conn) conn.close();
             document.getElementById('mobile-view').innerHTML = `
@@ -300,16 +269,9 @@
         function setupConnection(connection, type) {
             connection.on('data', (data) => { 
                 if(data.type === 'file') receiveFile(data, type); 
-                // Se o celular receber o comando de desconectar
-                if(data.type === 'command' && data.action === 'disconnect') {
-                    showDisconnectedScreen();
-                }
+                if(data.type === 'command' && data.action === 'disconnect') { showDisconnectedScreen(); }
             });
-            
-            // Caso a internet caia do nada
-            connection.on('close', () => {
-                if(isMobile) showDisconnectedScreen();
-            });
+            connection.on('close', () => { if(isMobile) showDisconnectedScreen(); });
         }
 
         async function handleFiles(input, type) {
@@ -326,9 +288,7 @@
             if (files.length > 1) {
                 label.innerText = `ZIPANDO ${files.length} ARQUIVOS...`;
                 const zip = new JSZip();
-                for (let i = 0; i < files.length; i++) {
-                    zip.file(files[i].name, files[i]);
-                }
+                for (let i = 0; i < files.length; i++) { zip.file(files[i].name, files[i]); }
                 
                 const content = await zip.generateAsync({type: "blob"}, (metadata) => {
                     bar.style.width = metadata.percent + '%';
@@ -373,7 +333,6 @@
             let tags = `<span class="tag" style="background:rgba(255,255,255,0.1)">${(data.size/1024/1024).toFixed(2)} MB</span>`;
             let preview = `<i class="fas fa-file" style="font-size:20px; color:var(--muted)"></i>`;
             
-            // VERIFICADOR DE ARQUIVO WORD (.doc / .docx)
             const isWord = data.name.toLowerCase().endsWith('.doc') || data.name.toLowerCase().endsWith('.docx');
 
             if (isWord) {
@@ -394,6 +353,21 @@
 
             const safeName = data.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
+            // LOGICA CONDICIONAL: SE FOR O PC, MOSTRA IMPRESSORA. SE FOR CELULAR, ESCONDE.
+            let actionsHTML = '';
+            if (type === 'pc') {
+                actionsHTML = `
+                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Ação Principal"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Limpar Tela"><i class="fas fa-trash"></i></button>
+                `;
+            } else {
+                actionsHTML = `
+                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar Arquivo"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Limpar Tela"><i class="fas fa-trash"></i></button>
+                `;
+            }
+
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
@@ -401,9 +375,7 @@
                     <div class="raio-x-tags">${tags}</div>
                 </div>
                 <div class="file-actions">
-                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Ação Principal"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Excluir Arquivo"><i class="fas fa-trash"></i></button>
+                    ${actionsHTML}
                 </div>`;
             list.prepend(item);
 
@@ -413,26 +385,16 @@
             }
         }
 
-        // ==========================================
-        // AUTO-PRINT COM SUPORTE A WORD
-        // ==========================================
         function smartPrint(url, mime, name) {
             const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
-            
-            // SE FOR WORD: Força o Download rápido para abrir no MS Word do Windows
             if (isWord) {
                 showToast("Abrindo no Microsoft Word...");
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = name;
-                a.click();
+                const a = document.createElement('a'); a.href = url; a.download = name; a.click();
                 return;
             }
-
             const frame = document.getElementById('printFrame');
             const doc = frame.contentWindow.document;
             doc.open();
-            
             if (mime.startsWith('image/')) {
                 const content = `
                 <style>
@@ -441,16 +403,10 @@
                     @page { size: A4; margin: 10mm; }
                 </style>
                 <body><img src="${url}"></body>`;
-                doc.write(content);
-                doc.close();
-                
-                setTimeout(() => {
-                    frame.contentWindow.focus();
-                    frame.contentWindow.print();
-                }, 500);
+                doc.write(content); doc.close();
+                setTimeout(() => { frame.contentWindow.focus(); frame.contentWindow.print(); }, 500);
             } else if (mime === 'application/pdf') {
-                frame.src = url;
-                frame.onload = () => { frame.contentWindow.print(); };
+                frame.src = url; frame.onload = () => { frame.contentWindow.print(); };
             } else {
                 showToast("Impressão direta não suportada.");
             }
@@ -458,8 +414,7 @@
 
         function showToast(msg) {
             const t = document.getElementById('toastMsg');
-            t.querySelector('span').innerText = msg;
-            t.classList.add('show');
+            t.querySelector('span').innerText = msg; t.classList.add('show');
             setTimeout(() => t.classList.remove('show'), 3000);
         }
     </script>
