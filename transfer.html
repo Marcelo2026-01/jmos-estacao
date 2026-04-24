@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JM Transfer Pro - Print Station</title>
+    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #0f0f0f;
+            --surface: #1e1e1e;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #ffffff;
+            --muted: #888888;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 20px; 
+            position: relative;
+        }
+
+        .container { 
+            background: var(--surface); 
+            border: 1px solid var(--border); 
+            border-radius: 16px; 
+            padding: 40px 30px; 
+            width: 100%; 
+            max-width: 550px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6); 
+            text-align: center; 
+            position: relative; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            z-index: 2;
+        }
+        
+        .container::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; left: 0; 
+            width: 100%; height: 4px; 
+            background: linear-gradient(90deg, var(--accent), #ef4444); 
+        }
+        
+        h1 { color: var(--accent); margin-bottom: 5px; font-size: 26px; font-weight: 800; letter-spacing: -1px; }
+        p.subtitle { color: var(--muted); margin-bottom: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+
+        .qr-box { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 12px; 
+            display: inline-flex; 
+            flex-direction: column; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.1); 
+        }
+        
+        .status-badge { 
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
+            padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; 
+            background: rgba(255,255,255,0.05); margin-bottom: 25px; border: 1px solid var(--border); 
+        }
+        .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
+
+        .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
+        .action-area.show { display: flex; }
+
+        .btn-upload { 
+            background: var(--accent); color: #000; border: none; padding: 16px; 
+            border-radius: 12px; font-weight: 800; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; gap: 12px; font-size: 16px; 
+            width: 100%; transition: 0.3s; 
+        }
+        .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+
+        /* PROGRESSO */
+        .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
+        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; transition: width 0.3s ease; }
+
+        /* LISTA DE ARQUIVOS */
+        .file-list { 
+            text-align: left; display: flex; flex-direction: column; gap: 12px; 
+            margin-top: 25px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; 
+        }
+        .file-item { 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); 
+            border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 15px; width: 100%; 
+        }
+        
+        .file-preview-box { 
+            width: 55px; height: 55px; border-radius: 8px; overflow: hidden; 
+            background: #000; flex-shrink: 0; display: flex; align-items: center; 
+            justify-content: center; border: 1px solid var(--border); 
+        }
+        .file-preview-img { width: 100%; height: 100%; object-fit: cover; }
+
+        .file-main-info { flex: 1; min-width: 0; }
+        .file-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; display: block;}
+        
+        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+        .tag { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+        .tag-res { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .tag-pages { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
+        .tag-zip { background: #4b2c20; color: #ff9d6e; }
+
+        .file-actions { display: flex; gap: 8px; }
+        .btn-act { 
+            width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; 
+            justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.05); 
+            color: white; cursor: pointer; transition: 0.2s; text-decoration: none;
+        }
+        .btn-act:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(1.05); }
+        .btn-print:hover { background: var(--success); color: #000; border-color: var(--success); }
+
+        /* CRÉDITOS */
+        .dev-credit { 
+            position: absolute; bottom: 20px; font-size: 10px; font-weight: 700; 
+            color: var(--muted); opacity: 0.4; letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; 
+        }
+        .dev-credit:hover { opacity: 1; color: var(--accent); }
+
+        #mobile-view, #pc-view { display: none; width: 100%; flex-direction: column; align-items: center; }
+
+        /* IFRAME INVISÍVEL PARA IMPRESSÃO */
+        #printFrame { display: none; }
+
+        /* TOAST ALERT */
+        .toast { 
+            position: fixed; top: 20px; right: 20px; background: #222; border-left: 4px solid var(--accent); 
+            padding: 15px 25px; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
+            transform: translateX(150%); transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
+            z-index: 9999; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; 
+        }
+        .toast.show { transform: translateX(0); }
+    </style>
+</head>
+<body>
+
+    <div id="pc-view" class="container">
+        <h1>JM TRANSFER <span style="opacity: 0.2;">PRO</span></h1>
+        <p class="subtitle">Impressão Inteligente & Auto-ZIP</p>
+
+        <div id="qr-container" class="qr-box">
+            <div id="qrcode"></div>
+            <p style="color: #000; font-size: 10px; font-weight: 900; margin-top: 10px;">CONECTAR CELULAR</p>
+        </div>
+
+        <div id="pc-status" class="status-badge">
+            <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
+        </div>
+
+        <div id="pc-action" class="action-area">
+            <button class="btn-upload" onclick="document.getElementById('pcFileInput').click()">
+                <i class="fas fa-file-import"></i> ENVIAR PARA O CELULAR
+            </button>
+            <input type="file" id="pcFileInput" multiple style="display: none;" onchange="handleFiles(this, 'pc')">
+            
+            <div class="progress-wrapper" id="pc-progress-wrapper">
+                <div class="progress-info"><span id="pc-prog-label">PROCESSANDO...</span> <span id="pc-prog-perc">0%</span></div>
+                <div class="progress-container"><div class="progress-bar" id="pc-progress-bar"></div></div>
+            </div>
+
+            <div class="file-list" id="pc-file-list"></div>
+        </div>
+    </div>
+
+    <div id="mobile-view" style="width: 100%; max-width: 450px;">
+        <div class="container" style="width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+            <h1>JM CONNECT</h1>
+            <p class="subtitle">BALCÃO DIGITAL</p>
+            
+            <div class="status-badge connected" style="margin: 10px auto 25px;">
+                <i class="fas fa-check-circle"></i> CONECTADO AO BALCÃO
+            </div>
+
+            <button class="btn-upload" onclick="document.getElementById('mobileFileInput').click()">
+                <i class="fas fa-cloud-upload-alt"></i> SELECIONAR ARQUIVOS
+            </button>
+            <input type="file" id="mobileFileInput" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+            
+            <div class="progress-wrapper" id="mobile-progress-wrapper">
+                <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
+                <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
+            </div>
+
+            <div class="file-list" id="mobile-file-list" style="margin-top: 25px;">
+                <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Recebidos do Balcão:</h3>
+            </div>
+        </div>
+    </div>
+
+    <iframe id="printFrame"></iframe>
+
+    <div class="dev-credit">Desenvolvido por José Marcelo</div>
+    <div class="toast" id="toastMsg"><i class="fas fa-bolt"></i> <span>Aviso</span></div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const remoteId = urlParams.get('remote');
+        let peer, conn;
+        const isMobile = !!remoteId;
+
+        document.getElementById(isMobile ? 'mobile-view' : 'pc-view').style.display = 'flex';
+        peer = new Peer();
+
+        if (!isMobile) {
+            peer.on('open', (id) => {
+                const link = `${window.location.href.split('?')[0]}?remote=${id}`;
+                new QRCode(document.getElementById("qrcode"), { text: link, width: 170, height: 170 });
+            });
+            peer.on('connection', (c) => {
+                conn = c; setupConnection(conn, 'pc');
+                document.getElementById('qr-container').style.display = 'none';
+                document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
+                document.getElementById('pc-status').classList.add('connected');
+                document.getElementById('pc-action').classList.add('show');
+                showToast("Dispositivo Conectado!");
+            });
+        } else {
+            peer.on('open', () => {
+                conn = peer.connect(remoteId);
+                conn.on('open', () => {
+                    setupConnection(conn, 'mobile');
+                    showToast("Ligado à Lan House!");
+                });
+            });
+        }
+
+        function setupConnection(connection, type) {
+            connection.on('data', (data) => { if(data.type === 'file') receiveFile(data, type); });
+        }
+
+        async function handleFiles(input, type) {
+            const files = input.files; 
+            if (files.length === 0 || !conn) return;
+
+            const wrapper = document.getElementById(`${type}-progress-wrapper`);
+            const bar = document.getElementById(`${type}-progress-bar`);
+            const label = document.getElementById(`${type}-prog-label`);
+            const perc = document.getElementById(`${type}-prog-perc`);
+
+            wrapper.style.display = 'block';
+
+            if (files.length > 1) {
+                // LÓGICA AUTO-ZIP
+                label.innerText = `ZIPANDO ${files.length} ARQUIVOS...`;
+                const zip = new JSZip();
+                for (let i = 0; i < files.length; i++) {
+                    zip.file(files[i].name, files[i]);
+                }
+                
+                const content = await zip.generateAsync({type: "blob"}, (metadata) => {
+                    bar.style.width = metadata.percent + '%';
+                    perc.innerText = Math.round(metadata.percent) + '%';
+                });
+                
+                sendData(content, `Pacote_Impressoes.zip`, 'application/zip', type);
+            } else {
+                // ENVIO ÚNICO
+                label.innerText = "PREPARANDO ENVIO...";
+                bar.style.width = '50%';
+                const file = files[0];
+                sendData(file, file.name, file.type, type);
+            }
+            input.value = ''; // Reseta o input
+        }
+
+        function sendData(blob, name, mime, type) {
+            const bar = document.getElementById(`${type}-progress-bar`);
+            const perc = document.getElementById(`${type}-prog-perc`);
+            const label = document.getElementById(`${type}-prog-label`);
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                conn.send({ type: 'file', file: reader.result, name: name, mime: mime, size: blob.size });
+                bar.style.width = '100%';
+                perc.innerText = '100%';
+                label.innerText = "CONCLUÍDO!";
+                showToast("Arquivo enviado com sucesso!");
+                setTimeout(() => { document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; }, 2500);
+            };
+            reader.readAsArrayBuffer(blob);
+        }
+
+        async function receiveFile(data, type) {
+            const blob = new Blob([data.file], { type: data.mime });
+            const url = URL.createObjectURL(blob);
+            const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
+            
+            const item = document.createElement('div');
+            item.className = 'file-item';
+            
+            let tags = `<span class="tag" style="background:rgba(255,255,255,0.1)">${(data.size/1024/1024).toFixed(2)} MB</span>`;
+            let preview = `<i class="fas fa-file" style="font-size:20px; color:var(--muted)"></i>`;
+
+            // METADADOS INTELIGENTES (RAIO-X)
+            if (data.mime.startsWith('image/')) {
+                preview = `<img src="${url}" class="file-preview-img">`;
+                const img = new Image(); img.src = url; await img.decode();
+                tags += `<span class="tag tag-res">${img.naturalWidth}x${img.naturalHeight}</span>`;
+            } else if (data.mime === 'application/pdf') {
+                preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
+                const text = await blob.text(); const match = text.match(/\/Count\s+(\d+)/);
+                tags += `<span class="tag tag-pages">${match ? match[1] : '?'} PÁG.</span>`;
+            } else if (data.mime === 'application/zip') {
+                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#ff9d6e"></i>`;
+                tags += `<span class="tag tag-zip">ZIP</span>`;
+            }
+
+            item.innerHTML = `
+                <div class="file-preview-box">${preview}</div>
+                <div class="file-main-info">
+                    <span class="file-name" title="${data.name}">${data.name}</span>
+                    <div class="raio-x-tags">${tags}</div>
+                </div>
+                <div class="file-actions">
+                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}')" title="Imprimir Auto A4"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
+                </div>`;
+            list.prepend(item);
+
+            if(type === 'pc') {
+                showToast("Novo arquivo na fila!");
+                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
+            }
+        }
+
+        // ==========================================
+        // ENGENHARIA DE IMPRESSÃO INTELIGENTE A4
+        // ==========================================
+        function smartPrint(url, mime) {
+            const frame = document.getElementById('printFrame');
+            const doc = frame.contentWindow.document;
+            doc.open();
+            
+            let content = '';
+            if (mime.startsWith('image/')) {
+                // Cria uma página A4 virtual e centraliza a imagem para impressão perfeita
+                content = `
+                <style>
+                    body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
+                    img { max-width: 190mm; max-height: 270mm; object-fit: contain; }
+                    @page { size: A4; margin: 10mm; }
+                </style>
+                <body><img src="${url}"></body>`;
+                doc.write(content);
+                doc.close();
+                
+                setTimeout(() => {
+                    frame.contentWindow.focus();
+                    frame.contentWindow.print();
+                }, 500);
+            } else if (mime === 'application/pdf') {
+                // PDF chama a impressão direto
+                frame.src = url;
+                frame.onload = () => { frame.contentWindow.print(); };
+            } else {
+                showToast("Impressão direta não suportada para este formato.");
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toastMsg');
+            t.querySelector('span').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
