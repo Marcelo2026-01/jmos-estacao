@@ -55,19 +55,21 @@
         }
         
         /* HEADER DE STATUS E DESCONEXÃO */
-        .status-header { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; width: 100%; }
+        .status-header { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; width: 100%; align-items: center;}
+        
         .status-badge { 
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
             padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; 
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin: 0;
         }
         .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
+        /* BOTÃO DE DESCONECTAR NO PC */
         .btn-disconnect {
             background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--danger); width: 42px; height: 42px; border-radius: 30px;
-            display: none; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.3s; font-size: 16px;
+            color: var(--danger); padding: 10px 15px; border-radius: 30px;
+            display: none; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 700;
         }
         .btn-disconnect:hover { background: var(--danger); color: white; }
 
@@ -81,13 +83,6 @@
             width: 100%; transition: 0.3s; 
         }
         .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
-
-        .btn-clear {
-            background: transparent; color: var(--danger); border: 1px dashed rgba(239, 68, 68, 0.4);
-            padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; 
-            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: 0.2s;
-        }
-        .btn-clear:hover { background: rgba(239, 68, 68, 0.1); border-style: solid; }
 
         /* PROGRESSO */
         .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
@@ -123,12 +118,14 @@
 
         .file-actions { display: flex; gap: 6px; }
         .btn-act { 
-            width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; 
+            width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; 
             justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.05); 
             color: white; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 14px;
         }
         .btn-act:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(1.05); }
         .btn-print:hover { background: var(--success); color: #000; border-color: var(--success); }
+        
+        /* COR DA LIXEIRA */
         .btn-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
         .dev-credit { 
@@ -165,8 +162,8 @@
             <div id="pc-status" class="status-badge">
                 <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
             </div>
-            <button id="pc-disconnect" class="btn-disconnect" onclick="endSession()" title="Encerrar Sessão e Limpar">
-                <i class="fas fa-power-off"></i>
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSession()" title="Encerrar Sessão do Cliente">
+                <i class="fas fa-power-off"></i> Encerrar Cliente
             </button>
         </div>
 
@@ -182,10 +179,6 @@
             </div>
 
             <div class="file-list" id="pc-file-list"></div>
-            
-            <button class="btn-clear" onclick="document.getElementById('pc-file-list').innerHTML = ''">
-                <i class="fas fa-trash-alt"></i> Limpar Painel de Arquivos
-            </button>
         </div>
     </div>
 
@@ -198,9 +191,6 @@
                 <div class="status-badge connected">
                     <i class="fas fa-check-circle"></i> CONECTADO AO BALCÃO
                 </div>
-                <button class="btn-disconnect" style="display: flex;" onclick="endSession()" title="Encerrar Sessão">
-                    <i class="fas fa-power-off"></i>
-                </button>
             </div>
 
             <div id="mobile-action" class="action-area show">
@@ -245,8 +235,11 @@
                 document.getElementById('qr-container').style.display = 'none';
                 document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
                 document.getElementById('pc-status').classList.add('connected');
+                
+                // MOSTRA O BOTÃO DE ENCERRAR CLIENTE NO PC
                 document.getElementById('pc-disconnect').style.display = 'flex';
                 document.getElementById('pc-action').classList.add('show');
+                
                 showToast("Dispositivo Conectado!");
             });
         } else {
@@ -260,32 +253,20 @@
         }
 
         // ==========================================
-        // LÓGICA DE DESCONEXÃO SEGURA
+        // LÓGICA DE DESCONEXÃO SEGURA (NOVA)
         // ==========================================
         function endSession() {
-            if(conn) conn.close(); // Corta o túnel P2P
+            if(conn) conn.close(); // Corta o sinal
             
-            if (isMobile) {
-                // Tela de Sucesso no Celular
-                document.getElementById('mobile-view').innerHTML = `
-                    <div class="container" style="box-shadow: none; padding: 60px 30px;">
-                        <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success); margin-bottom: 20px;"></i>
-                        <h1 style="color: var(--text);">Sessão Encerrada</h1>
-                        <p style="color: var(--muted); margin-top: 10px; font-weight: 600;">Obrigado! Você já pode fechar o seu navegador com segurança.</p>
-                    </div>
-                `;
-            } else {
-                // Reseta o PC para o Próximo Cliente
-                showToast("Encerrando e apagando dados...");
-                setTimeout(() => {
-                    window.location.reload(); // Recarrega para gerar novo QR Code e limpar a RAM
-                }, 1000);
-            }
+            showToast("Encerrando cliente...");
+            setTimeout(() => {
+                window.location.reload(); // Recarrega a página do PC para gerar um novo QR Code limpo
+            }, 800);
         }
 
         function setupConnection(connection, type) {
             connection.on('data', (data) => { if(data.type === 'file') receiveFile(data, type); });
-            // Se a conexão for fechada pelo outro lado
+            // Se a conexão for fechada
             connection.on('close', () => {
                 if(!isMobile) endSession();
             });
@@ -365,7 +346,7 @@
                 tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
-            // BOTÃO DE LIXEIRA INDIVIDUAL ADICIONADO AQUI
+            // BOTÕES COM A LIXEIRA INDIVIDUAL (EXCLUIR ARQUIVO)
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
@@ -375,7 +356,7 @@
                 <div class="file-actions">
                     <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}')" title="Imprimir Auto A4"><i class="fas fa-print"></i></button>
                     <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Apagar da Tela"><i class="fas fa-trash"></i></button>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Excluir Arquivo"><i class="fas fa-trash"></i></button>
                 </div>`;
             list.prepend(item);
 
