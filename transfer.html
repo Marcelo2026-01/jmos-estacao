@@ -55,7 +55,7 @@
         }
         
         /* HEADER DE STATUS E DESCONEXÃO */
-        .status-header { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; width: 100%; align-items: center;}
+        .status-header { display: flex; gap: 12px; margin-bottom: 25px; justify-content: center; width: 100%; align-items: center;}
         
         .status-badge { 
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
@@ -64,14 +64,31 @@
         }
         .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
-        /* BOTÃO DE DESCONECTAR NO PC */
+        /* BOTÃO DE DESCONECTAR PREMIUM */
         .btn-disconnect {
-            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
-            color: var(--danger); padding: 10px 15px; border-radius: 30px;
-            display: none; align-items: center; justify-content: center; gap: 8px;
-            cursor: pointer; transition: 0.3s; font-size: 13px; font-weight: 700;
+            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+            letter-spacing: 0.5px;
         }
-        .btn-disconnect:hover { background: var(--danger); color: white; }
+        .btn-disconnect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
+            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+        }
+        .btn-disconnect:active { transform: translateY(1px); }
 
         .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
         .action-area.show { display: flex; }
@@ -115,6 +132,7 @@
         .tag-res { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
         .tag-pages { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
         .tag-zip { background: #4b2c20; color: #ff9d6e; }
+        .tag-word { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 
         .file-actions { display: flex; gap: 6px; }
         .btn-act { 
@@ -124,8 +142,6 @@
         }
         .btn-act:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(1.05); }
         .btn-print:hover { background: var(--success); color: #000; border-color: var(--success); }
-        
-        /* COR DA LIXEIRA */
         .btn-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
         .dev-credit { 
@@ -162,8 +178,9 @@
             <div id="pc-status" class="status-badge">
                 <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
             </div>
-            <button id="pc-disconnect" class="btn-disconnect" onclick="endSession()" title="Encerrar Sessão do Cliente">
-                <i class="fas fa-power-off"></i> Encerrar Cliente
+            
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" title="Desconectar este Cliente">
+                <i class="fas fa-power-off"></i> Encerrar Sessão
             </button>
         </div>
 
@@ -236,7 +253,6 @@
                 document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
                 document.getElementById('pc-status').classList.add('connected');
                 
-                // MOSTRA O BOTÃO DE ENCERRAR CLIENTE NO PC
                 document.getElementById('pc-disconnect').style.display = 'flex';
                 document.getElementById('pc-action').classList.add('show');
                 
@@ -253,22 +269,46 @@
         }
 
         // ==========================================
-        // LÓGICA DE DESCONEXÃO SEGURA (NOVA)
+        // COMUNICAÇÃO DE ENCERRAMENTO (CORRIGIDA)
         // ==========================================
-        function endSession() {
-            if(conn) conn.close(); // Corta o sinal
+        function endSessionPC() {
+            // 1. Manda um pacote de dados especial para o celular mudar de tela
+            if(conn) {
+                conn.send({ type: 'command', action: 'disconnect' });
+            }
             
-            showToast("Encerrando cliente...");
+            showToast("Desconectando cliente...");
+            
+            // 2. Aguarda meio segundo para garantir que o sinal chegou lá e reseta o PC
             setTimeout(() => {
-                window.location.reload(); // Recarrega a página do PC para gerar um novo QR Code limpo
-            }, 800);
+                window.location.reload(); 
+            }, 500);
+        }
+
+        // TELA DE SUCESSO NO CELULAR
+        function showDisconnectedScreen() {
+            if(conn) conn.close();
+            document.getElementById('mobile-view').innerHTML = `
+                <div class="container" style="box-shadow: none; padding: 60px 30px;">
+                    <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success); margin-bottom: 20px;"></i>
+                    <h1 style="color: var(--text);">Sessão Encerrada</h1>
+                    <p style="color: var(--muted); margin-top: 10px; font-weight: 600;">Obrigado! Você já pode fechar esta tela com segurança.</p>
+                </div>
+            `;
         }
 
         function setupConnection(connection, type) {
-            connection.on('data', (data) => { if(data.type === 'file') receiveFile(data, type); });
-            // Se a conexão for fechada
+            connection.on('data', (data) => { 
+                if(data.type === 'file') receiveFile(data, type); 
+                // Se o celular receber o comando de desconectar
+                if(data.type === 'command' && data.action === 'disconnect') {
+                    showDisconnectedScreen();
+                }
+            });
+            
+            // Caso a internet caia do nada
             connection.on('close', () => {
-                if(!isMobile) endSession();
+                if(isMobile) showDisconnectedScreen();
             });
         }
 
@@ -332,8 +372,14 @@
             
             let tags = `<span class="tag" style="background:rgba(255,255,255,0.1)">${(data.size/1024/1024).toFixed(2)} MB</span>`;
             let preview = `<i class="fas fa-file" style="font-size:20px; color:var(--muted)"></i>`;
+            
+            // VERIFICADOR DE ARQUIVO WORD (.doc / .docx)
+            const isWord = data.name.toLowerCase().endsWith('.doc') || data.name.toLowerCase().endsWith('.docx');
 
-            if (data.mime.startsWith('image/')) {
+            if (isWord) {
+                preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`;
+                tags += `<span class="tag tag-word">WORD</span>`;
+            } else if (data.mime.startsWith('image/')) {
                 preview = `<img src="${url}" class="file-preview-img">`;
                 const img = new Image(); img.src = url; await img.decode();
                 tags += `<span class="tag tag-res">${img.naturalWidth}x${img.naturalHeight}</span>`;
@@ -346,7 +392,8 @@
                 tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
-            // BOTÕES COM A LIXEIRA INDIVIDUAL (EXCLUIR ARQUIVO)
+            const safeName = data.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
@@ -354,7 +401,7 @@
                     <div class="raio-x-tags">${tags}</div>
                 </div>
                 <div class="file-actions">
-                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}')" title="Imprimir Auto A4"><i class="fas fa-print"></i></button>
+                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Ação Principal"><i class="fas fa-print"></i></button>
                     <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
                     <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Excluir Arquivo"><i class="fas fa-trash"></i></button>
                 </div>`;
@@ -366,14 +413,28 @@
             }
         }
 
-        function smartPrint(url, mime) {
+        // ==========================================
+        // AUTO-PRINT COM SUPORTE A WORD
+        // ==========================================
+        function smartPrint(url, mime, name) {
+            const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
+            
+            // SE FOR WORD: Força o Download rápido para abrir no MS Word do Windows
+            if (isWord) {
+                showToast("Abrindo no Microsoft Word...");
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = name;
+                a.click();
+                return;
+            }
+
             const frame = document.getElementById('printFrame');
             const doc = frame.contentWindow.document;
             doc.open();
             
-            let content = '';
             if (mime.startsWith('image/')) {
-                content = `
+                const content = `
                 <style>
                     body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
                     img { max-width: 190mm; max-height: 270mm; object-fit: contain; }
