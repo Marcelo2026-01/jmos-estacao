@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JM Transfer Pro - Login</title>
+    <title>JM Transfer Pro - SaaS</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
@@ -11,6 +11,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
     <style>
         :root {
@@ -29,7 +32,6 @@
         }
         .container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), #ef4444); }
         
-        /* BOTÃO DE SAIR (LOGOUT) NO CANTO */
         .btn-top-logout { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
         .btn-top-logout:hover { color: var(--danger); transform: translateX(2px); }
 
@@ -120,7 +122,7 @@
             <input type="password" id="loginPass" placeholder="••••••••" autocomplete="off">
         </div>
 
-        <button class="btn-login" onclick="fazerLogin()">
+        <button class="btn-login" id="btnFazerLogin" onclick="fazerLogin()">
             <i class="fas fa-sign-in-alt"></i> ENTRAR NO SISTEMA
         </button>
     </div>
@@ -179,9 +181,19 @@
     <div class="toast" id="toastMsg"><i class="fas fa-check-circle" style="color: var(--success);"></i> <span>Aviso</span></div>
 
     <script>
-        // CREDENCIAIS DE TESTE (VAMOS TROCAR ISSO PELO FIREBASE DEPOIS)
-        const USUARIO_CORRETO = "admin@jm.com";
-        const SENHA_CORRETA = "admin123";
+        // ==========================================
+        // 1. INICIALIZAÇÃO DO FIREBASE (SUAS CHAVES)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCmD4GMmuLbKP0oOP-yu3_m6N1lCUmnljg",
+            authDomain: "jm-transfer.firebaseapp.com",
+            projectId: "jm-transfer",
+            storageBucket: "jm-transfer.firebasestorage.app",
+            messagingSenderId: "781704866355",
+            appId: "1:781704866355:web:b74476d860bbe91d7f9146"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
         const urlParams = new URLSearchParams(window.location.search);
         const remoteId = urlParams.get('remote');
@@ -189,53 +201,75 @@
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
-        // CONTROLE DE TELAS
+        // ==========================================
+        // 2. CONTROLE DE ACESSO (O ESPIÃO)
+        // ==========================================
         if (isMobile) {
+            // Cliente tem passe livre (não pede senha)
             document.getElementById('mobile-view').style.display = 'flex';
             iniciarPeerJSCelular();
         } else {
-            document.getElementById('login-view').style.display = 'flex';
+            // Fica vigiando para ver se você já está logado
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    // Já estava logado! Pula a tela de login.
+                    document.getElementById('login-view').style.display = 'none';
+                    document.getElementById('pc-view').style.display = 'flex';
+                    if(!peer) iniciarPeerJSPc();
+                } else {
+                    // Não está logado. Mostra a tela de bloqueio.
+                    document.getElementById('login-view').style.display = 'flex';
+                    document.getElementById('pc-view').style.display = 'none';
+                }
+            });
+
+            // Permite logar apertando Enter no teclado
             document.getElementById('loginPass').addEventListener('keypress', function(e) {
                 if(e.key === 'Enter') fazerLogin();
             });
         }
 
         // ==========================================
-        // SISTEMA DE LOGIN E LOGOUT
+        // 3. FUNÇÕES DE LOGIN E LOGOUT REAL
         // ==========================================
         function fazerLogin() {
             const emailDigitado = document.getElementById('loginEmail').value;
             const senhaDigitada = document.getElementById('loginPass').value;
+            const btn = document.getElementById('btnFazerLogin');
 
-            if (emailDigitado === USUARIO_CORRETO && senhaDigitada === SENHA_CORRETA) {
-                showToast("Acesso Liberado!");
-                document.getElementById('login-view').style.display = 'none';
-                document.getElementById('pc-view').style.display = 'flex';
-                
-                // Só liga a rede depois de logar para economizar internet
-                if(!peer) iniciarPeerJSPc(); 
-            } else {
-                showToast("Erro: E-mail ou Senha incorretos.");
-            }
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...';
+
+            auth.signInWithEmailAndPassword(emailDigitado, senhaDigitada)
+                .then((userCredential) => {
+                    showToast("Acesso Liberado!");
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ENTRAR NO SISTEMA';
+                    document.getElementById('loginEmail').value = '';
+                    document.getElementById('loginPass').value = '';
+                    // O onAuthStateChanged lá em cima cuida de trocar as telas
+                })
+                .catch((error) => {
+                    btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> ENTRAR NO SISTEMA';
+                    if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'){
+                        showToast("Erro: E-mail ou Senha incorretos.");
+                    } else {
+                        showToast("Erro: Muitas tentativas. Aguarde.");
+                    }
+                });
         }
 
         function fazerLogout() {
-            // 1. Desconecta o cliente atual se houver
-            if(conn) { conn.send({ type: 'command', action: 'disconnect' }); conn.close(); }
-            
-            // 2. Limpa os campos de senha
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPass').value = '';
-            
-            // 3. Esconde o painel e mostra o Login de novo
-            document.getElementById('pc-view').style.display = 'none';
-            document.getElementById('login-view').style.display = 'flex';
-            
-            showToast("Sistema bloqueado com sucesso.");
+            auth.signOut().then(() => {
+                if(conn) { conn.send({ type: 'command', action: 'disconnect' }); conn.close(); }
+                if(peer) { peer.destroy(); peer = null; }
+                showToast("Sistema bloqueado com segurança.");
+                // O onAuthStateChanged joga para a tela de login automaticamente
+            }).catch((error) => {
+                showToast("Erro ao sair.");
+            });
         }
 
         // ==========================================
-        // REDE E TRANSFERÊNCIA P2P
+        // 4. REDE E TRANSFERÊNCIA P2P
         // ==========================================
         function iniciarPeerJSPc() {
             peer = new Peer();
@@ -270,7 +304,18 @@
 
         function endSessionPC() {
             if(conn) { conn.send({ type: 'command', action: 'disconnect' }); }
-            setTimeout(() => { window.location.reload(); }, 600);
+            setTimeout(() => { 
+                // Apenas recarrega a parte da rede P2P sem deslogar o usuário
+                if(peer) peer.destroy();
+                document.getElementById('pc-action').classList.remove('show');
+                document.getElementById('pc-disconnect').style.display = 'none';
+                document.getElementById('pc-status').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...';
+                document.getElementById('pc-status').classList.remove('connected');
+                document.getElementById('qr-container').style.display = 'inline-flex';
+                document.getElementById('btnCopyLink').style.display = 'flex';
+                document.getElementById('pc-file-list').innerHTML = '';
+                iniciarPeerJSPc();
+            }, 600);
         }
 
         function setupConnection(connection, type) {
