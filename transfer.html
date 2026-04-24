@@ -34,11 +34,11 @@
         
         .btn-top-logout { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
         .btn-top-logout:hover { color: var(--danger); transform: translateX(2px); }
+        .btn-top-logout:disabled { opacity: 0.5; cursor: not-allowed; }
 
         h1 { color: var(--accent); margin-bottom: 4px; font-size: 28px; font-weight: 800; letter-spacing: -1.5px; }
         p.subtitle { color: var(--muted); margin-bottom: 35px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; }
 
-        /* DESIGN DO LOGIN APRIMORADO */
         .input-container { position: relative; width: 100%; margin-bottom: 16px; }
         .input-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888888; font-size: 15px; z-index: 2; }
         .input-container input { 
@@ -48,6 +48,7 @@
         }
         .input-container input:focus { border-color: var(--accent); background: #1a1a1a; box-shadow: 0 0 0 1px var(--accent); }
         .input-container input::placeholder { color: #555555; }
+        .input-container input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .input-container input:-webkit-autofill,
         .input-container input:-webkit-autofill:hover, 
@@ -64,47 +65,51 @@
             border-radius: 8px; font-weight: 700; font-size: 16px; width: 100%; 
             cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
         }
-        .btn-login:hover { transform: translateY(-2px); background: #fcd34d; }
+        .btn-login:hover:not(:disabled) { transform: translateY(-2px); background: #fcd34d; }
+        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-        .qr-box { background: #ffffff; padding: 18px; border-radius: 16px; display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 15px; }
+        .qr-box { background: #ffffff; padding: 18px; border-radius: 16px; display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 15px; transition: opacity 0.3s; }
         .qr-box p { color: #000; font-size: 10px; font-weight: 800; margin-top: 12px; letter-spacing: 0.5px;}
 
         .btn-copy-link { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: all 0.2s ease; text-transform: uppercase;}
-        .btn-copy-link:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .btn-copy-link:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); }
         .btn-copy-link i { color: var(--accent); }
+        .btn-copy-link:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .status-header { display: flex; gap: 12px; justify-content: center; width: 100%; align-items: center;}
-        .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0;}
+        .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0; transition: all 0.3s ease;}
         .status-badge.connected { background: rgba(16, 185, 129, 0.08); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
         #active-clients-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; margin-bottom: 25px; width: 100%; }
         .client-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; }
-        .client-pill-close { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .client-pill-close { cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 2px; }
         .client-pill-close:hover { opacity: 1; transform: scale(1.2); }
 
         .btn-disconnect { background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 30px; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 12px; font-weight: 600;}
-        .btn-disconnect:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-disconnect:hover:not(:disabled) { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        .btn-disconnect:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
         .action-area.show { display: flex; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-upload { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn-upload:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-upload { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden;}
+        .btn-upload:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-upload:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(0.5); transform: none !important; box-shadow: none; }
 
-        .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
+        .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; animation: fadeIn 0.3s ease; }
         .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px;}
         .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 6px; overflow: hidden; }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%; transition: width 0.3s ease; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%; transition: width 0.2s linear; }
 
-        .file-list { text-align: left; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .file-list { text-align: left; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; scroll-behavior: smooth; }
         .file-list::-webkit-scrollbar { width: 4px; }
         .file-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-        .file-item { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 14px; width: 100%; transition: all 0.2s ease;}
+        .file-item { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 14px; width: 100%; transition: all 0.2s ease; animation: fadeIn 0.4s ease; }
         .file-item:hover { border-color: rgba(255,255,255,0.15); }
         
-        .file-preview-box { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.5); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); }
+        .file-preview-box { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.5); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); position: relative; }
         .file-preview-img { width: 100%; height: 100%; object-fit: cover; }
 
         .file-main-info { flex: 1; min-width: 0; }
@@ -127,7 +132,7 @@
         .dev-credit { position: absolute; bottom: 20px; font-size: 10px; font-weight: 600; color: var(--muted); opacity: 0.3; letter-spacing: 1.5px; text-transform: uppercase; transition: 0.3s; z-index: 1;}
         .dev-credit:hover { opacity: 1; color: var(--accent); }
 
-        .toast { position: fixed; top: 20px; right: 20px; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 16px 24px; border-radius: 12px; z-index: 10000; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13px; transform: translateX(150%); transition: 0.4s; }
+        .toast { position: fixed; top: 20px; right: 20px; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 16px 24px; border-radius: 12px; z-index: 10000; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13px; transform: translateX(150%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { transform: translateX(0); }
     </style>
 </head>
@@ -139,22 +144,22 @@
         <p class="subtitle" style="margin-bottom: 25px;">Faça login para operar o balcão</p>
 
         <div class="input-container">
-            <i class="fas fa-envelope"></i>
-            <input type="email" id="loginEmail" placeholder="E-mail do Administrador" autocomplete="username">
+            <i class="fas fa-envelope" aria-hidden="true"></i>
+            <input type="email" id="loginEmail" placeholder="E-mail do Administrador" autocomplete="username" aria-label="E-mail do Administrador">
         </div>
         
         <div class="input-container">
-            <i class="fas fa-key"></i>
-            <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password">
+            <i class="fas fa-key" aria-hidden="true"></i>
+            <input type="password" id="loginPass" placeholder="Senha" autocomplete="current-password" aria-label="Senha">
         </div>
 
-        <button class="btn-login" id="btnFazerLogin" onclick="fazerLogin()">
+        <button class="btn-login" id="btnFazerLogin" onclick="fazerLogin()" aria-label="Entrar no Sistema">
             Entrar no Sistema
         </button>
     </div>
 
     <div id="pc-view" class="container">
-        <button class="btn-top-logout" onclick="fazerLogout()" title="Bloquear Sistema">
+        <button class="btn-top-logout" onclick="fazerLogout()" title="Bloquear Sistema" aria-label="Sair e Bloquear Sistema">
             Sair <i class="fas fa-sign-out-alt"></i>
         </button>
 
@@ -162,31 +167,33 @@
         <p class="subtitle">Painel Multi-Atendimento</p>
 
         <div id="qr-container" class="qr-box">
-            <div id="qrcode"></div>
+            <div id="qrcode" aria-label="QR Code para conexão"></div>
             <p>ESCANEIE PARA ENTRAR NA FILA</p>
         </div>
-        <button id="btnCopyLink" class="btn-copy-link" onclick="copySessionLink()"><i class="fas fa-link"></i> Copiar Link WhatsApp</button>
+        <button id="btnCopyLink" class="btn-copy-link" onclick="copySessionLink()" title="Copiar link para WhatsApp" aria-label="Copiar link da sessão">
+            <i class="fas fa-link"></i> Copiar Link WhatsApp
+        </button>
 
         <div class="status-header">
-            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" style="display: none;">
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" style="display: none;" title="Desconectar todos os clientes">
                 <i class="fas fa-power-off"></i> Encerrar Fila
             </button>
         </div>
         
-        <div id="active-clients-list"></div>
+        <div id="active-clients-list" aria-live="polite"></div>
 
         <div id="pc-action" class="action-area">
-            <button class="btn-upload" onclick="document.getElementById('pcFileInput').click()">
+            <button class="btn-upload" id="pcBtnUpload" onclick="document.getElementById('pcFileInput').click()" title="Enviar para todos os clientes conectados">
                 <i class="fas fa-broadcast-tower"></i> ENVIAR ARQUIVO P/ CLIENTES ATIVOS
             </button>
-            <input type="file" id="pcFileInput" multiple style="display: none;" onchange="handleFiles(this, 'pc')">
+            <input type="file" id="pcFileInput" multiple style="display: none;" onchange="handleFiles(this, 'pc')" aria-label="Selecionar arquivos para enviar">
             
-            <div class="progress-wrapper" id="pc-progress-wrapper">
+            <div class="progress-wrapper" id="pc-progress-wrapper" aria-live="assertive">
                 <div class="progress-info"><span id="pc-prog-label">PROCESSANDO...</span> <span id="pc-prog-perc">0%</span></div>
                 <div class="progress-container"><div class="progress-bar" id="pc-progress-bar"></div></div>
             </div>
 
-            <div class="file-list" id="pc-file-list"></div>
+            <div class="file-list" id="pc-file-list" aria-live="polite"></div>
         </div>
     </div>
 
@@ -201,37 +208,36 @@
         </div>
         
         <div id="mobile-action" class="action-area show">
-            
             <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left;">
                 <p style="font-size: 11px; color: #60a5fa; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
                 <p style="font-size: 11px; color: var(--muted); line-height: 1.4;">Salve o PDF ou Foto no seu aparelho <b>antes</b> de enviar. Arquivos salvos costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
             </div>
 
-            <button class="btn-upload" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()">
+            <button class="btn-upload" id="mobileBtnImg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()" title="Abre a galeria de imagens">
                 <i class="fas fa-camera-retro"></i> ENVIAR FOTOS
             </button>
-            <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+            <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar fotos">
 
-            <button class="btn-upload" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()">
+            <button class="btn-upload" id="mobileBtnDoc" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()" title="Abre a pasta de arquivos e documentos">
                 <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS (PDF/WORD)
             </button>
-            <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+            <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar documentos">
             
-            <div class="progress-wrapper" id="mobile-progress-wrapper">
+            <div class="progress-wrapper" id="mobile-progress-wrapper" aria-live="assertive">
                 <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
                 <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
             </div>
-            <div class="file-list" id="mobile-file-list" style="margin-top: 25px;"></div>
+            <div class="file-list" id="mobile-file-list" aria-live="polite"></div>
         </div>
     </div>
 
-    <iframe id="printFrame"></iframe>
+    <iframe id="printFrame" title="Frame de Impressão Oculto"></iframe>
     <div class="dev-credit">Desenvolvido por José Marcelo</div>
-    <div class="toast" id="toastMsg"><i class="fas fa-check-circle" style="color: var(--success);"></i> <span>Aviso</span></div>
+    <div class="toast" id="toastMsg" aria-live="assertive"><i class="fas fa-check-circle" style="color: var(--success);"></i> <span>Aviso</span></div>
 
     <script>
         // ==========================================
-        // 1. FIREBASE (SUAS CHAVES INTACTAS)
+        // 1. CONFIGURAÇÕES E FIREBASE
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCmD4GMmuLbKP0oOP-yu3_m6N1lCUmnljg",
@@ -241,23 +247,84 @@
             messagingSenderId: "781704866355",
             appId: "1:781704866355:web:b74476d860bbe91d7f9146"
         };
-        firebase.initializeApp(firebaseConfig);
+        
+        try {
+            firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            console.error("Erro ao inicializar Firebase:", error);
+        }
+        
         const auth = firebase.auth();
-
         const urlParams = new URLSearchParams(window.location.search);
         const remoteId = urlParams.get('remote');
-        let peer;
+        let peer = null;
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
-        // ==========================================
-        // 2. MOTOR MULTI-CONEXÕES SEGURO
-        // ==========================================
+        // Controle de estado e conexões
         let clients = {}; 
         let clientCounter = 1;
         let mobileConn = null; 
+        let isUploading = false;
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+        // ==========================================
+        // 2. FUNÇÕES DE UTILIDADE E SEGURANÇA
+        // ==========================================
+        function escapeHTML(str) {
+            if (!str) return "";
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toastMsg'); 
+            const icon = t.querySelector('i');
+            
+            if (isError) {
+                icon.className = 'fas fa-exclamation-circle';
+                icon.style.color = 'var(--danger)';
+                t.style.borderLeftColor = 'var(--danger)';
+            } else {
+                icon.className = 'fas fa-check-circle';
+                icon.style.color = 'var(--success)';
+                t.style.borderLeftColor = 'var(--accent)';
+            }
+            
+            t.querySelector('span').innerText = msg;
+            t.classList.add('show'); 
+            
+            setTimeout(() => {
+                t.classList.remove('show');
+                // Reseta visual padrão após sumir
+                setTimeout(() => {
+                    icon.className = 'fas fa-check-circle';
+                    icon.style.color = 'var(--success)';
+                    t.style.borderLeftColor = 'var(--accent)';
+                }, 400);
+            }, 3500);
+        }
+
+        function toggleUploadState(type, state) {
+            isUploading = state;
+            if (type === 'pc') {
+                document.getElementById('pcBtnUpload').disabled = state;
+            } else {
+                document.getElementById('mobileBtnImg').disabled = state;
+                document.getElementById('mobileBtnDoc').disabled = state;
+            }
+        }
+
+        // ==========================================
+        // 3. CONTROLE DE ACESSO
+        // ==========================================
         if (isMobile) {
             document.getElementById('mobile-view').style.display = 'flex';
             iniciarPeerJSCelular();
@@ -270,45 +337,83 @@
                 } else {
                     document.getElementById('login-view').style.display = 'flex';
                     document.getElementById('pc-view').style.display = 'none';
+                    if(peer) { peer.destroy(); peer = null; }
                 }
             });
             document.getElementById('loginPass').addEventListener('keypress', function(e) { if(e.key === 'Enter') fazerLogin(); });
         }
 
         function fazerLogin() {
-            const e = document.getElementById('loginEmail').value;
-            const s = document.getElementById('loginPass').value;
+            const emailInput = document.getElementById('loginEmail');
+            const passInput = document.getElementById('loginPass');
+            const e = emailInput.value.trim();
+            const s = passInput.value;
             const btn = document.getElementById('btnFazerLogin');
+
+            if (!e || !s) {
+                showToast("Preencha e-mail e senha.", true);
+                return;
+            }
+
+            btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...';
+            
             auth.signInWithEmailAndPassword(e, s).then(() => {
                 showToast("Acesso Liberado!");
+                btn.disabled = false;
                 btn.innerHTML = 'Entrar no Sistema';
-                document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = '';
-            }).catch(() => {
+                emailInput.value = ''; 
+                passInput.value = '';
+            }).catch((error) => {
+                btn.disabled = false;
                 btn.innerHTML = 'Entrar no Sistema';
-                showToast("Erro: Verifique seus dados.");
+                if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'){
+                    showToast("Erro: E-mail ou Senha incorretos.", true);
+                } else if(error.code === 'auth/invalid-email') {
+                    showToast("Erro: Formato de e-mail inválido.", true);
+                } else {
+                    showToast("Erro de autenticação. Verifique sua rede.", true);
+                }
             });
         }
 
         function fazerLogout() {
+            if (!confirm("Deseja realmente bloquear o sistema e encerrar conexões?")) return;
+            
             auth.signOut().then(() => {
-                endSessionPC(); 
-                if(peer) { peer.destroy(); peer = null; }
+                endSessionPC(true); 
                 showToast("Sistema bloqueado.");
+            }).catch((error) => {
+                showToast("Erro ao tentar sair do sistema.", true);
+                console.error(error);
             });
         }
 
         // ==========================================
-        // 3. REDE P2P ROBUSTA (AGORA COM CORREÇÃO DE DESCONEXÃO)
+        // 4. REDE P2P ROBUSTA
         // ==========================================
         function iniciarPeerJSPc() {
-            peer = new Peer();
+            peer = new Peer(null, { debug: 0 }); // Reduz verbosidade no console
+            
             peer.on('open', (id) => {
                 sessionUrl = `${window.location.href.split('?')[0]}?remote=${id}`;
-                document.getElementById("qrcode").innerHTML = ""; 
-                new QRCode(document.getElementById("qrcode"), { text: sessionUrl, width: 150, height: 150 });
+                const qrContainer = document.getElementById("qrcode");
+                qrContainer.innerHTML = ""; 
+                try {
+                    new QRCode(qrContainer, { text: sessionUrl, width: 150, height: 150 });
+                } catch(err) {
+                    console.error("Erro ao gerar QR Code", err);
+                }
             });
             
+            peer.on('error', (err) => {
+                console.error("PeerJS Erro PC:", err);
+                if (err.type === 'network' || err.type === 'server-error') {
+                    showToast("Erro de rede. Reconectando...", true);
+                    setTimeout(() => { if(auth.currentUser && !peer.open) peer.reconnect(); }, 3000);
+                }
+            });
+
             peer.on('connection', (c) => {
                 const currentNum = clientCounter++;
                 const assignedColor = colors[(currentNum - 1) % colors.length];
@@ -320,66 +425,105 @@
                 document.getElementById('pc-action').classList.add('show');
                 
                 renderActiveClients();
-                showToast(`Cliente #${currentNum} entrou na fila!`);
+                showToast(`Cliente #${currentNum} conectado!`);
                 try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(err){}
 
-                if(c.open) {
-                    c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
-                } else {
-                    c.on('open', () => {
+                const sendBadge = () => {
+                    if (clients[c.peer] && c.open) {
                         c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
-                    });
+                    }
+                };
+
+                if(c.open) {
+                    sendBadge();
+                } else {
+                    c.on('open', sendBadge);
                 }
             });
         }
 
         function iniciarPeerJSCelular() {
-            peer = new Peer();
+            peer = new Peer(null, { debug: 0 });
+            
             peer.on('open', () => {
-                mobileConn = peer.connect(remoteId);
-                mobileConn.on('open', () => { setupConnection(mobileConn, 'mobile', null); });
+                if(!remoteId) return;
+                mobileConn = peer.connect(remoteId, { reliable: true });
+                mobileConn.on('open', () => { 
+                    setupConnection(mobileConn, 'mobile', null); 
+                });
+                mobileConn.on('error', (err) => {
+                    showToast("Falha ao conectar com a Lan House.", true);
+                });
+            });
+
+            peer.on('error', (err) => {
+                console.error("PeerJS Erro Mobile:", err);
+                showToast("Erro de conexão. Verifique o 4G/Wi-Fi.", true);
             });
         }
 
-        function copySessionLink() { navigator.clipboard.writeText(sessionUrl).then(() => showToast("Link copiado!")); }
+        function copySessionLink() { 
+            const btn = document.getElementById('btnCopyLink');
+            if(!sessionUrl) {
+                showToast("Aguarde a geração do link...", true);
+                return;
+            }
+            btn.disabled = true;
+            navigator.clipboard.writeText(sessionUrl).then(() => {
+                showToast("Link copiado!");
+                setTimeout(() => { btn.disabled = false; }, 2000);
+            }).catch(() => {
+                showToast("Erro ao copiar link.", true);
+                btn.disabled = false;
+            });
+        }
 
-        // DESCONECTA APENAS UM CLIENTE (CORRIGIDO COM TIMER)
         function disconnectClient(peerId) {
+            if (!confirm("Deseja desconectar este cliente?")) return;
+            
             if(clients[peerId]) {
-                clients[peerId].conn.send({ type: 'command', action: 'disconnect' });
+                const c = clients[peerId];
+                if(c.conn && c.conn.open) {
+                    c.conn.send({ type: 'command', action: 'disconnect' });
+                }
                 
-                // Aguarda 500ms para o comando viajar pela rede antes de fechar de vez
                 setTimeout(() => {
                     if(clients[peerId]) {
-                        clients[peerId].conn.close();
+                        try { clients[peerId].conn.close(); } catch(e){}
                         delete clients[peerId];
                         renderActiveClients();
                         
                         if(Object.keys(clients).length === 0) {
-                            document.getElementById('pc-disconnect').style.display = 'none';
-                            document.getElementById('pc-action').classList.remove('show');
-                            document.getElementById('pc-file-list').innerHTML = ''; 
+                            limparEstadoPC();
                         }
                     }
                 }, 500);
             }
         }
 
-        // DESCONECTA TODO MUNDO (CORRIGIDO COM TIMER)
-        function endSessionPC() {
+        function endSessionPC(force = false) {
+            if (!force && !confirm("Encerrar fila e desconectar TODOS os clientes?")) return;
+
             Object.values(clients).forEach(c => {
-                c.conn.send({ type: 'command', action: 'disconnect' });
-                setTimeout(() => { c.conn.close(); }, 500);
+                if(c.conn && c.conn.open) {
+                    c.conn.send({ type: 'command', action: 'disconnect' });
+                }
+                setTimeout(() => { try { c.conn.close(); } catch(e){} }, 500);
             });
             
             setTimeout(() => {
-                clients = {}; clientCounter = 1;
+                clients = {}; 
+                clientCounter = 1;
                 renderActiveClients();
-                document.getElementById('pc-disconnect').style.display = 'none';
-                document.getElementById('pc-action').classList.remove('show');
-                document.getElementById('pc-file-list').innerHTML = '';
-                showToast("Fila zerada com sucesso.");
+                limparEstadoPC();
+                if(!force) showToast("Fila zerada com sucesso.");
             }, 600);
+        }
+
+        function limparEstadoPC() {
+            document.getElementById('pc-disconnect').style.display = 'none';
+            document.getElementById('pc-action').classList.remove('show');
+            document.getElementById('pc-file-list').innerHTML = '';
         }
 
         function renderActiveClients() {
@@ -387,97 +531,122 @@
             list.innerHTML = '';
             Object.keys(clients).forEach(peerId => {
                 const c = clients[peerId];
-                list.innerHTML += `
-                    <div class="client-pill" style="background: ${c.color};">
-                        <i class="fas fa-user"></i> Cliente #${c.num}
-                        <i class="fas fa-times client-pill-close" onclick="disconnectClient('${peerId}')" title="Encerrar este cliente"></i>
-                    </div>
+                const pill = document.createElement('div');
+                pill.className = 'client-pill';
+                pill.style.background = c.color;
+                pill.innerHTML = `
+                    <i class="fas fa-user" aria-hidden="true"></i> Cliente #${escapeHTML(c.num.toString())}
+                    <i class="fas fa-times client-pill-close" onclick="disconnectClient('${escapeHTML(peerId)}')" title="Encerrar cliente" aria-label="Desconectar cliente ${c.num}"></i>
                 `;
+                list.appendChild(pill);
             });
         }
 
         function setupConnection(connection, type, peerId) {
             connection.on('data', (data) => { 
-                if(data.type === 'file') receiveFile(data, type, peerId); 
-                
-                if(data.type === 'command' && data.action === 'setClientInfo') {
-                    const badge = document.getElementById('mobile-client-badge');
-                    badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${data.num}`;
-                    badge.style.backgroundColor = data.color + '22';
-                    badge.style.color = data.color;
-                    badge.style.borderColor = data.color + '55';
-                }
+                if (!data || typeof data !== 'object') return;
 
-                // Quando o celular recebe a ordem de desconexão (CORRIGIDO DESIGN)
-                if(data.type === 'command' && data.action === 'disconnect') { 
-                    if(type === 'mobile' && mobileConn) mobileConn.close();
-                    
-                    const targetView = type === 'pc' ? 'pc-view' : 'mobile-view';
-                    document.getElementById(targetView).innerHTML = `
-                        <div style="padding: 60px 20px; text-align: center;">
-                            <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
-                            <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
-                            <p style="color: var(--muted); font-size: 14px;">Obrigado! A transferência foi concluída com segurança.</p>
-                        </div>
-                    `;
+                if (data.type === 'file') {
+                    receiveFile(data, type, peerId); 
+                } else if (data.type === 'command') {
+                    if (data.action === 'setClientInfo') {
+                        const badge = document.getElementById('mobile-client-badge');
+                        const safeNum = escapeHTML(data.num.toString());
+                        badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${safeNum}`;
+                        badge.style.backgroundColor = data.color + '22';
+                        badge.style.color = data.color;
+                        badge.style.borderColor = data.color + '55';
+                    }
+                    else if (data.action === 'disconnect') { 
+                        if(type === 'mobile' && mobileConn) {
+                            try { mobileConn.close(); } catch(e){}
+                        }
+                        const targetView = type === 'pc' ? 'pc-view' : 'mobile-view';
+                        document.getElementById(targetView).innerHTML = `
+                            <div style="padding: 60px 20px; text-align: center; animation: fadeIn 0.5s ease;">
+                                <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
+                                <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
+                                <p style="color: var(--muted); font-size: 14px;">Obrigado! A transferência foi concluída com segurança.</p>
+                            </div>
+                        `;
+                    }
                 }
             });
             
-            // Tratamento caso a aba do celular seja fechada no "X" do navegador
             connection.on('close', () => { 
                 if(type === 'pc' && clients[peerId]) { 
                     delete clients[peerId]; 
                     renderActiveClients(); 
                     if(Object.keys(clients).length === 0) {
-                        document.getElementById('pc-disconnect').style.display = 'none';
-                        document.getElementById('pc-action').classList.remove('show');
-                        document.getElementById('pc-file-list').innerHTML = ''; 
+                        limparEstadoPC();
                     }
                 } 
+            });
+
+            connection.on('error', (err) => {
+                console.error("Erro na conexão P2P:", err);
             });
         }
 
         // ==========================================
-        // 4. SISTEMA DE ARQUIVOS (BLINDADO)
+        // 5. SISTEMA DE ARQUIVOS BLINDADO
         // ==========================================
         async function handleFiles(input, type) {
+            if (isUploading) return;
             const files = input.files; 
-            if (!files.length) return;
+            if (!files || !files.length) return;
             
             if (type === 'mobile' && (!mobileConn || !mobileConn.open)) { 
-                showToast("Aguarde a conexão estabilizar..."); 
+                showToast("Aguarde a conexão estabilizar...", true); 
+                input.value = '';
                 return; 
             }
             if (type === 'pc' && Object.keys(clients).length === 0) { 
-                showToast("Nenhum cliente na fila!"); 
+                showToast("Nenhum cliente na fila!", true); 
+                input.value = '';
                 return; 
             }
             
+            toggleUploadState(type, true);
             const bar = document.getElementById(`${type}-progress-bar`);
             const wrapper = document.getElementById(`${type}-progress-wrapper`);
             const label = document.getElementById(`${type}-prog-label`);
             const perc = document.getElementById(`${type}-prog-perc`);
             
             wrapper.style.display = 'block';
+            bar.style.width = '0%';
+            if(perc) perc.innerText = '0%';
 
-            if (files.length > 1) {
-                label.innerText = `EMPACOTANDO ${files.length} ARQUIVOS...`;
-                const zip = new JSZip();
-                for (let i = 0; i < files.length; i++) { zip.file(files[i].name, files[i]); }
-                
-                const content = await zip.generateAsync({type: "blob"}, (metadata) => {
-                    bar.style.width = metadata.percent + '%';
-                    if(perc) perc.innerText = Math.round(metadata.percent) + '%';
-                });
-                sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
-            } else {
-                label.innerText = "LENDO ARQUIVO...";
-                bar.style.width = '50%';
-                if(perc) perc.innerText = '50%';
-                const file = files[0];
-                sendData(file, file.name, file.type || 'application/octet-stream', type);
+            try {
+                if (files.length > 1) {
+                    label.innerText = `EMPACOTANDO ${files.length} ARQUIVOS...`;
+                    const zip = new JSZip();
+                    
+                    for (let i = 0; i < files.length; i++) { 
+                        zip.file(files[i].name || `arquivo_${i}`, files[i]); 
+                    }
+                    
+                    const content = await zip.generateAsync({type: "blob"}, (metadata) => {
+                        const p = Math.max(1, Math.round(metadata.percent));
+                        bar.style.width = p + '%';
+                        if(perc) perc.innerText = p + '%';
+                    });
+                    
+                    sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
+                } else {
+                    label.innerText = "LENDO ARQUIVO...";
+                    bar.style.width = '50%';
+                    if(perc) perc.innerText = '50%';
+                    const file = files[0];
+                    sendData(file, file.name || "arquivo_desconhecido", file.type || 'application/octet-stream', type);
+                }
+            } catch (error) {
+                console.error("Erro ao processar arquivos:", error);
+                showToast("Erro ao processar arquivo(s).", true);
+                fecharProgresso(type);
+            } finally {
+                input.value = ''; 
             }
-            input.value = ''; 
         }
 
         function sendData(blob, name, mime, type) {
@@ -485,91 +654,140 @@
             const perc = document.getElementById(`${type}-prog-perc`);
             const label = document.getElementById(`${type}-prog-label`);
 
-            label.innerText = "ENVIANDO PARA A TELA...";
+            label.innerText = "ENVIANDO PELA REDE...";
 
             const reader = new FileReader();
+            
+            reader.onerror = () => {
+                console.error("Erro na leitura FileReader");
+                showToast("Falha ao ler arquivo.", true);
+                fecharProgresso(type);
+            };
+
             reader.onload = () => {
                 const payload = { type: 'file', file: reader.result, name: name, mime: mime, size: blob.size };
-                
+                let enviado = false;
+
                 try {
                     if (type === 'pc') {
-                        Object.values(clients).forEach(c => c.conn.send(payload));
+                        Object.values(clients).forEach(c => {
+                            if(c.conn && c.conn.open) { c.conn.send(payload); enviado = true; }
+                        });
                     } else {
-                        mobileConn.send(payload);
+                        if(mobileConn && mobileConn.open) { mobileConn.send(payload); enviado = true; }
                     }
-                    bar.style.width = '100%';
-                    if(perc) perc.innerText = '100%';
-                    label.innerText = "CONCLUÍDO!";
-                    showToast("Enviado com sucesso!");
+                    
+                    if (enviado) {
+                        bar.style.width = '100%';
+                        if(perc) perc.innerText = '100%';
+                        label.innerText = "CONCLUÍDO!";
+                        showToast("Enviado com sucesso!");
+                    } else {
+                        throw new Error("Nenhuma conexão aberta para envio.");
+                    }
                 } catch(e) {
+                    console.error("Erro no sendData:", e);
                     label.innerText = "ERRO DE REDE";
-                    showToast("Falha ao enviar. Tente novamente.");
+                    showToast("Falha ao enviar. Tente reconectar.", true);
                 }
-                setTimeout(() => { document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; bar.style.width='0'; }, 2000);
+                
+                setTimeout(() => { fecharProgresso(type); }, 2000);
             };
+            
             reader.readAsArrayBuffer(blob);
         }
 
+        function fecharProgresso(type) {
+            document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; 
+            document.getElementById(`${type}-progress-bar`).style.width = '0%';
+            toggleUploadState(type, false);
+        }
+
+        // Função segura para exclusão e liberação de memória
+        window.deleteFileItem = function(elementId, objectUrl) {
+            const el = document.getElementById(elementId);
+            if(el) {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    el.remove();
+                    if(objectUrl && objectUrl.startsWith('blob:')) {
+                        URL.revokeObjectURL(objectUrl); // Previne memory leak
+                    }
+                }, 300);
+            }
+        };
+
         async function receiveFile(data, type, peerId) {
-            if(!data || !data.file) return;
+            if(!data || !data.file || !data.size || !data.name) return;
 
             let url;
             try {
-                const blob = new Blob([data.file], { type: data.mime });
+                const blob = new Blob([data.file], { type: data.mime || 'application/octet-stream' });
                 url = URL.createObjectURL(blob);
-            } catch(e) { return; }
+            } catch(e) { 
+                console.error("Falha ao gerar Blob:", e);
+                return; 
+            }
 
             const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
             const fileId = 'file_' + Math.random().toString(36).substr(2, 9);
             
             const item = document.createElement('div');
-            item.className = 'file-item'; item.id = fileId;
+            item.className = 'file-item'; 
+            item.id = fileId;
             
             let clientTagHTML = '';
             if (type === 'pc' && clients[peerId]) {
                 const c = clients[peerId];
-                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;">CLI #${c.num}</span>`;
+                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;" title="Enviado pelo Cliente #${escapeHTML(c.num.toString())}">CLI #${escapeHTML(c.num.toString())}</span>`;
             }
 
-            let tags = `<span class="tag tag-size">${(data.size/1024/1024).toFixed(2)} MB</span>`;
+            const sizeStr = escapeHTML((data.size/1024/1024).toFixed(2));
+            let tags = `<span class="tag tag-size">${sizeStr} MB</span>`;
             let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
-            const safeFileName = data.name || "arquivo_sem_nome";
-            const nameLow = safeFileName.toLowerCase();
-            const isWord = nameLow.endsWith('.doc') || nameLow.endsWith('.docx');
+            const rawName = data.name || "arquivo_sem_nome";
+            const safeFileName = escapeHTML(rawName);
+            const nameLow = rawName.toLowerCase();
+            const safeMime = escapeHTML(data.mime || "");
 
-            if (isWord) {
+            if (nameLow.endsWith('.doc') || nameLow.endsWith('.docx')) {
                 preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`;
                 tags += `<span class="tag tag-word">WORD</span>`;
-            } else if (data.mime.startsWith('image/')) {
-                preview = `<img src="${url}" class="file-preview-img">`;
+            } else if (safeMime.startsWith('image/')) {
+                // Utilizando onerror para prevenir que imagens corrompidas quebrem layout
+                preview = `<img src="${url}" class="file-preview-img" alt="Preview da imagem" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`;
                 tags += `<span class="tag tag-res">IMG</span>`;
-            } else if (data.mime === 'application/pdf') {
+            } else if (safeMime === 'application/pdf' || nameLow.endsWith('.pdf')) {
                 preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
-            } else if (nameLow.endsWith('.zip') || data.mime === 'application/zip') {
+            } else if (nameLow.endsWith('.zip') || safeMime === 'application/zip') {
                 preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#f59e0b"></i>`;
                 tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
-            const cleanName = safeFileName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            // Uso de aspas escapadas seguras para os handlers
+            const jsUrl = url.replace(/'/g, "\\'");
+            const jsMime = safeMime.replace(/'/g, "\\'");
+            const jsName = rawName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             let actionsHTML = '';
             if (type === 'pc') {
                 actionsHTML = `
-                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${cleanName}')" title="Imprimir"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="document.getElementById('${fileId}').remove()" title="Excluir"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir" aria-label="Imprimir ${safeFileName}"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar" aria-label="Baixar ${safeFileName}"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir" aria-label="Excluir arquivo"><i class="fas fa-trash-alt"></i></button>
                 `;
             } else {
                 actionsHTML = `
-                    <a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()"><i class="fas fa-trash-alt"></i></button>
+                    <a href="${url}" download="${safeFileName}" class="btn-act" aria-label="Baixar ${safeFileName}"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir" aria-label="Remover da lista"><i class="fas fa-trash-alt"></i></button>
                 `;
             }
 
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
-                <div class="file-main-info">
+                <div class="file-main-info" style="overflow:hidden;">
                     <span class="file-name" title="${safeFileName}">${safeFileName}</span>
                     <div class="raio-x-tags">${clientTagHTML} ${tags}</div>
                 </div>
@@ -582,30 +800,59 @@
             }
         }
 
-        function smartPrint(url, mime, name) {
-            const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
-            if (isWord) {
-                showToast("Iniciando Download...");
-                const a = document.createElement('a'); a.href = url; a.download = name; a.click();
-                return;
-            }
-            const frame = document.getElementById('printFrame');
-            const doc = frame.contentWindow.document;
-            doc.open();
-            if (mime.startsWith('image/')) {
-                doc.write(`<style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;}img{max-width:190mm;max-height:270mm;object-fit:contain;}@page{size:A4;margin:10mm;}</style><body><img src="${url}"></body>`);
-                doc.close(); setTimeout(() => { frame.contentWindow.focus(); frame.contentWindow.print(); }, 500);
-            } else if (mime === 'application/pdf') {
-                frame.src = url; frame.onload = () => { frame.contentWindow.print(); };
-            } else {
-                showToast("Impressão direta não suportada.");
-            }
-        }
+        window.smartPrint = function(url, mime, name) {
+            try {
+                if(!url || !name) return;
+                
+                const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
+                if (isWord) {
+                    showToast("Iniciando Download (Word não suporta impressão via Web)...");
+                    const a = document.createElement('a'); 
+                    a.href = url; 
+                    a.download = name; 
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    return;
+                }
 
-        function showToast(msg) {
-            const t = document.getElementById('toastMsg'); t.querySelector('span').innerText = msg;
-            t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 3500);
-        }
+                const frame = document.getElementById('printFrame');
+                if(!frame) throw new Error("Frame de impressão não encontrado");
+                
+                const doc = frame.contentWindow.document;
+                doc.open();
+                
+                if (mime && mime.startsWith('image/')) {
+                    doc.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Impressão: ${escapeHTML(name)}</title>
+                            <style>
+                                body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
+                                img { max-width: 190mm; max-height: 270mm; object-fit: contain; }
+                                @page { size: A4; margin: 10mm; }
+                            </style>
+                        </head>
+                        <body><img src="${escapeHTML(url)}" onload="window.print();"></body>
+                        </html>
+                    `);
+                    doc.close();
+                } else if (mime === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
+                    // Para PDF, o onload é mais confiável no iframe src
+                    frame.onload = () => { 
+                        try { frame.contentWindow.print(); } catch(e){ console.error(e); } 
+                    };
+                    frame.src = url;
+                } else {
+                    doc.close();
+                    showToast("Formato não suporta impressão direta. Faça o download.", true);
+                }
+            } catch (error) {
+                console.error("Erro na impressão:", error);
+                showToast("Erro ao processar impressão.", true);
+            }
+        };
     </script>
 </body>
 </html>
