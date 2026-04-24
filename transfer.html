@@ -6,7 +6,7 @@
     <title>JM Transfer Pro - Print Station</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -14,17 +14,19 @@
 
     <style>
         :root {
-            --bg: #0f0f0f;
-            --surface: #1e1e1e;
+            --bg: #0a0a0a;
+            --surface: #121212;
+            --surface-hover: #1a1a1a;
             --accent: #f59e0b;
             --success: #10b981;
             --danger: #ef4444;
             --text: #ffffff;
-            --muted: #888888;
-            --border: rgba(255, 255, 255, 0.1);
+            --muted: #a3a3a3;
+            --border: rgba(255, 255, 255, 0.08);
+            --glow: rgba(245, 158, 11, 0.15);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         
         body { 
             background: var(--bg); color: var(--text); min-height: 100vh; 
@@ -32,105 +34,132 @@
             justify-content: center; padding: 20px; position: relative;
         }
 
+        /* CONTAINER PREMIUM COM GLOW SUAVE */
         .container { 
             background: var(--surface); border: 1px solid var(--border); 
-            border-radius: 16px; padding: 40px 30px; width: 100%; max-width: 550px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6); text-align: center; 
-            position: relative; overflow: hidden; display: flex; 
+            border-radius: 20px; padding: 40px 35px; width: 100%; max-width: 540px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 40px var(--glow); 
+            text-align: center; position: relative; overflow: hidden; display: flex; 
             flex-direction: column; align-items: center; z-index: 2;
+            transition: all 0.4s ease;
         }
         
         .container::before { 
             content: ''; position: absolute; top: 0; left: 0; 
-            width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent), #ef4444); 
+            width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), #ef4444); 
         }
         
-        h1 { color: var(--accent); margin-bottom: 5px; font-size: 26px; font-weight: 800; letter-spacing: -1px; }
-        p.subtitle { color: var(--muted); margin-bottom: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { color: var(--accent); margin-bottom: 4px; font-size: 28px; font-weight: 800; letter-spacing: -1.5px; }
+        p.subtitle { color: var(--muted); margin-bottom: 35px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; }
 
+        /* QR CODE REDESENHADO */
         .qr-box { 
-            background: white; padding: 15px; border-radius: 12px; 
+            background: #ffffff; padding: 18px; border-radius: 16px; 
             display: inline-flex; flex-direction: column; align-items: center; 
-            margin-bottom: 25px; box-shadow: 0 0 20px rgba(255,255,255,0.1); 
+            margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); 
         }
-        
-        .status-header { display: flex; gap: 12px; margin-bottom: 25px; justify-content: center; width: 100%; align-items: center;}
+        .qr-box p { color: #000; font-size: 10px; font-weight: 800; margin-top: 12px; letter-spacing: 0.5px;}
+
+        /* BOTÃO COPIAR LINK WHATSAPP */
+        .btn-copy-link {
+            background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border);
+            padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; 
+            cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 25px;
+            transition: all 0.2s ease; letter-spacing: 0.5px; text-transform: uppercase;
+        }
+        .btn-copy-link:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .btn-copy-link i { color: var(--accent); }
+
+        /* HEADER DE STATUS */
+        .status-header { display: flex; gap: 12px; margin-bottom: 30px; justify-content: center; width: 100%; align-items: center;}
         
         .status-badge { 
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
-            padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; 
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border); margin: 0;
+            padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0;
+            letter-spacing: 0.5px;
         }
-        .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
+        .status-badge.connected { background: rgba(16, 185, 129, 0.08); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
         .btn-disconnect {
-            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            color: #ffffff; border: none; padding: 10px 20px; border-radius: 8px;
-            display: none; align-items: center; justify-content: center; gap: 10px;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            font-size: 12px; font-weight: 800; text-transform: uppercase;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); letter-spacing: 0.5px;
+            background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 10px 20px; border-radius: 30px; display: none; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.3s ease; font-size: 12px; font-weight: 600; letter-spacing: 0.5px;
         }
         .btn-disconnect:hover {
-            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5);
-            background: linear-gradient(135deg, #f87171 0%, #dc2626 100%);
+            background: var(--danger); color: #fff; border-color: var(--danger);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); transform: translateY(-1px);
         }
-        .btn-disconnect:active { transform: translateY(1px); }
 
         .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
-        .action-area.show { display: flex; }
+        .action-area.show { display: flex; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* BOTÃO PRINCIPAL PREMIUM */
         .btn-upload { 
             background: var(--accent); color: #000; border: none; padding: 16px; 
-            border-radius: 12px; font-weight: 800; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; gap: 12px; font-size: 16px; 
-            width: 100%; transition: 0.3s; 
+            border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; 
+            align-items: center; justify-content: center; gap: 12px; font-size: 15px; 
+            width: 100%; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); letter-spacing: 0.5px;
         }
-        .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
+        .btn-upload:hover { 
+            transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); 
+            background: #fcd34d; 
+        }
 
+        /* PROGRESSO REFINADO */
         .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
-        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, var(--accent), #fbbf24); width: 0%; transition: width 0.3s ease; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%; transition: width 0.3s ease; border-radius: 10px; }
 
+        /* LISTA DE ARQUIVOS PREMIUM */
         .file-list { 
-            text-align: left; display: flex; flex-direction: column; gap: 12px; 
+            text-align: left; display: flex; flex-direction: column; gap: 10px; 
             margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; 
         }
+        .file-list::-webkit-scrollbar { width: 4px; }
+        .file-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
         .file-item { 
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border); 
-            border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; width: 100%; 
+            background: var(--surface-hover); border: 1px solid var(--border); 
+            border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 14px; width: 100%; 
+            transition: all 0.2s ease;
         }
+        .file-item:hover { border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
         
         .file-preview-box { 
-            width: 50px; height: 50px; border-radius: 8px; overflow: hidden; 
-            background: #000; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); 
+            width: 48px; height: 48px; border-radius: 10px; overflow: hidden; 
+            background: rgba(0,0,0,0.5); flex-shrink: 0; display: flex; align-items: center; 
+            justify-content: center; border: 1px solid rgba(255,255,255,0.05); 
         }
         .file-preview-img { width: 100%; height: 100%; object-fit: cover; }
 
         .file-main-info { flex: 1; min-width: 0; }
-        .file-name { font-weight: 700; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; display: block;}
+        .file-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; display: block; letter-spacing: 0.2px;}
         
-        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-        .tag { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
-        .tag-res { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
-        .tag-pages { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
-        .tag-zip { background: #4b2c20; color: #ff9d6e; }
-        .tag-word { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+        .tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .tag-size { background: rgba(255,255,255,0.08); color: #d4d4d4; }
+        .tag-res { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .tag-pages { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+        .tag-zip { background: rgba(249, 115, 22, 0.15); color: #fb923c; }
+        .tag-word { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
 
         .file-actions { display: flex; gap: 6px; }
         .btn-act { 
-            width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; 
-            justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.05); 
-            color: white; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 14px;
+            width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; 
+            justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.02); 
+            color: var(--muted); cursor: pointer; transition: all 0.2s ease; text-decoration: none; font-size: 14px;
         }
-        .btn-act:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(1.05); }
-        .btn-print:hover { background: var(--success); color: #000; border-color: var(--success); }
-        .btn-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
+        .btn-act:hover { color: #fff; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); transform: translateY(-1px); }
+        .btn-print:hover { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
 
         .dev-credit { 
-            position: absolute; bottom: 20px; font-size: 10px; font-weight: 700; 
-            color: var(--muted); opacity: 0.4; letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; 
+            position: absolute; bottom: 20px; font-size: 10px; font-weight: 600; 
+            color: var(--muted); opacity: 0.3; letter-spacing: 1.5px; text-transform: uppercase; transition: 0.3s; 
         }
         .dev-credit:hover { opacity: 1; color: var(--accent); }
 
@@ -138,11 +167,13 @@
 
         #printFrame { display: none; }
 
+        /* TOAST PREMIUM */
         .toast { 
-            position: fixed; top: 20px; right: 20px; background: #222; border-left: 4px solid var(--accent); 
-            padding: 15px 25px; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
+            position: fixed; top: 20px; right: 20px; background: rgba(18, 18, 18, 0.95); 
+            backdrop-filter: blur(10px); border: 1px solid var(--border); border-left: 4px solid var(--accent); 
+            padding: 16px 24px; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.8); 
             transform: translateX(150%); transition: 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55); 
-            z-index: 9999; display: flex; align-items: center; gap: 12px; font-weight: 700; font-size: 14px; 
+            z-index: 9999; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13px; letter-spacing: 0.5px; 
         }
         .toast.show { transform: translateX(0); }
     </style>
@@ -150,26 +181,30 @@
 <body>
 
     <div id="pc-view" class="container">
-        <h1>JM TRANSFER <span style="opacity: 0.2;">PRO</span></h1>
-        <p class="subtitle">Impressão Inteligente & Gestão</p>
+        <h1>JM TRANSFER <span style="opacity: 0.2; font-weight: 400;">PRO</span></h1>
+        <p class="subtitle">Impressão & Gestão Inteligente</p>
 
         <div id="qr-container" class="qr-box">
             <div id="qrcode"></div>
-            <p style="color: #000; font-size: 10px; font-weight: 900; margin-top: 10px;">CONECTAR CELULAR</p>
+            <p>ESCANEIE PARA CONECTAR</p>
         </div>
+        
+        <button id="btnCopyLink" class="btn-copy-link" onclick="copySessionLink()">
+            <i class="fas fa-link"></i> Copiar Link WhatsApp
+        </button>
 
         <div class="status-header">
             <div id="pc-status" class="status-badge">
                 <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
             </div>
-            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" title="Desconectar este Cliente">
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" title="Desconectar Cliente Atual">
                 <i class="fas fa-power-off"></i> Encerrar Sessão
             </button>
         </div>
 
         <div id="pc-action" class="action-area">
             <button class="btn-upload" onclick="document.getElementById('pcFileInput').click()">
-                <i class="fas fa-file-import"></i> ENVIAR PARA O CELULAR
+                <i class="fas fa-paper-plane"></i> ENVIAR ARQUIVO AO CLIENTE
             </button>
             <input type="file" id="pcFileInput" multiple style="display: none;" onchange="handleFiles(this, 'pc')">
             
@@ -183,13 +218,13 @@
     </div>
 
     <div id="mobile-view" style="width: 100%; max-width: 450px;">
-        <div class="container" style="width: 100%; box-shadow: 0 15px 40px rgba(0,0,0,0.5);">
+        <div class="container" style="width: 100%; border: none;">
             <h1>JM CONNECT</h1>
             <p class="subtitle">BALCÃO DIGITAL</p>
             
             <div class="status-header">
                 <div class="status-badge connected">
-                    <i class="fas fa-check-circle"></i> CONECTADO AO BALCÃO
+                    <i class="fas fa-shield-check"></i> CONECTADO COM SEGURANÇA
                 </div>
             </div>
 
@@ -205,7 +240,7 @@
                 </div>
 
                 <div class="file-list" id="mobile-file-list" style="margin-top: 25px;">
-                    <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Arquivos:</h3>
+                    <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Seus Arquivos:</h3>
                 </div>
             </div>
         </div>
@@ -214,12 +249,13 @@
     <iframe id="printFrame"></iframe>
 
     <div class="dev-credit">Desenvolvido por José Marcelo</div>
-    <div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> <span>Aviso</span></div>
+    <div class="toast" id="toastMsg"><i class="fas fa-check-circle" style="color: var(--success);"></i> <span>Aviso</span></div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const remoteId = urlParams.get('remote');
         let peer, conn;
+        let sessionUrl = ""; // Guarda o link para compartilhar no WhatsApp
         const isMobile = !!remoteId;
 
         document.getElementById(isMobile ? 'mobile-view' : 'pc-view').style.display = 'flex';
@@ -227,17 +263,18 @@
 
         if (!isMobile) {
             peer.on('open', (id) => {
-                const link = `${window.location.href.split('?')[0]}?remote=${id}`;
-                new QRCode(document.getElementById("qrcode"), { text: link, width: 170, height: 170 });
+                sessionUrl = `${window.location.href.split('?')[0]}?remote=${id}`;
+                new QRCode(document.getElementById("qrcode"), { text: sessionUrl, width: 170, height: 170 });
             });
             peer.on('connection', (c) => {
                 conn = c; setupConnection(conn, 'pc');
                 document.getElementById('qr-container').style.display = 'none';
-                document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
+                document.getElementById('btnCopyLink').style.display = 'none'; // Esconde botão de copiar ao conectar
+                document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> VINCULADO AO CLIENTE';
                 document.getElementById('pc-status').classList.add('connected');
                 document.getElementById('pc-disconnect').style.display = 'flex';
                 document.getElementById('pc-action').classList.add('show');
-                showToast("Dispositivo Conectado!");
+                showToast("Conexão estabelecida!");
             });
         } else {
             peer.on('open', () => {
@@ -249,19 +286,39 @@
             });
         }
 
+        // LÓGICA PARA COPIAR LINK WHATSAPP
+        function copySessionLink() {
+            navigator.clipboard.writeText(sessionUrl).then(() => {
+                const btn = document.getElementById('btnCopyLink');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Link Copiado!';
+                btn.style.color = 'var(--success)';
+                btn.style.borderColor = 'var(--success)';
+                showToast("Link copiado! Cole no WhatsApp do cliente.");
+                
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.color = '';
+                    btn.style.borderColor = '';
+                }, 3000);
+            }).catch(err => {
+                showToast("Erro ao copiar. Tente escanear o QR.");
+            });
+        }
+
         function endSessionPC() {
             if(conn) { conn.send({ type: 'command', action: 'disconnect' }); }
-            showToast("Desconectando cliente...");
-            setTimeout(() => { window.location.reload(); }, 500);
+            showToast("Desconectando e limpando dados...");
+            setTimeout(() => { window.location.reload(); }, 600);
         }
 
         function showDisconnectedScreen() {
             if(conn) conn.close();
             document.getElementById('mobile-view').innerHTML = `
-                <div class="container" style="box-shadow: none; padding: 60px 30px;">
-                    <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success); margin-bottom: 20px;"></i>
-                    <h1 style="color: var(--text);">Sessão Encerrada</h1>
-                    <p style="color: var(--muted); margin-top: 10px; font-weight: 600;">Obrigado! Você já pode fechar esta tela com segurança.</p>
+                <div class="container" style="border: none; padding: 60px 30px;">
+                    <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
+                    <h1 style="color: var(--text); font-size: 24px;">Sessão Encerrada</h1>
+                    <p style="color: var(--muted); margin-top: 12px; font-weight: 500; line-height: 1.6;">A transferência foi concluída com sucesso. Você já pode fechar esta tela com total segurança.</p>
                 </div>
             `;
         }
@@ -286,7 +343,7 @@
             wrapper.style.display = 'block';
 
             if (files.length > 1) {
-                label.innerText = `ZIPANDO ${files.length} ARQUIVOS...`;
+                label.innerText = `EMPRACOTANDO ${files.length} ARQUIVOS...`;
                 const zip = new JSZip();
                 for (let i = 0; i < files.length; i++) { zip.file(files[i].name, files[i]); }
                 
@@ -295,7 +352,7 @@
                     perc.innerText = Math.round(metadata.percent) + '%';
                 });
                 
-                sendData(content, `Pacote_Impressoes.zip`, 'application/zip', type);
+                sendData(content, `Documentos_JM_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
             } else {
                 label.innerText = "PREPARANDO ENVIO...";
                 bar.style.width = '50%';
@@ -317,7 +374,7 @@
                 perc.innerText = '100%';
                 label.innerText = "CONCLUÍDO!";
                 showToast("Arquivo enviado com sucesso!");
-                setTimeout(() => { document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; }, 2500);
+                setTimeout(() => { document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; }, 2000);
             };
             reader.readAsArrayBuffer(blob);
         }
@@ -330,8 +387,8 @@
             const item = document.createElement('div');
             item.className = 'file-item';
             
-            let tags = `<span class="tag" style="background:rgba(255,255,255,0.1)">${(data.size/1024/1024).toFixed(2)} MB</span>`;
-            let preview = `<i class="fas fa-file" style="font-size:20px; color:var(--muted)"></i>`;
+            let tags = `<span class="tag tag-size">${(data.size/1024/1024).toFixed(2)} MB</span>`;
+            let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
             const isWord = data.name.toLowerCase().endsWith('.doc') || data.name.toLowerCase().endsWith('.docx');
 
@@ -347,24 +404,24 @@
                 const text = await blob.text(); const match = text.match(/\/Count\s+(\d+)/);
                 tags += `<span class="tag tag-pages">${match ? match[1] : '?'} PÁG.</span>`;
             } else if (data.mime === 'application/zip') {
-                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#ff9d6e"></i>`;
+                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#fb923c"></i>`;
                 tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
             const safeName = data.name.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
-            // LOGICA CONDICIONAL: SE FOR O PC, MOSTRA IMPRESSORA. SE FOR CELULAR, ESCONDE.
+            // LOGICA CONDICIONAL: SE FOR PC, MOSTRA IMPRESSORA. SE FOR CELULAR, ESCONDE.
             let actionsHTML = '';
             if (type === 'pc') {
                 actionsHTML = `
-                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Ação Principal"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Limpar Tela"><i class="fas fa-trash"></i></button>
+                    <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}', '${safeName}')" title="Imprimir Inteligente"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar Arquivo"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Remover da Lista"><i class="fas fa-trash-alt"></i></button>
                 `;
             } else {
                 actionsHTML = `
-                    <a href="${url}" download="${data.name}" class="btn-act" title="Baixar Arquivo"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Limpar Tela"><i class="fas fa-trash"></i></button>
+                    <a href="${url}" download="${data.name}" class="btn-act" title="Salvar Arquivo"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Remover da Tela"><i class="fas fa-trash-alt"></i></button>
                 `;
             }
 
@@ -380,7 +437,7 @@
             list.prepend(item);
 
             if(type === 'pc') {
-                showToast("Novo arquivo na fila!");
+                showToast("Novo arquivo recebido!");
                 new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
             }
         }
@@ -388,7 +445,7 @@
         function smartPrint(url, mime, name) {
             const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
             if (isWord) {
-                showToast("Abrindo no Microsoft Word...");
+                showToast("Iniciando Download para o Word...");
                 const a = document.createElement('a'); a.href = url; a.download = name; a.click();
                 return;
             }
@@ -415,7 +472,7 @@
         function showToast(msg) {
             const t = document.getElementById('toastMsg');
             t.querySelector('span').innerText = msg; t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
+            setTimeout(() => t.classList.remove('show'), 3500);
         }
     </script>
 </body>
