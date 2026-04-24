@@ -6,7 +6,7 @@
     <title>JM Transfer Pro - SaaS</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -24,7 +24,7 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; overflow-x: hidden;}
 
         .container { 
             background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px 35px; width: 100%; max-width: 540px; 
@@ -36,9 +36,35 @@
         .btn-top-logout:hover { color: var(--danger); transform: translateX(2px); }
         .btn-top-logout:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        h1 { color: var(--accent); margin-bottom: 4px; font-size: 28px; font-weight: 800; letter-spacing: -1.5px; }
+        /* ==========================================
+           NOVA IDENTIDADE VISUAL (LOGO E TIPOGRAFIA)
+           ========================================== */
+        .brand-wrapper { display: flex; flex-direction: column; align-items: center; gap: 12px; margin-bottom: 6px; }
+        
+        .brand-icon { 
+            width: 60px; height: 60px; 
+            filter: drop-shadow(0 8px 16px rgba(245, 158, 11, 0.3));
+            animation: floatIcon 4s ease-in-out infinite;
+        }
+        @keyframes floatIcon {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .brand-text { display: flex; align-items: center; gap: 6px; }
+        .brand-jm { font-size: 32px; font-weight: 800; color: var(--text); letter-spacing: -1.5px; }
+        .brand-transfer { font-size: 32px; font-weight: 300; color: rgba(255, 255, 255, 0.9); letter-spacing: -0.5px; }
+        .brand-badge { 
+            background: linear-gradient(135deg, #fbbf24, #d97706); color: #000; 
+            font-size: 11px; font-weight: 900; padding: 4px 8px; border-radius: 6px; 
+            letter-spacing: 1.5px; transform: translateY(-5px); box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
+        }
+
         p.subtitle { color: var(--muted); margin-bottom: 35px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; }
 
+        /* ==========================================
+           RESTANTE DO CSS INTACTO
+           ========================================== */
         .input-container { position: relative; width: 100%; margin-bottom: 16px; }
         .input-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888888; font-size: 15px; z-index: 2; }
         .input-container input { 
@@ -139,9 +165,30 @@
 <body>
 
     <div id="login-view" class="container">
-        <i class="fas fa-shield-alt" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
-        <h1>ACESSO RESTRITO</h1>
-        <p class="subtitle" style="margin-bottom: 25px;">Faça login para operar o balcão</p>
+        
+        <div class="brand-wrapper">
+            <svg class="brand-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="grad-front" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f59e0b" />
+                        <stop offset="100%" stop-color="#ea580c" />
+                    </linearGradient>
+                    <linearGradient id="grad-back" x1="100%" y1="100%" x2="0%" y2="0%">
+                        <stop offset="0%" stop-color="#fbbf24" />
+                        <stop offset="100%" stop-color="#d97706" />
+                    </linearGradient>
+                </defs>
+                <rect x="12" y="24" width="28" height="28" rx="8" stroke="url(#grad-back)" stroke-width="4" opacity="0.6"/>
+                <rect x="24" y="12" width="28" height="28" rx="8" fill="url(#grad-front)" />
+                <path d="M32 26 L44 26 L44 18 M44 26 L38 32 M44 26 L38 20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="brand-text">
+                <span class="brand-jm">JM</span>
+                <span class="brand-transfer">TRANSFER</span>
+                <span class="brand-badge">PRO</span>
+            </div>
+        </div>
+        <p class="subtitle" style="margin-bottom: 25px; margin-top: 5px;">Acesso Restrito ao Balcão</p>
 
         <div class="input-container">
             <i class="fas fa-envelope" aria-hidden="true"></i>
@@ -163,7 +210,14 @@
             Sair <i class="fas fa-sign-out-alt"></i>
         </button>
 
-        <h1>JM TRANSFER <span style="opacity: 0.2; font-weight: 400;">PRO</span></h1>
+        <div class="brand-wrapper" style="transform: scale(0.8); margin-bottom: 0;">
+            <div class="brand-text">
+                <span class="brand-jm">JM</span>
+                <span class="brand-transfer">TRANSFER</span>
+                <span class="brand-badge">PRO</span>
+            </div>
+        </div>
+
         <p class="subtitle">Painel Multi-Atendimento</p>
 
         <div id="qr-container" class="qr-box">
@@ -217,11 +271,7 @@
             appId: "1:781704866355:web:b74476d860bbe91d7f9146"
         };
         
-        try {
-            firebase.initializeApp(firebaseConfig);
-        } catch (error) {
-            console.error("Erro ao inicializar Firebase:", error);
-        }
+        try { firebase.initializeApp(firebaseConfig); } catch (error) { console.error(error); }
         
         const auth = firebase.auth();
         const urlParams = new URLSearchParams(window.location.search);
@@ -230,7 +280,9 @@
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
+        // Controle de estado e conexões (NOVO: clientHistory)
         let clients = {}; 
+        let clientHistory = {}; // Memória para reconhecer clientes que caem e voltam
         let clientCounter = 1;
         let mobileConn = null; 
         let isUploading = false;
@@ -251,13 +303,9 @@
             const icon = t.querySelector('i');
             
             if (isError) {
-                icon.className = 'fas fa-exclamation-circle';
-                icon.style.color = 'var(--danger)';
-                t.style.borderLeftColor = 'var(--danger)';
+                icon.className = 'fas fa-exclamation-circle'; icon.style.color = 'var(--danger)'; t.style.borderLeftColor = 'var(--danger)';
             } else {
-                icon.className = 'fas fa-check-circle';
-                icon.style.color = 'var(--success)';
-                t.style.borderLeftColor = 'var(--accent)';
+                icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; t.style.borderLeftColor = 'var(--accent)';
             }
             
             t.querySelector('span').innerText = msg;
@@ -266,9 +314,7 @@
             setTimeout(() => {
                 t.classList.remove('show');
                 setTimeout(() => {
-                    icon.className = 'fas fa-check-circle';
-                    icon.style.color = 'var(--success)';
-                    t.style.borderLeftColor = 'var(--accent)';
+                    icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; t.style.borderLeftColor = 'var(--accent)';
                 }, 400);
             }, 3500);
         }
@@ -291,8 +337,29 @@
         // ==========================================
         function renderMobileActive() {
             document.getElementById('mobile-view').innerHTML = `
-                <h1>JM CONNECT</h1>
-                <p class="subtitle">BALCÃO DIGITAL</p>
+                <div class="brand-wrapper" style="transform: scale(0.9); margin-bottom: 5px;">
+                    <svg class="brand-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="mob-front" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#f59e0b" />
+                                <stop offset="100%" stop-color="#ea580c" />
+                            </linearGradient>
+                            <linearGradient id="mob-back" x1="100%" y1="100%" x2="0%" y2="0%">
+                                <stop offset="0%" stop-color="#fbbf24" />
+                                <stop offset="100%" stop-color="#d97706" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="12" y="24" width="28" height="28" rx="8" stroke="url(#mob-back)" stroke-width="4" opacity="0.6"/>
+                        <rect x="24" y="12" width="28" height="28" rx="8" fill="url(#mob-front)" />
+                        <path d="M32 26 L44 26 L44 18 M44 26 L38 32 M44 26 L38 20" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div class="brand-text">
+                        <span class="brand-jm">JM</span>
+                        <span class="brand-transfer" style="font-weight: 700;">CONNECT</span>
+                    </div>
+                </div>
+                <p class="subtitle" style="margin-bottom: 20px;">BALCÃO DIGITAL</p>
+
                 <div class="status-header" style="margin-bottom: 20px;">
                     <div class="status-badge connected" id="mobile-client-badge">
                         <i class="fas fa-circle-notch fa-spin"></i> CONECTANDO...
@@ -346,8 +413,6 @@
         // ==========================================
         if (isMobile) {
             document.getElementById('mobile-view').style.display = 'flex';
-            
-            // VACINA ANTI-RETORNO: Verifica se a sessão deste ID já foi encerrada antes
             if (sessionStorage.getItem('sessao_morta_' + remoteId)) {
                 renderMobileExpired();
             } else {
@@ -376,24 +441,17 @@
             const s = passInput.value;
             const btn = document.getElementById('btnFazerLogin');
 
-            if (!e || !s) {
-                showToast("Preencha e-mail e senha.", true);
-                return;
-            }
+            if (!e || !s) { showToast("Preencha e-mail e senha.", true); return; }
 
             btn.disabled = true;
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...';
             
             auth.signInWithEmailAndPassword(e, s).then(() => {
                 showToast("Acesso Liberado!");
-                btn.disabled = false;
-                btn.innerHTML = 'Entrar no Sistema';
-                emailInput.value = ''; 
-                passInput.value = '';
+                btn.disabled = false; btn.innerHTML = 'Entrar no Sistema';
+                emailInput.value = ''; passInput.value = '';
             }).catch((error) => {
-                btn.disabled = false;
-                btn.innerHTML = 'Entrar no Sistema';
-                showToast("Erro ao fazer login.", true);
+                btn.disabled = false; btn.innerHTML = 'Entrar no Sistema'; showToast("Erro ao fazer login.", true);
             });
         }
 
@@ -403,15 +461,12 @@
                 if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
             });
             setTimeout(() => {
-                auth.signOut().then(() => {
-                    endSessionPC(true); 
-                    showToast("Sistema bloqueado.");
-                });
+                auth.signOut().then(() => { endSessionPC(true); showToast("Sistema bloqueado."); });
             }, 1000);
         }
 
         // ==========================================
-        // 4. REDE P2P ROBUSTA
+        // 4. REDE P2P ROBUSTA (Com Memória de Crachá)
         // ==========================================
         function iniciarPeerJSPc() {
             peer = new Peer(null, { debug: 0 }); 
@@ -424,8 +479,19 @@
             });
             
             peer.on('connection', (c) => {
-                const currentNum = clientCounter++;
-                const assignedColor = colors[(currentNum - 1) % colors.length];
+                let currentNum, assignedColor;
+
+                if (clientHistory[c.peer]) {
+                    currentNum = clientHistory[c.peer].num;
+                    assignedColor = clientHistory[c.peer].color;
+                    showToast(`Cliente #${currentNum} reconectou!`);
+                } else {
+                    currentNum = clientCounter++;
+                    assignedColor = colors[(currentNum - 1) % colors.length];
+                    clientHistory[c.peer] = { num: currentNum, color: assignedColor }; 
+                    showToast(`Cliente #${currentNum} conectado!`);
+                    try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(err){}
+                }
                 
                 clients[c.peer] = { conn: c, num: currentNum, color: assignedColor };
                 setupConnection(c, 'pc', c.peer);
@@ -434,8 +500,6 @@
                 document.getElementById('pc-action').classList.add('show');
                 
                 renderActiveClients();
-                showToast(`Cliente #${currentNum} conectado!`);
-                try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(err){}
 
                 const sendBadge = () => {
                     if (clients[c.peer] && c.open) {
@@ -447,17 +511,19 @@
         }
 
         function iniciarPeerJSCelular() {
-            peer = new Peer(null, { debug: 0 });
+            let myPeerId = sessionStorage.getItem('jm_peer_id_' + remoteId);
+            if (!myPeerId) {
+                myPeerId = 'cli_' + Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('jm_peer_id_' + remoteId, myPeerId);
+            }
+
+            peer = new Peer(myPeerId, { debug: 0 });
             
             peer.on('open', () => {
                 if(!remoteId) return;
                 mobileConn = peer.connect(remoteId, { reliable: true });
-                mobileConn.on('open', () => { 
-                    setupConnection(mobileConn, 'mobile', null); 
-                });
-                mobileConn.on('error', (err) => {
-                    showToast("Falha ao conectar com a Lan House.", true);
-                });
+                mobileConn.on('open', () => { setupConnection(mobileConn, 'mobile', null); });
+                mobileConn.on('error', () => { showToast("Falha ao conectar com a Lan House.", true); });
             });
         }
 
@@ -466,13 +532,12 @@
             if(!sessionUrl) return;
             btn.disabled = true;
             navigator.clipboard.writeText(sessionUrl).then(() => {
-                showToast("Link copiado!");
-                setTimeout(() => { btn.disabled = false; }, 2000);
+                showToast("Link copiado!"); setTimeout(() => { btn.disabled = false; }, 2000);
             });
         }
 
         function disconnectClient(peerId) {
-            if (!confirm("Deseja desconectar este cliente?")) return;
+            if (!confirm("Deseja encerrar o atendimento deste cliente?")) return;
             if(clients[peerId]) {
                 const c = clients[peerId];
                 if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
@@ -480,7 +545,7 @@
                 setTimeout(() => {
                     if(clients[peerId]) {
                         try { clients[peerId].conn.close(); } catch(e){}
-                        delete clients[peerId];
+                        delete clients[peerId]; 
                         renderActiveClients();
                         if(Object.keys(clients).length === 0) limparEstadoPC();
                     }
@@ -498,6 +563,7 @@
             
             setTimeout(() => {
                 clients = {}; 
+                clientHistory = {}; 
                 clientCounter = 1;
                 renderActiveClients();
                 limparEstadoPC();
@@ -545,7 +611,6 @@
                         }
                     }
                     else if (data.action === 'disconnect') { 
-                        // MARCAÇÃO DA VACINA ANTI-RETORNO NO CELULAR DO CLIENTE
                         if(type === 'mobile') {
                             sessionStorage.setItem('sessao_morta_' + remoteId, 'true');
                             renderMobileEnded();
@@ -574,13 +639,11 @@
             
             if (type === 'mobile' && (!mobileConn || !mobileConn.open)) { 
                 showToast("Aguarde a conexão estabilizar...", true); 
-                input.value = '';
-                return; 
+                input.value = ''; return; 
             }
             if (type === 'pc' && Object.keys(clients).length === 0) { 
                 showToast("Nenhum cliente na fila!", true); 
-                input.value = '';
-                return; 
+                input.value = ''; return; 
             }
             
             toggleUploadState(type, true);
@@ -589,9 +652,7 @@
             const label = document.getElementById(`${type}-prog-label`);
             const perc = document.getElementById(`${type}-prog-perc`);
             
-            wrapper.style.display = 'block';
-            bar.style.width = '0%';
-            if(perc) perc.innerText = '0%';
+            wrapper.style.display = 'block'; bar.style.width = '0%'; if(perc) perc.innerText = '0%';
 
             try {
                 if (files.length > 1) {
@@ -600,23 +661,15 @@
                     for (let i = 0; i < files.length; i++) { zip.file(files[i].name || `arquivo_${i}`, files[i]); }
                     const content = await zip.generateAsync({type: "blob"}, (metadata) => {
                         const p = Math.max(1, Math.round(metadata.percent));
-                        bar.style.width = p + '%';
-                        if(perc) perc.innerText = p + '%';
+                        bar.style.width = p + '%'; if(perc) perc.innerText = p + '%';
                     });
                     sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
                 } else {
-                    label.innerText = "LENDO ARQUIVO...";
-                    bar.style.width = '50%';
-                    if(perc) perc.innerText = '50%';
+                    label.innerText = "LENDO ARQUIVO..."; bar.style.width = '50%'; if(perc) perc.innerText = '50%';
                     const file = files[0];
                     sendData(file, file.name || "arquivo_desconhecido", file.type || 'application/octet-stream', type);
                 }
-            } catch (error) {
-                showToast("Erro ao processar arquivo(s).", true);
-                fecharProgresso(type);
-            } finally {
-                input.value = ''; 
-            }
+            } catch (error) { showToast("Erro ao processar arquivo.", true); fecharProgresso(type); } finally { input.value = ''; }
         }
 
         function sendData(blob, name, mime, type) {
@@ -640,14 +693,11 @@
                         if(mobileConn && mobileConn.open) { mobileConn.send(payload); enviado = true; }
                     }
                     if (enviado) {
-                        bar.style.width = '100%';
-                        if(perc) perc.innerText = '100%';
-                        label.innerText = "CONCLUÍDO!";
-                        showToast("Enviado com sucesso!");
+                        bar.style.width = '100%'; if(perc) perc.innerText = '100%';
+                        label.innerText = "CONCLUÍDO!"; showToast("Enviado com sucesso!");
                     } else throw new Error();
                 } catch(e) {
-                    label.innerText = "ERRO DE REDE";
-                    showToast("Falha ao enviar. Tente reconectar.", true);
+                    label.innerText = "ERRO DE REDE"; showToast("Falha ao enviar. Tente reconectar.", true);
                 }
                 setTimeout(() => { fecharProgresso(type); }, 2000);
             };
@@ -663,12 +713,8 @@
         window.deleteFileItem = function(elementId, objectUrl) {
             const el = document.getElementById(elementId);
             if(el) {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(-10px)';
-                setTimeout(() => {
-                    el.remove();
-                    if(objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl); 
-                }, 300);
+                el.style.opacity = '0'; el.style.transform = 'translateY(-10px)';
+                setTimeout(() => { el.remove(); if(objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl); }, 300);
             }
         };
 
@@ -681,8 +727,7 @@
             const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
             const fileId = 'file_' + Math.random().toString(36).substr(2, 9);
             const item = document.createElement('div');
-            item.className = 'file-item'; 
-            item.id = fileId;
+            item.className = 'file-item'; item.id = fileId;
             
             let clientTagHTML = '';
             if (type === 'pc' && clients[peerId]) {
@@ -694,49 +739,29 @@
             let tags = `<span class="tag tag-size">${sizeStr} MB</span>`;
             let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
-            const rawName = data.name || "arquivo_sem_nome";
-            const safeFileName = escapeHTML(rawName);
-            const nameLow = rawName.toLowerCase();
-            const safeMime = escapeHTML(data.mime || "");
+            const rawName = data.name || "arquivo_sem_nome"; const safeFileName = escapeHTML(rawName);
+            const nameLow = rawName.toLowerCase(); const safeMime = escapeHTML(data.mime || "");
 
             if (nameLow.endsWith('.doc') || nameLow.endsWith('.docx')) {
-                preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`;
-                tags += `<span class="tag tag-word">WORD</span>`;
+                preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`; tags += `<span class="tag tag-word">WORD</span>`;
             } else if (safeMime.startsWith('image/')) {
-                preview = `<img src="${url}" class="file-preview-img" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`;
-                tags += `<span class="tag tag-res">IMG</span>`;
+                preview = `<img src="${url}" class="file-preview-img" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`; tags += `<span class="tag tag-res">IMG</span>`;
             } else if (safeMime === 'application/pdf' || nameLow.endsWith('.pdf')) {
                 preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
             } else if (nameLow.endsWith('.zip') || safeMime === 'application/zip') {
-                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#f59e0b"></i>`;
-                tags += `<span class="tag tag-zip">ZIP</span>`;
+                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#f59e0b"></i>`; tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
-            const jsUrl = url.replace(/'/g, "\\'");
-            const jsMime = safeMime.replace(/'/g, "\\'");
-            const jsName = rawName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
+            const jsUrl = url.replace(/'/g, "\\'"); const jsMime = safeMime.replace(/'/g, "\\'"); const jsName = rawName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             let actionsHTML = '';
             if (type === 'pc') {
-                actionsHTML = `
-                    <button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                `;
+                actionsHTML = `<button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir"><i class="fas fa-print"></i></button><a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>`;
             } else {
-                actionsHTML = `
-                    <a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>
-                `;
+                actionsHTML = `<a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>`;
             }
 
-            item.innerHTML = `
-                <div class="file-preview-box">${preview}</div>
-                <div class="file-main-info" style="overflow:hidden;">
-                    <span class="file-name" title="${safeFileName}">${safeFileName}</span>
-                    <div class="raio-x-tags">${clientTagHTML} ${tags}</div>
-                </div>
-                <div class="file-actions">${actionsHTML}</div>`;
+            item.innerHTML = `<div class="file-preview-box">${preview}</div><div class="file-main-info" style="overflow:hidden;"><span class="file-name" title="${safeFileName}">${safeFileName}</span><div class="raio-x-tags">${clientTagHTML} ${tags}</div></div><div class="file-actions">${actionsHTML}</div>`;
             
             list.prepend(item);
             if(type === 'pc') { try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(e){} }
@@ -749,22 +774,15 @@
                 if (isWord) {
                     showToast("Iniciando Download...");
                     const a = document.createElement('a'); a.href = url; a.download = name; 
-                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                    return;
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a); return;
                 }
-                const frame = document.getElementById('printFrame');
-                const doc = frame.contentWindow.document;
-                doc.open();
+                const frame = document.getElementById('printFrame'); const doc = frame.contentWindow.document; doc.open();
                 if (mime && mime.startsWith('image/')) {
                     doc.write(`<html><head><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#fff;}img{max-width:190mm;max-height:270mm;object-fit:contain;}@page{size:A4;margin:10mm;}</style></head><body><img src="${escapeHTML(url)}" onload="window.print();"></body></html>`);
                     doc.close();
                 } else if (mime === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
-                    frame.onload = () => { try { frame.contentWindow.print(); } catch(e){} };
-                    frame.src = url;
-                } else {
-                    doc.close();
-                    showToast("Faça o download para abrir.", true);
-                }
+                    frame.onload = () => { try { frame.contentWindow.print(); } catch(e){} }; frame.src = url;
+                } else { doc.close(); showToast("Faça o download para abrir.", true); }
             } catch (error) { showToast("Erro na impressão.", true); }
         };
     </script>
