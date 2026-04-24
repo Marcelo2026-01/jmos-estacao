@@ -1,0 +1,17 @@
+{
+  "name": "JM Transfer Pro",
+  "short_name": "JM Connect",
+  "description": "Balcão Digital para Transferência de Arquivos",
+  "start_url": "./transfer.html",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#f59e0b",
+  "icons": [
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
