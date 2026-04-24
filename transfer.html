@@ -27,62 +27,49 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         
         body { 
-            background: var(--bg); 
-            color: var(--text); 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px; 
-            position: relative;
+            background: var(--bg); color: var(--text); min-height: 100vh; 
+            display: flex; flex-direction: column; align-items: center; 
+            justify-content: center; padding: 20px; position: relative;
         }
 
         .container { 
-            background: var(--surface); 
-            border: 1px solid var(--border); 
-            border-radius: 16px; 
-            padding: 40px 30px; 
-            width: 100%; 
-            max-width: 550px; 
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6); 
-            text-align: center; 
-            position: relative; 
-            overflow: hidden; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            z-index: 2;
+            background: var(--surface); border: 1px solid var(--border); 
+            border-radius: 16px; padding: 40px 30px; width: 100%; max-width: 550px; 
+            box-shadow: 0 30px 60px rgba(0,0,0,0.6); text-align: center; 
+            position: relative; overflow: hidden; display: flex; 
+            flex-direction: column; align-items: center; z-index: 2;
         }
         
         .container::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; left: 0; 
-            width: 100%; height: 4px; 
-            background: linear-gradient(90deg, var(--accent), #ef4444); 
+            content: ''; position: absolute; top: 0; left: 0; 
+            width: 100%; height: 4px; background: linear-gradient(90deg, var(--accent), #ef4444); 
         }
         
         h1 { color: var(--accent); margin-bottom: 5px; font-size: 26px; font-weight: 800; letter-spacing: -1px; }
         p.subtitle { color: var(--muted); margin-bottom: 30px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 
         .qr-box { 
-            background: white; 
-            padding: 15px; 
-            border-radius: 12px; 
-            display: inline-flex; 
-            flex-direction: column; 
-            align-items: center; 
-            margin-bottom: 25px; 
-            box-shadow: 0 0 20px rgba(255,255,255,0.1); 
+            background: white; padding: 15px; border-radius: 12px; 
+            display: inline-flex; flex-direction: column; align-items: center; 
+            margin-bottom: 25px; box-shadow: 0 0 20px rgba(255,255,255,0.1); 
         }
         
+        /* HEADER DE STATUS E DESCONEXÃO */
+        .status-header { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; width: 100%; }
         .status-badge { 
             display: inline-flex; align-items: center; justify-content: center; gap: 8px; 
             padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 13px; 
-            background: rgba(255,255,255,0.05); margin-bottom: 25px; border: 1px solid var(--border); 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border); 
         }
         .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
+
+        .btn-disconnect {
+            background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger); width: 42px; height: 42px; border-radius: 30px;
+            display: none; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.3s; font-size: 16px;
+        }
+        .btn-disconnect:hover { background: var(--danger); color: white; }
 
         .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
         .action-area.show { display: flex; }
@@ -95,6 +82,13 @@
         }
         .btn-upload:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4); }
 
+        .btn-clear {
+            background: transparent; color: var(--danger); border: 1px dashed rgba(239, 68, 68, 0.4);
+            padding: 12px; border-radius: 12px; font-weight: 700; cursor: pointer; 
+            display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; transition: 0.2s;
+        }
+        .btn-clear:hover { background: rgba(239, 68, 68, 0.1); border-style: solid; }
+
         /* PROGRESSO */
         .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
         .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 6px; }
@@ -104,15 +98,15 @@
         /* LISTA DE ARQUIVOS */
         .file-list { 
             text-align: left; display: flex; flex-direction: column; gap: 12px; 
-            margin-top: 25px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; 
+            margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; 
         }
         .file-item { 
             background: rgba(255,255,255,0.03); border: 1px solid var(--border); 
-            border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 15px; width: 100%; 
+            border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 12px; width: 100%; 
         }
         
         .file-preview-box { 
-            width: 55px; height: 55px; border-radius: 8px; overflow: hidden; 
+            width: 50px; height: 50px; border-radius: 8px; overflow: hidden; 
             background: #000; flex-shrink: 0; display: flex; align-items: center; 
             justify-content: center; border: 1px solid var(--border); 
         }
@@ -127,16 +121,16 @@
         .tag-pages { background: rgba(245, 158, 11, 0.2); color: var(--accent); }
         .tag-zip { background: #4b2c20; color: #ff9d6e; }
 
-        .file-actions { display: flex; gap: 8px; }
+        .file-actions { display: flex; gap: 6px; }
         .btn-act { 
-            width: 38px; height: 38px; border-radius: 8px; display: flex; align-items: center; 
+            width: 35px; height: 35px; border-radius: 8px; display: flex; align-items: center; 
             justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.05); 
-            color: white; cursor: pointer; transition: 0.2s; text-decoration: none;
+            color: white; cursor: pointer; transition: 0.2s; text-decoration: none; font-size: 14px;
         }
         .btn-act:hover { background: var(--accent); color: #000; border-color: var(--accent); transform: scale(1.05); }
         .btn-print:hover { background: var(--success); color: #000; border-color: var(--success); }
+        .btn-delete:hover { background: var(--danger); color: white; border-color: var(--danger); }
 
-        /* CRÉDITOS */
         .dev-credit { 
             position: absolute; bottom: 20px; font-size: 10px; font-weight: 700; 
             color: var(--muted); opacity: 0.4; letter-spacing: 1px; text-transform: uppercase; transition: 0.3s; 
@@ -145,10 +139,8 @@
 
         #mobile-view, #pc-view { display: none; width: 100%; flex-direction: column; align-items: center; }
 
-        /* IFRAME INVISÍVEL PARA IMPRESSÃO */
         #printFrame { display: none; }
 
-        /* TOAST ALERT */
         .toast { 
             position: fixed; top: 20px; right: 20px; background: #222; border-left: 4px solid var(--accent); 
             padding: 15px 25px; border-radius: 8px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); 
@@ -162,15 +154,20 @@
 
     <div id="pc-view" class="container">
         <h1>JM TRANSFER <span style="opacity: 0.2;">PRO</span></h1>
-        <p class="subtitle">Impressão Inteligente & Auto-ZIP</p>
+        <p class="subtitle">Impressão Inteligente & Gestão</p>
 
         <div id="qr-container" class="qr-box">
             <div id="qrcode"></div>
             <p style="color: #000; font-size: 10px; font-weight: 900; margin-top: 10px;">CONECTAR CELULAR</p>
         </div>
 
-        <div id="pc-status" class="status-badge">
-            <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
+        <div class="status-header">
+            <div id="pc-status" class="status-badge">
+                <i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...
+            </div>
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSession()" title="Encerrar Sessão e Limpar">
+                <i class="fas fa-power-off"></i>
+            </button>
         </div>
 
         <div id="pc-action" class="action-area">
@@ -185,6 +182,10 @@
             </div>
 
             <div class="file-list" id="pc-file-list"></div>
+            
+            <button class="btn-clear" onclick="document.getElementById('pc-file-list').innerHTML = ''">
+                <i class="fas fa-trash-alt"></i> Limpar Painel de Arquivos
+            </button>
         </div>
     </div>
 
@@ -193,22 +194,29 @@
             <h1>JM CONNECT</h1>
             <p class="subtitle">BALCÃO DIGITAL</p>
             
-            <div class="status-badge connected" style="margin: 10px auto 25px;">
-                <i class="fas fa-check-circle"></i> CONECTADO AO BALCÃO
+            <div class="status-header">
+                <div class="status-badge connected">
+                    <i class="fas fa-check-circle"></i> CONECTADO AO BALCÃO
+                </div>
+                <button class="btn-disconnect" style="display: flex;" onclick="endSession()" title="Encerrar Sessão">
+                    <i class="fas fa-power-off"></i>
+                </button>
             </div>
 
-            <button class="btn-upload" onclick="document.getElementById('mobileFileInput').click()">
-                <i class="fas fa-cloud-upload-alt"></i> SELECIONAR ARQUIVOS
-            </button>
-            <input type="file" id="mobileFileInput" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
-            
-            <div class="progress-wrapper" id="mobile-progress-wrapper">
-                <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
-                <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
-            </div>
+            <div id="mobile-action" class="action-area show">
+                <button class="btn-upload" onclick="document.getElementById('mobileFileInput').click()">
+                    <i class="fas fa-cloud-upload-alt"></i> SELECIONAR ARQUIVOS
+                </button>
+                <input type="file" id="mobileFileInput" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+                
+                <div class="progress-wrapper" id="mobile-progress-wrapper">
+                    <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
+                    <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
+                </div>
 
-            <div class="file-list" id="mobile-file-list" style="margin-top: 25px;">
-                <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Recebidos do Balcão:</h3>
+                <div class="file-list" id="mobile-file-list" style="margin-top: 25px;">
+                    <h3 style="font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px;">Recebidos do Balcão:</h3>
+                </div>
             </div>
         </div>
     </div>
@@ -216,7 +224,7 @@
     <iframe id="printFrame"></iframe>
 
     <div class="dev-credit">Desenvolvido por José Marcelo</div>
-    <div class="toast" id="toastMsg"><i class="fas fa-bolt"></i> <span>Aviso</span></div>
+    <div class="toast" id="toastMsg"><i class="fas fa-check-circle"></i> <span>Aviso</span></div>
 
     <script>
         const urlParams = new URLSearchParams(window.location.search);
@@ -237,6 +245,7 @@
                 document.getElementById('qr-container').style.display = 'none';
                 document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> CELULAR VINCULADO';
                 document.getElementById('pc-status').classList.add('connected');
+                document.getElementById('pc-disconnect').style.display = 'flex';
                 document.getElementById('pc-action').classList.add('show');
                 showToast("Dispositivo Conectado!");
             });
@@ -250,8 +259,36 @@
             });
         }
 
+        // ==========================================
+        // LÓGICA DE DESCONEXÃO SEGURA
+        // ==========================================
+        function endSession() {
+            if(conn) conn.close(); // Corta o túnel P2P
+            
+            if (isMobile) {
+                // Tela de Sucesso no Celular
+                document.getElementById('mobile-view').innerHTML = `
+                    <div class="container" style="box-shadow: none; padding: 60px 30px;">
+                        <i class="fas fa-check-circle" style="font-size: 60px; color: var(--success); margin-bottom: 20px;"></i>
+                        <h1 style="color: var(--text);">Sessão Encerrada</h1>
+                        <p style="color: var(--muted); margin-top: 10px; font-weight: 600;">Obrigado! Você já pode fechar o seu navegador com segurança.</p>
+                    </div>
+                `;
+            } else {
+                // Reseta o PC para o Próximo Cliente
+                showToast("Encerrando e apagando dados...");
+                setTimeout(() => {
+                    window.location.reload(); // Recarrega para gerar novo QR Code e limpar a RAM
+                }, 1000);
+            }
+        }
+
         function setupConnection(connection, type) {
             connection.on('data', (data) => { if(data.type === 'file') receiveFile(data, type); });
+            // Se a conexão for fechada pelo outro lado
+            connection.on('close', () => {
+                if(!isMobile) endSession();
+            });
         }
 
         async function handleFiles(input, type) {
@@ -266,7 +303,6 @@
             wrapper.style.display = 'block';
 
             if (files.length > 1) {
-                // LÓGICA AUTO-ZIP
                 label.innerText = `ZIPANDO ${files.length} ARQUIVOS...`;
                 const zip = new JSZip();
                 for (let i = 0; i < files.length; i++) {
@@ -280,13 +316,12 @@
                 
                 sendData(content, `Pacote_Impressoes.zip`, 'application/zip', type);
             } else {
-                // ENVIO ÚNICO
                 label.innerText = "PREPARANDO ENVIO...";
                 bar.style.width = '50%';
                 const file = files[0];
                 sendData(file, file.name, file.type, type);
             }
-            input.value = ''; // Reseta o input
+            input.value = ''; 
         }
 
         function sendData(blob, name, mime, type) {
@@ -317,7 +352,6 @@
             let tags = `<span class="tag" style="background:rgba(255,255,255,0.1)">${(data.size/1024/1024).toFixed(2)} MB</span>`;
             let preview = `<i class="fas fa-file" style="font-size:20px; color:var(--muted)"></i>`;
 
-            // METADADOS INTELIGENTES (RAIO-X)
             if (data.mime.startsWith('image/')) {
                 preview = `<img src="${url}" class="file-preview-img">`;
                 const img = new Image(); img.src = url; await img.decode();
@@ -331,6 +365,7 @@
                 tags += `<span class="tag tag-zip">ZIP</span>`;
             }
 
+            // BOTÃO DE LIXEIRA INDIVIDUAL ADICIONADO AQUI
             item.innerHTML = `
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
@@ -340,6 +375,7 @@
                 <div class="file-actions">
                     <button class="btn-act btn-print" onclick="smartPrint('${url}', '${data.mime}')" title="Imprimir Auto A4"><i class="fas fa-print"></i></button>
                     <a href="${url}" download="${data.name}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="this.closest('.file-item').remove()" title="Apagar da Tela"><i class="fas fa-trash"></i></button>
                 </div>`;
             list.prepend(item);
 
@@ -349,9 +385,6 @@
             }
         }
 
-        // ==========================================
-        // ENGENHARIA DE IMPRESSÃO INTELIGENTE A4
-        // ==========================================
         function smartPrint(url, mime) {
             const frame = document.getElementById('printFrame');
             const doc = frame.contentWindow.document;
@@ -359,7 +392,6 @@
             
             let content = '';
             if (mime.startsWith('image/')) {
-                // Cria uma página A4 virtual e centraliza a imagem para impressão perfeita
                 content = `
                 <style>
                     body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: white; }
@@ -375,11 +407,10 @@
                     frame.contentWindow.print();
                 }, 500);
             } else if (mime === 'application/pdf') {
-                // PDF chama a impressão direto
                 frame.src = url;
                 frame.onload = () => { frame.contentWindow.print(); };
             } else {
-                showToast("Impressão direta não suportada para este formato.");
+                showToast("Impressão direta não suportada.");
             }
         }
 
