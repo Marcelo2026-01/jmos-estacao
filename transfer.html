@@ -49,7 +49,6 @@
         .input-container input:focus { border-color: var(--accent); background: #1a1a1a; box-shadow: 0 0 0 1px var(--accent); }
         .input-container input::placeholder { color: #555555; }
 
-        /* HACK PARA FORÇAR O FUNDO ESCURO NO AUTOFILL DO NAVEGADOR */
         .input-container input:-webkit-autofill,
         .input-container input:-webkit-autofill:hover, 
         .input-container input:-webkit-autofill:focus, 
@@ -63,8 +62,7 @@
         .btn-login { 
             background: var(--accent); color: #000; border: none; padding: 16px; 
             border-radius: 8px; font-weight: 700; font-size: 16px; width: 100%; 
-            cursor: pointer; transition: 0.3s; display: flex; align-items: center; 
-            justify-content: center; gap: 10px; margin-top: 10px;
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
         }
         .btn-login:hover { transform: translateY(-2px); background: #fcd34d; }
 
@@ -75,19 +73,25 @@
         .btn-copy-link:hover { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); }
         .btn-copy-link i { color: var(--accent); }
 
-        .status-header { display: flex; gap: 12px; margin-bottom: 30px; justify-content: center; width: 100%; align-items: center;}
+        .status-header { display: flex; gap: 12px; justify-content: center; width: 100%; align-items: center;}
         .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0;}
         .status-badge.connected { background: rgba(16, 185, 129, 0.08); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
-        .btn-disconnect { background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 30px; display: none; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 12px; font-weight: 600;}
+        /* LISTA DINÂMICA DE CLIENTES CONECTADOS (PC) */
+        #active-clients-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; margin-bottom: 25px; width: 100%; }
+        .client-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; }
+        .client-pill-close { cursor: pointer; opacity: 0.6; transition: 0.2s; }
+        .client-pill-close:hover { opacity: 1; transform: scale(1.2); }
+
+        .btn-disconnect { background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 30px; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 12px; font-weight: 600;}
         .btn-disconnect:hover { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
 
         .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
         .action-area.show { display: flex; animation: fadeIn 0.5s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-upload { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 15px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.2); }
-        .btn-upload:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4); background: #fcd34d; }
+        .btn-upload { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .btn-upload:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
         .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; }
         .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px;}
@@ -107,7 +111,7 @@
         .file-main-info { flex: 1; min-width: 0; }
         .file-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; display: block;}
         
-        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 5px; align-items: center;}
         .tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
         .tag-size { background: rgba(255,255,255,0.08); color: #d4d4d4; }
         .tag-res { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
@@ -155,22 +159,25 @@
         </button>
 
         <h1>JM TRANSFER <span style="opacity: 0.2; font-weight: 400;">PRO</span></h1>
-        <p class="subtitle">Painel de Recepção</p>
+        <p class="subtitle">Painel Multi-Atendimento</p>
 
         <div id="qr-container" class="qr-box">
             <div id="qrcode"></div>
-            <p>ESCANEIE PARA CONECTAR</p>
+            <p>ESCANEIE PARA ENTRAR NA FILA</p>
         </div>
         <button id="btnCopyLink" class="btn-copy-link" onclick="copySessionLink()"><i class="fas fa-link"></i> Copiar Link WhatsApp</button>
 
         <div class="status-header">
-            <div id="pc-status" class="status-badge"><i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...</div>
-            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()"><i class="fas fa-power-off"></i> Encerrar</button>
+            <button id="pc-disconnect" class="btn-disconnect" onclick="endSessionPC()" style="display: none;">
+                <i class="fas fa-power-off"></i> Encerrar Fila
+            </button>
         </div>
+        
+        <div id="active-clients-list"></div>
 
         <div id="pc-action" class="action-area">
             <button class="btn-upload" onclick="document.getElementById('pcFileInput').click()">
-                <i class="fas fa-paper-plane"></i> ENVIAR ARQUIVO AO CLIENTE
+                <i class="fas fa-broadcast-tower"></i> ENVIAR ARQUIVO P/ CLIENTES ATIVOS
             </button>
             <input type="file" id="pcFileInput" multiple style="display: none;" onchange="handleFiles(this, 'pc')">
             
@@ -186,10 +193,30 @@
     <div id="mobile-view" class="container" style="border: none; box-shadow: none;">
         <h1>JM CONNECT</h1>
         <p class="subtitle">BALCÃO DIGITAL</p>
-        <div class="status-header"><div class="status-badge connected"><i class="fas fa-shield-check"></i> CONECTADO COM SEGURANÇA</div></div>
+        
+        <div class="status-header" style="margin-bottom: 20px;">
+            <div class="status-badge connected" id="mobile-client-badge">
+                <i class="fas fa-shield-check"></i> CONECTANDO...
+            </div>
+        </div>
+        
         <div id="mobile-action" class="action-area show">
-            <button class="btn-upload" onclick="document.getElementById('mobileFileInput').click()"><i class="fas fa-cloud-upload-alt"></i> SELECIONAR ARQUIVOS</button>
-            <input type="file" id="mobileFileInput" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+            
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left;">
+                <p style="font-size: 11px; color: #60a5fa; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
+                <p style="font-size: 11px; color: var(--muted); line-height: 1.4;">Salve o PDF ou Foto no seu aparelho <b>antes</b> de enviar. Arquivos salvos costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
+            </div>
+
+            <button class="btn-upload" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()">
+                <i class="fas fa-camera-retro"></i> ENVIAR FOTOS
+            </button>
+            <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+
+            <button class="btn-upload" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()">
+                <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS (PDF/WORD)
+            </button>
+            <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')">
+            
             <div class="progress-wrapper" id="mobile-progress-wrapper">
                 <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
                 <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
@@ -204,7 +231,7 @@
 
     <script>
         // ==========================================
-        // 1. INICIALIZAÇÃO DO FIREBASE (SUAS CHAVES)
+        // 1. FIREBASE (SUAS CHAVES INTACTAS)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCmD4GMmuLbKP0oOP-yu3_m6N1lCUmnljg",
@@ -219,13 +246,19 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const remoteId = urlParams.get('remote');
-        let peer, conn;
+        let peer;
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
         // ==========================================
-        // 2. CONTROLE DE ACESSO (O ESPIÃO)
+        // NOVO MOTOR MULTI-CONEXÕES
         // ==========================================
+        let clients = {}; // Guarda todos os clientes conectados { id: {conn, num, color} }
+        let clientCounter = 1;
+        let mobileConn = null; // Usado apenas no celular
+        const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+        // CONTROLE DE TELAS FIREBASE
         if (isMobile) {
             document.getElementById('mobile-view').style.display = 'flex';
             iniciarPeerJSCelular();
@@ -240,120 +273,164 @@
                     document.getElementById('pc-view').style.display = 'none';
                 }
             });
-
-            document.getElementById('loginPass').addEventListener('keypress', function(e) {
-                if(e.key === 'Enter') fazerLogin();
-            });
+            document.getElementById('loginPass').addEventListener('keypress', function(e) { if(e.key === 'Enter') fazerLogin(); });
         }
 
-        // ==========================================
-        // 3. FUNÇÕES DE LOGIN E LOGOUT REAL
-        // ==========================================
         function fazerLogin() {
-            const emailDigitado = document.getElementById('loginEmail').value;
-            const senhaDigitada = document.getElementById('loginPass').value;
+            const e = document.getElementById('loginEmail').value;
+            const s = document.getElementById('loginPass').value;
             const btn = document.getElementById('btnFazerLogin');
-
             btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Verificando...';
-
-            auth.signInWithEmailAndPassword(emailDigitado, senhaDigitada)
-                .then((userCredential) => {
-                    showToast("Acesso Liberado!");
-                    btn.innerHTML = 'Entrar no Sistema';
-                    document.getElementById('loginEmail').value = '';
-                    document.getElementById('loginPass').value = '';
-                })
-                .catch((error) => {
-                    btn.innerHTML = 'Entrar no Sistema';
-                    if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'){
-                        showToast("Erro: E-mail ou Senha incorretos.");
-                    } else {
-                        showToast("Erro: Verifique seus dados.");
-                    }
-                });
+            auth.signInWithEmailAndPassword(e, s).then(() => {
+                showToast("Acesso Liberado!");
+                btn.innerHTML = 'Entrar no Sistema';
+                document.getElementById('loginEmail').value = ''; document.getElementById('loginPass').value = '';
+            }).catch(() => {
+                btn.innerHTML = 'Entrar no Sistema';
+                showToast("Erro: Verifique seus dados.");
+            });
         }
 
         function fazerLogout() {
             auth.signOut().then(() => {
-                if(conn) { conn.send({ type: 'command', action: 'disconnect' }); conn.close(); }
+                endSessionPC(); // Desconecta todos antes de sair
                 if(peer) { peer.destroy(); peer = null; }
-                showToast("Sistema bloqueado com segurança.");
-            }).catch((error) => {
-                showToast("Erro ao sair.");
+                showToast("Sistema bloqueado.");
             });
         }
 
         // ==========================================
-        // 4. REDE E TRANSFERÊNCIA P2P
+        // REDE P2P E ROTEAMENTO
         // ==========================================
         function iniciarPeerJSPc() {
             peer = new Peer();
             peer.on('open', (id) => {
                 sessionUrl = `${window.location.href.split('?')[0]}?remote=${id}`;
                 document.getElementById("qrcode").innerHTML = ""; 
-                new QRCode(document.getElementById("qrcode"), { text: sessionUrl, width: 170, height: 170 });
+                new QRCode(document.getElementById("qrcode"), { text: sessionUrl, width: 150, height: 150 });
             });
+            
+            // QUANDO UM CLIENTE NOVO ENTRA NA FILA
             peer.on('connection', (c) => {
-                conn = c; setupConnection(conn, 'pc');
-                document.getElementById('qr-container').style.display = 'none';
-                document.getElementById('btnCopyLink').style.display = 'none';
-                document.getElementById('pc-status').innerHTML = '<i class="fas fa-check-circle"></i> VINCULADO AO CLIENTE';
-                document.getElementById('pc-status').classList.add('connected');
-                document.getElementById('pc-disconnect').style.display = 'flex';
+                const currentNum = clientCounter++;
+                const assignedColor = colors[(currentNum - 1) % colors.length];
+                
+                clients[c.peer] = { conn: c, num: currentNum, color: assignedColor };
+                setupConnection(c, 'pc', c.peer);
+                
+                document.getElementById('pc-disconnect').style.display = 'inline-flex';
                 document.getElementById('pc-action').classList.add('show');
-                showToast("Cliente conectado!");
+                
+                renderActiveClients();
+                showToast(`Cliente #${currentNum} entrou na fila!`);
+                new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{});
+
+                // Envia o Crachá para o celular dele
+                c.on('open', () => {
+                    c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
+                });
             });
         }
 
         function iniciarPeerJSCelular() {
             peer = new Peer();
             peer.on('open', () => {
-                conn = peer.connect(remoteId);
-                conn.on('open', () => { setupConnection(conn, 'mobile'); });
+                mobileConn = peer.connect(remoteId);
+                mobileConn.on('open', () => { setupConnection(mobileConn, 'mobile', null); });
             });
         }
 
-        function copySessionLink() {
-            navigator.clipboard.writeText(sessionUrl).then(() => showToast("Link copiado! Cole no WhatsApp."));
+        function copySessionLink() { navigator.clipboard.writeText(sessionUrl).then(() => showToast("Link copiado!")); }
+
+        // DESCONECTA APENAS UM CLIENTE
+        function disconnectClient(peerId) {
+            if(clients[peerId]) {
+                clients[peerId].conn.send({ type: 'command', action: 'disconnect' });
+                clients[peerId].conn.close();
+                delete clients[peerId];
+                renderActiveClients();
+                
+                if(Object.keys(clients).length === 0) {
+                    document.getElementById('pc-disconnect').style.display = 'none';
+                    document.getElementById('pc-action').classList.remove('show');
+                    document.getElementById('pc-file-list').innerHTML = ''; // Limpa tela se fila zerar
+                }
+            }
         }
 
+        // DESCONECTA TODO MUNDO
         function endSessionPC() {
-            if(conn) { conn.send({ type: 'command', action: 'disconnect' }); }
-            setTimeout(() => { 
-                if(peer) peer.destroy();
-                document.getElementById('pc-action').classList.remove('show');
-                document.getElementById('pc-disconnect').style.display = 'none';
-                document.getElementById('pc-status').innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> AGUARDANDO...';
-                document.getElementById('pc-status').classList.remove('connected');
-                document.getElementById('qr-container').style.display = 'inline-flex';
-                document.getElementById('btnCopyLink').style.display = 'flex';
-                document.getElementById('pc-file-list').innerHTML = '';
-                iniciarPeerJSPc();
-            }, 600);
+            Object.values(clients).forEach(c => c.conn.send({ type: 'command', action: 'disconnect' }));
+            clients = {}; clientCounter = 1;
+            renderActiveClients();
+            document.getElementById('pc-disconnect').style.display = 'none';
+            document.getElementById('pc-action').classList.remove('show');
+            document.getElementById('pc-file-list').innerHTML = '';
+            showToast("Fila zerada com sucesso.");
         }
 
-        function setupConnection(connection, type) {
+        function renderActiveClients() {
+            const list = document.getElementById('active-clients-list');
+            list.innerHTML = '';
+            Object.keys(clients).forEach(peerId => {
+                const c = clients[peerId];
+                list.innerHTML += `
+                    <div class="client-pill" style="background: ${c.color};">
+                        <i class="fas fa-user"></i> Cliente #${c.num}
+                        <i class="fas fa-times client-pill-close" onclick="disconnectClient('${peerId}')" title="Encerrar este cliente"></i>
+                    </div>
+                `;
+            });
+        }
+
+        function setupConnection(connection, type, peerId) {
             connection.on('data', (data) => { 
-                if(data.type === 'file') receiveFile(data, type); 
+                if(data.type === 'file') receiveFile(data, type, peerId); 
+                if(data.type === 'command' && data.action === 'setClientInfo') {
+                    // Celular recebe seu número e cor
+                    const badge = document.getElementById('mobile-client-badge');
+                    badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${data.num}`;
+                    badge.style.backgroundColor = data.color + '22';
+                    badge.style.color = data.color;
+                    badge.style.borderColor = data.color + '55';
+                }
                 if(data.type === 'command' && data.action === 'disconnect') { 
                     document.getElementById('mobile-view').innerHTML = `
                         <i class="fas fa-check-circle" style="font-size: 50px; color: var(--success); margin-bottom: 20px;"></i>
                         <h1 style="text-align:center; color: var(--text);">Sessão Encerrada</h1>
-                        <p style="color: var(--muted); margin-top:10px;">Você já pode fechar esta tela.</p>
+                        <p style="color: var(--muted); margin-top:10px;">Obrigado! Pode fechar esta tela.</p>
                     `;
                 }
             });
+            // Se o cliente fechar a aba no celular dele, remove da fila do PC
+            connection.on('close', () => { if(type === 'pc') { delete clients[peerId]; renderActiveClients(); } });
         }
 
+        // ==========================================
+        // GESTÃO DE ARQUIVOS (COM BROADCAST)
+        // ==========================================
         async function handleFiles(input, type) {
-            const files = input.files; if (!files.length || !conn) return;
+            const files = input.files; 
+            if (!files.length) return;
+            if (type === 'mobile' && !mobileConn) return;
+            if (type === 'pc' && Object.keys(clients).length === 0) { showToast("Nenhum cliente na fila!"); return; }
+            
             const bar = document.getElementById(`${type}-progress-bar`), wrapper = document.getElementById(`${type}-progress-wrapper`);
             wrapper.style.display = 'block';
             
             const file = files[0];
             const reader = new FileReader();
             reader.onload = () => {
-                conn.send({ type: 'file', file: reader.result, name: file.name, mime: file.type, size: file.size });
+                const payload = { type: 'file', file: reader.result, name: file.name, mime: file.type, size: file.size };
+                
+                if (type === 'pc') {
+                    // Envia arquivo do seu PC para TODOS os celulares conectados
+                    Object.values(clients).forEach(c => c.conn.send(payload));
+                } else {
+                    // Celular envia para o PC
+                    mobileConn.send(payload);
+                }
+                
                 bar.style.width = '100%'; showToast("Enviado com sucesso!");
                 setTimeout(() => { wrapper.style.display = 'none'; bar.style.width='0'; }, 2000);
             };
@@ -361,7 +438,7 @@
             input.value = ''; 
         }
 
-        async function receiveFile(data, type) {
+        async function receiveFile(data, type, peerId) {
             const blob = new Blob([data.file], { type: data.mime });
             const url = URL.createObjectURL(blob);
             const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
@@ -370,6 +447,12 @@
             const item = document.createElement('div');
             item.className = 'file-item'; item.id = fileId;
             
+            let clientTagHTML = '';
+            if (type === 'pc' && clients[peerId]) {
+                const c = clients[peerId];
+                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;">CLI #${c.num}</span>`;
+            }
+
             let tags = `<span class="tag tag-size">${(data.size/1024/1024).toFixed(2)} MB</span>`;
             let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
@@ -380,8 +463,7 @@
                 tags += `<span class="tag tag-word">WORD</span>`;
             } else if (data.mime.startsWith('image/')) {
                 preview = `<img src="${url}" class="file-preview-img">`;
-                const img = new Image(); img.src = url; await img.decode();
-                tags += `<span class="tag tag-res">${img.naturalWidth}x${img.naturalHeight}</span>`;
+                tags += `<span class="tag tag-res">IMG</span>`;
             } else if (data.mime === 'application/pdf') {
                 preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
             }
@@ -406,7 +488,7 @@
                 <div class="file-preview-box">${preview}</div>
                 <div class="file-main-info">
                     <span class="file-name" title="${data.name}">${data.name}</span>
-                    <div class="raio-x-tags">${tags}</div>
+                    <div class="raio-x-tags">${clientTagHTML} ${tags}</div>
                 </div>
                 <div class="file-actions">${actionsHTML}</div>`;
             list.prepend(item);
