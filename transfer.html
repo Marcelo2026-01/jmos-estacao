@@ -198,38 +198,7 @@
     </div>
 
     <div id="mobile-view" class="container" style="border: none; box-shadow: none;">
-        <h1>JM CONNECT</h1>
-        <p class="subtitle">BALCÃO DIGITAL</p>
-        
-        <div class="status-header" style="margin-bottom: 20px;">
-            <div class="status-badge connected" id="mobile-client-badge">
-                <i class="fas fa-circle-notch fa-spin"></i> CONECTANDO...
-            </div>
         </div>
-        
-        <div id="mobile-action" class="action-area show">
-            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left;">
-                <p style="font-size: 11px; color: #60a5fa; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
-                <p style="font-size: 11px; color: var(--muted); line-height: 1.4;">Salve o PDF ou Foto no seu aparelho <b>antes</b> de enviar. Arquivos salvos costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
-            </div>
-
-            <button class="btn-upload" id="mobileBtnImg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()" title="Abre a galeria de imagens">
-                <i class="fas fa-camera-retro"></i> ENVIAR FOTOS
-            </button>
-            <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar fotos">
-
-            <button class="btn-upload" id="mobileBtnDoc" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()" title="Abre a pasta de arquivos e documentos">
-                <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS (PDF/WORD)
-            </button>
-            <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar documentos">
-            
-            <div class="progress-wrapper" id="mobile-progress-wrapper" aria-live="assertive">
-                <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
-                <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
-            </div>
-            <div class="file-list" id="mobile-file-list" aria-live="polite"></div>
-        </div>
-    </div>
 
     <iframe id="printFrame" title="Frame de Impressão Oculto"></iframe>
     <div class="dev-credit">Desenvolvido por José Marcelo</div>
@@ -261,7 +230,6 @@
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
-        // Controle de estado e conexões
         let clients = {}; 
         let clientCounter = 1;
         let mobileConn = null; 
@@ -269,18 +237,12 @@
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
         // ==========================================
-        // 2. FUNÇÕES DE UTILIDADE E SEGURANÇA
+        // 2. FUNÇÕES DE UTILIDADE
         // ==========================================
         function escapeHTML(str) {
             if (!str) return "";
             return str.replace(/[&<>'"]/g, 
-                tag => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                }[tag] || tag)
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
             );
         }
 
@@ -314,11 +276,69 @@
         function toggleUploadState(type, state) {
             isUploading = state;
             if (type === 'pc') {
-                document.getElementById('pcBtnUpload').disabled = state;
+                const btn = document.getElementById('pcBtnUpload');
+                if(btn) btn.disabled = state;
             } else {
-                document.getElementById('mobileBtnImg').disabled = state;
-                document.getElementById('mobileBtnDoc').disabled = state;
+                const imgBtn = document.getElementById('mobileBtnImg');
+                const docBtn = document.getElementById('mobileBtnDoc');
+                if(imgBtn) imgBtn.disabled = state;
+                if(docBtn) docBtn.disabled = state;
             }
+        }
+
+        // ==========================================
+        // UI DO CELULAR (Telas Dinâmicas)
+        // ==========================================
+        function renderMobileActive() {
+            document.getElementById('mobile-view').innerHTML = `
+                <h1>JM CONNECT</h1>
+                <p class="subtitle">BALCÃO DIGITAL</p>
+                <div class="status-header" style="margin-bottom: 20px;">
+                    <div class="status-badge connected" id="mobile-client-badge">
+                        <i class="fas fa-circle-notch fa-spin"></i> CONECTANDO...
+                    </div>
+                </div>
+                <div id="mobile-action" class="action-area show">
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left;">
+                        <p style="font-size: 11px; color: #60a5fa; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
+                        <p style="font-size: 11px; color: var(--muted); line-height: 1.4;">Salve o PDF ou Foto no seu aparelho <b>antes</b> de enviar. Arquivos salvos costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
+                    </div>
+                    <button class="btn-upload" id="mobileBtnImg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()" title="Abre a galeria de imagens">
+                        <i class="fas fa-camera-retro"></i> ENVIAR FOTOS
+                    </button>
+                    <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar fotos">
+                    <button class="btn-upload" id="mobileBtnDoc" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()" title="Abre a pasta de arquivos e documentos">
+                        <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS (PDF/WORD)
+                    </button>
+                    <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar documentos">
+                    
+                    <div class="progress-wrapper" id="mobile-progress-wrapper" aria-live="assertive">
+                        <div class="progress-info"><span id="mobile-prog-label">ENVIANDO...</span> <span id="mobile-prog-perc">0%</span></div>
+                        <div class="progress-container"><div class="progress-bar" id="mobile-progress-bar"></div></div>
+                    </div>
+                    <div class="file-list" id="mobile-file-list" aria-live="polite"></div>
+                </div>
+            `;
+        }
+
+        function renderMobileExpired() {
+            document.getElementById('mobile-view').innerHTML = `
+                <div style="padding: 40px 10px; text-align: center; animation: fadeIn 0.5s ease;">
+                    <i class="fas fa-lock" style="font-size: 64px; color: var(--muted); margin-bottom: 24px;"></i>
+                    <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Link Expirado</h1>
+                    <p style="color: var(--muted); font-size: 14px; line-height: 1.5;">Este atendimento já foi concluído pela Lan House e este link não é mais válido por motivos de segurança.</p>
+                </div>
+            `;
+        }
+
+        function renderMobileEnded() {
+            document.getElementById('mobile-view').innerHTML = `
+                <div style="padding: 40px 10px; text-align: center; animation: fadeIn 0.5s ease;">
+                    <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
+                    <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
+                    <p style="color: var(--muted); font-size: 14px; line-height: 1.5;">Obrigado! A transferência foi concluída com segurança. Você já pode fechar esta tela.</p>
+                </div>
+            `;
         }
 
         // ==========================================
@@ -326,7 +346,14 @@
         // ==========================================
         if (isMobile) {
             document.getElementById('mobile-view').style.display = 'flex';
-            iniciarPeerJSCelular();
+            
+            // VACINA ANTI-RETORNO: Verifica se a sessão deste ID já foi encerrada antes
+            if (sessionStorage.getItem('sessao_morta_' + remoteId)) {
+                renderMobileExpired();
+            } else {
+                renderMobileActive();
+                iniciarPeerJSCelular();
+            }
         } else {
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -366,34 +393,19 @@
             }).catch((error) => {
                 btn.disabled = false;
                 btn.innerHTML = 'Entrar no Sistema';
-                if(error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password'){
-                    showToast("Erro: E-mail ou Senha incorretos.", true);
-                } else if(error.code === 'auth/invalid-email') {
-                    showToast("Erro: Formato de e-mail inválido.", true);
-                } else {
-                    showToast("Erro de autenticação. Verifique sua rede.", true);
-                }
+                showToast("Erro ao fazer login.", true);
             });
         }
 
         function fazerLogout() {
             if (!confirm("Deseja realmente bloquear o sistema e encerrar conexões?")) return;
-            
-            // 1. Notifica todos os clientes primeiro
             Object.values(clients).forEach(c => {
-                if(c.conn && c.conn.open) {
-                    c.conn.send({ type: 'command', action: 'disconnect' });
-                }
+                if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
             });
-
-            // 2. Aguarda a entrega dos pacotes antes de deslogar do Firebase
             setTimeout(() => {
                 auth.signOut().then(() => {
                     endSessionPC(true); 
                     showToast("Sistema bloqueado.");
-                }).catch((error) => {
-                    showToast("Erro ao tentar sair do sistema.", true);
-                    console.error(error);
                 });
             }, 1000);
         }
@@ -408,21 +420,9 @@
                 sessionUrl = `${window.location.href.split('?')[0]}?remote=${id}`;
                 const qrContainer = document.getElementById("qrcode");
                 qrContainer.innerHTML = ""; 
-                try {
-                    new QRCode(qrContainer, { text: sessionUrl, width: 150, height: 150 });
-                } catch(err) {
-                    console.error("Erro ao gerar QR Code", err);
-                }
+                try { new QRCode(qrContainer, { text: sessionUrl, width: 150, height: 150 }); } catch(err){}
             });
             
-            peer.on('error', (err) => {
-                console.error("PeerJS Erro PC:", err);
-                if (err.type === 'network' || err.type === 'server-error') {
-                    showToast("Erro de rede. Reconectando...", true);
-                    setTimeout(() => { if(auth.currentUser && !peer.open) peer.reconnect(); }, 3000);
-                }
-            });
-
             peer.on('connection', (c) => {
                 const currentNum = clientCounter++;
                 const assignedColor = colors[(currentNum - 1) % colors.length];
@@ -442,12 +442,7 @@
                         c.send({ type: 'command', action: 'setClientInfo', num: currentNum, color: assignedColor });
                     }
                 };
-
-                if(c.open) {
-                    sendBadge();
-                } else {
-                    c.on('open', sendBadge);
-                }
+                if(c.open) sendBadge(); else c.on('open', sendBadge);
             });
         }
 
@@ -464,49 +459,30 @@
                     showToast("Falha ao conectar com a Lan House.", true);
                 });
             });
-
-            peer.on('error', (err) => {
-                console.error("PeerJS Erro Mobile:", err);
-                showToast("Erro de conexão. Verifique o 4G/Wi-Fi.", true);
-            });
         }
 
         function copySessionLink() { 
             const btn = document.getElementById('btnCopyLink');
-            if(!sessionUrl) {
-                showToast("Aguarde a geração do link...", true);
-                return;
-            }
+            if(!sessionUrl) return;
             btn.disabled = true;
             navigator.clipboard.writeText(sessionUrl).then(() => {
                 showToast("Link copiado!");
                 setTimeout(() => { btn.disabled = false; }, 2000);
-            }).catch(() => {
-                showToast("Erro ao copiar link.", true);
-                btn.disabled = false;
             });
         }
 
         function disconnectClient(peerId) {
             if (!confirm("Deseja desconectar este cliente?")) return;
-            
             if(clients[peerId]) {
                 const c = clients[peerId];
-                if(c.conn && c.conn.open) {
-                    // Envia a ordem de fechamento
-                    c.conn.send({ type: 'command', action: 'disconnect' });
-                }
+                if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
                 
-                // Fallback seguro: aguarda 1.5s para forçar o fechamento do lado do PC
                 setTimeout(() => {
                     if(clients[peerId]) {
                         try { clients[peerId].conn.close(); } catch(e){}
                         delete clients[peerId];
                         renderActiveClients();
-                        
-                        if(Object.keys(clients).length === 0) {
-                            limparEstadoPC();
-                        }
+                        if(Object.keys(clients).length === 0) limparEstadoPC();
                     }
                 }, 1500);
             }
@@ -516,10 +492,7 @@
             if (!force && !confirm("Encerrar fila e desconectar TODOS os clientes?")) return;
 
             Object.values(clients).forEach(c => {
-                if(c.conn && c.conn.open) {
-                    c.conn.send({ type: 'command', action: 'disconnect' });
-                }
-                // Fallback timeout para forçar encerramento físico
+                if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
                 setTimeout(() => { try { c.conn.close(); } catch(e){} }, 1500);
             });
             
@@ -548,7 +521,7 @@
                 pill.style.background = c.color;
                 pill.innerHTML = `
                     <i class="fas fa-user" aria-hidden="true"></i> Cliente #${escapeHTML(c.num.toString())}
-                    <i class="fas fa-times client-pill-close" onclick="disconnectClient('${escapeHTML(peerId)}')" title="Encerrar cliente" aria-label="Desconectar cliente ${c.num}"></i>
+                    <i class="fas fa-times client-pill-close" onclick="disconnectClient('${escapeHTML(peerId)}')" title="Encerrar cliente"></i>
                 `;
                 list.appendChild(pill);
             });
@@ -563,61 +536,31 @@
                 } else if (data.type === 'command') {
                     if (data.action === 'setClientInfo') {
                         const badge = document.getElementById('mobile-client-badge');
-                        const safeNum = escapeHTML(data.num.toString());
-                        badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${safeNum}`;
-                        badge.style.backgroundColor = data.color + '22';
-                        badge.style.color = data.color;
-                        badge.style.borderColor = data.color + '55';
+                        if(badge) {
+                            const safeNum = escapeHTML(data.num.toString());
+                            badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${safeNum}`;
+                            badge.style.backgroundColor = data.color + '22';
+                            badge.style.color = data.color;
+                            badge.style.borderColor = data.color + '55';
+                        }
                     }
                     else if (data.action === 'disconnect') { 
-                        // O CELULAR RENDERIZA O TÉRMINO...
-                        const targetView = type === 'pc' ? 'pc-view' : 'mobile-view';
-                        const viewEl = document.getElementById(targetView);
-                        if(viewEl) {
-                            viewEl.innerHTML = `
-                                <div style="padding: 60px 20px; text-align: center; animation: fadeIn 0.5s ease;">
-                                    <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
-                                    <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
-                                    <p style="color: var(--muted); font-size: 14px;">Obrigado! A transferência foi concluída com segurança.</p>
-                                </div>
-                            `;
-                        }
-                        
-                        // E O PRÓPRIO CELULAR FECHA SUA CONEXÃO! (Correção definitiva)
-                        if(type === 'mobile' && mobileConn) {
-                            setTimeout(() => { try { mobileConn.close(); } catch(e){} }, 500);
+                        // MARCAÇÃO DA VACINA ANTI-RETORNO NO CELULAR DO CLIENTE
+                        if(type === 'mobile') {
+                            sessionStorage.setItem('sessao_morta_' + remoteId, 'true');
+                            renderMobileEnded();
+                            if(mobileConn) setTimeout(() => { try { mobileConn.close(); } catch(e){} }, 500);
                         }
                     }
                 }
             });
             
-            // TRATAMENTOS DE QUEDA E ENCERRAMENTO
             connection.on('close', () => { 
                 if(type === 'pc' && clients[peerId]) { 
                     delete clients[peerId]; 
                     renderActiveClients(); 
-                    if(Object.keys(clients).length === 0) {
-                        limparEstadoPC();
-                    }
+                    if(Object.keys(clients).length === 0) limparEstadoPC();
                 } 
-                
-                // Trata queda não intencional ou fechamento via PC para o celular
-                if (type === 'mobile') {
-                    const viewEl = document.getElementById('mobile-view');
-                    if (viewEl && !viewEl.innerHTML.includes('Sessão Encerrada')) {
-                        viewEl.innerHTML = `
-                            <div style="padding: 60px 20px; text-align: center; animation: fadeIn 0.5s ease;">
-                                <i class="fas fa-plug" style="font-size: 64px; color: var(--danger); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.4));"></i>
-                                <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Conexão Perdida</h1>
-                                <p style="color: var(--muted); font-size: 14px;">A Lan House encerrou a sessão ou houve falha na rede.</p>
-                            </div>
-                        `;
-                    }
-                }
-            });
-
-            connection.on('error', (err) => {
-                console.error("Erro na conexão P2P:", err);
             });
         }
 
@@ -654,17 +597,12 @@
                 if (files.length > 1) {
                     label.innerText = `EMPACOTANDO ${files.length} ARQUIVOS...`;
                     const zip = new JSZip();
-                    
-                    for (let i = 0; i < files.length; i++) { 
-                        zip.file(files[i].name || `arquivo_${i}`, files[i]); 
-                    }
-                    
+                    for (let i = 0; i < files.length; i++) { zip.file(files[i].name || `arquivo_${i}`, files[i]); }
                     const content = await zip.generateAsync({type: "blob"}, (metadata) => {
                         const p = Math.max(1, Math.round(metadata.percent));
                         bar.style.width = p + '%';
                         if(perc) perc.innerText = p + '%';
                     });
-                    
                     sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
                 } else {
                     label.innerText = "LENDO ARQUIVO...";
@@ -674,7 +612,6 @@
                     sendData(file, file.name || "arquivo_desconhecido", file.type || 'application/octet-stream', type);
                 }
             } catch (error) {
-                console.error("Erro ao processar arquivos:", error);
                 showToast("Erro ao processar arquivo(s).", true);
                 fecharProgresso(type);
             } finally {
@@ -688,14 +625,9 @@
             const label = document.getElementById(`${type}-prog-label`);
 
             label.innerText = "ENVIANDO PELA REDE...";
-
             const reader = new FileReader();
             
-            reader.onerror = () => {
-                console.error("Erro na leitura FileReader");
-                showToast("Falha ao ler arquivo.", true);
-                fecharProgresso(type);
-            };
+            reader.onerror = () => { showToast("Falha ao ler arquivo.", true); fecharProgresso(type); };
 
             reader.onload = () => {
                 const payload = { type: 'file', file: reader.result, name: name, mime: mime, size: blob.size };
@@ -703,30 +635,22 @@
 
                 try {
                     if (type === 'pc') {
-                        Object.values(clients).forEach(c => {
-                            if(c.conn && c.conn.open) { c.conn.send(payload); enviado = true; }
-                        });
+                        Object.values(clients).forEach(c => { if(c.conn && c.conn.open) { c.conn.send(payload); enviado = true; } });
                     } else {
                         if(mobileConn && mobileConn.open) { mobileConn.send(payload); enviado = true; }
                     }
-                    
                     if (enviado) {
                         bar.style.width = '100%';
                         if(perc) perc.innerText = '100%';
                         label.innerText = "CONCLUÍDO!";
                         showToast("Enviado com sucesso!");
-                    } else {
-                        throw new Error("Nenhuma conexão aberta para envio.");
-                    }
+                    } else throw new Error();
                 } catch(e) {
-                    console.error("Erro no sendData:", e);
                     label.innerText = "ERRO DE REDE";
                     showToast("Falha ao enviar. Tente reconectar.", true);
                 }
-                
                 setTimeout(() => { fecharProgresso(type); }, 2000);
             };
-            
             reader.readAsArrayBuffer(blob);
         }
 
@@ -743,28 +667,19 @@
                 el.style.transform = 'translateY(-10px)';
                 setTimeout(() => {
                     el.remove();
-                    if(objectUrl && objectUrl.startsWith('blob:')) {
-                        URL.revokeObjectURL(objectUrl); 
-                    }
+                    if(objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl); 
                 }, 300);
             }
         };
 
         async function receiveFile(data, type, peerId) {
             if(!data || !data.file || !data.size || !data.name) return;
-
             let url;
-            try {
-                const blob = new Blob([data.file], { type: data.mime || 'application/octet-stream' });
-                url = URL.createObjectURL(blob);
-            } catch(e) { 
-                console.error("Falha ao gerar Blob:", e);
-                return; 
-            }
+            try { url = URL.createObjectURL(new Blob([data.file], { type: data.mime || 'application/octet-stream' })); } 
+            catch(e) { return; }
 
             const list = document.getElementById(type === 'pc' ? 'pc-file-list' : 'mobile-file-list');
             const fileId = 'file_' + Math.random().toString(36).substr(2, 9);
-            
             const item = document.createElement('div');
             item.className = 'file-item'; 
             item.id = fileId;
@@ -772,7 +687,7 @@
             let clientTagHTML = '';
             if (type === 'pc' && clients[peerId]) {
                 const c = clients[peerId];
-                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;" title="Enviado pelo Cliente #${escapeHTML(c.num.toString())}">CLI #${escapeHTML(c.num.toString())}</span>`;
+                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;">CLI #${escapeHTML(c.num.toString())}</span>`;
             }
 
             const sizeStr = escapeHTML((data.size/1024/1024).toFixed(2));
@@ -788,7 +703,7 @@
                 preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`;
                 tags += `<span class="tag tag-word">WORD</span>`;
             } else if (safeMime.startsWith('image/')) {
-                preview = `<img src="${url}" class="file-preview-img" alt="Preview da imagem" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`;
+                preview = `<img src="${url}" class="file-preview-img" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`;
                 tags += `<span class="tag tag-res">IMG</span>`;
             } else if (safeMime === 'application/pdf' || nameLow.endsWith('.pdf')) {
                 preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
@@ -804,14 +719,14 @@
             let actionsHTML = '';
             if (type === 'pc') {
                 actionsHTML = `
-                    <button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir" aria-label="Imprimir ${safeFileName}"><i class="fas fa-print"></i></button>
-                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar" aria-label="Baixar ${safeFileName}"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir" aria-label="Excluir arquivo"><i class="fas fa-trash-alt"></i></button>
+                    <button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir"><i class="fas fa-print"></i></button>
+                    <a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                 `;
             } else {
                 actionsHTML = `
-                    <a href="${url}" download="${safeFileName}" class="btn-act" aria-label="Baixar ${safeFileName}"><i class="fas fa-download"></i></a>
-                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir" aria-label="Remover da lista"><i class="fas fa-trash-alt"></i></button>
+                    <a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a>
+                    <button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>
                 `;
             }
 
@@ -824,63 +739,33 @@
                 <div class="file-actions">${actionsHTML}</div>`;
             
             list.prepend(item);
-            
-            if(type === 'pc') {
-                try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(e){}
-            }
+            if(type === 'pc') { try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(e){} }
         }
 
         window.smartPrint = function(url, mime, name) {
             try {
                 if(!url || !name) return;
-                
                 const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
                 if (isWord) {
-                    showToast("Iniciando Download (Word não suporta impressão via Web)...");
-                    const a = document.createElement('a'); 
-                    a.href = url; 
-                    a.download = name; 
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
+                    showToast("Iniciando Download...");
+                    const a = document.createElement('a'); a.href = url; a.download = name; 
+                    document.body.appendChild(a); a.click(); document.body.removeChild(a);
                     return;
                 }
-
                 const frame = document.getElementById('printFrame');
-                if(!frame) throw new Error("Frame de impressão não encontrado");
-                
                 const doc = frame.contentWindow.document;
                 doc.open();
-                
                 if (mime && mime.startsWith('image/')) {
-                    doc.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>Impressão: ${escapeHTML(name)}</title>
-                            <style>
-                                body { margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; background: #fff; }
-                                img { max-width: 190mm; max-height: 270mm; object-fit: contain; }
-                                @page { size: A4; margin: 10mm; }
-                            </style>
-                        </head>
-                        <body><img src="${escapeHTML(url)}" onload="window.print();"></body>
-                        </html>
-                    `);
+                    doc.write(`<html><head><style>body{margin:0;display:flex;align-items:center;justify-content:center;height:100vh;background:#fff;}img{max-width:190mm;max-height:270mm;object-fit:contain;}@page{size:A4;margin:10mm;}</style></head><body><img src="${escapeHTML(url)}" onload="window.print();"></body></html>`);
                     doc.close();
                 } else if (mime === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
-                    frame.onload = () => { 
-                        try { frame.contentWindow.print(); } catch(e){ console.error(e); } 
-                    };
+                    frame.onload = () => { try { frame.contentWindow.print(); } catch(e){} };
                     frame.src = url;
                 } else {
                     doc.close();
-                    showToast("Formato não suporta impressão direta. Faça o download.", true);
+                    showToast("Faça o download para abrir.", true);
                 }
-            } catch (error) {
-                console.error("Erro na impressão:", error);
-                showToast("Erro ao processar impressão.", true);
-            }
+            } catch (error) { showToast("Erro na impressão.", true); }
         };
     </script>
 </body>
