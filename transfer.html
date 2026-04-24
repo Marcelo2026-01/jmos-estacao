@@ -3,259 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JM Transfer Pro - Enterprise SaaS</title>
+    <title>JM Transfer Pro - SaaS</title>
     
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
 
     <style>
-        /* ==========================================
-           DESIGN SYSTEM (Tokens e Variáveis)
-           ========================================== */
         :root {
-            --bg-color: #050505;
-            --surface-color: rgba(18, 18, 18, 0.65);
-            --surface-hover: rgba(255, 255, 255, 0.04);
-            --accent-primary: #f59e0b;
-            --accent-hover: #fbbf24;
-            --success-color: #10b981;
-            --danger-color: #ef4444;
-            --info-color: #3b82f6;
-            --text-primary: #ffffff;
-            --text-secondary: #a1a1aa;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-light: rgba(255, 255, 255, 0.15);
-            --shadow-elevation: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            --glass-blur: blur(20px);
+            --bg: #0a0a0a; --surface: #121212; --surface-hover: #1a1a1a;
+            --accent: #f59e0b; --success: #10b981; --danger: #ef4444;
+            --text: #ffffff; --muted: #a3a3a3; --border: rgba(255, 255, 255, 0.08);
+            --glow: rgba(245, 158, 11, 0.15);
         }
 
-        /* ==========================================
-           RESET E BASE
-           ========================================== */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background-color: var(--bg-color); 
-            background-image: radial-gradient(circle at 50% 0%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
-                              radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.03) 0%, transparent 40%);
-            color: var(--text-primary); 
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            padding: 20px; position: relative;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
-
-        /* ==========================================
-           CONTAINERS E GLASSMORPHISM
-           ========================================== */
         .container { 
-            background: var(--surface-color); 
-            backdrop-filter: var(--glass-blur);
-            -webkit-backdrop-filter: var(--glass-blur);
-            border: 1px solid var(--border-color); 
-            border-radius: 24px; 
-            padding: 45px 40px; 
-            width: 100%; max-width: 560px; 
-            box-shadow: var(--shadow-elevation); 
-            text-align: center; position: relative; 
-            display: none; flex-direction: column; align-items: center; z-index: 2;
-            animation: containerEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px 35px; width: 100%; max-width: 540px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 40px var(--glow); text-align: center; position: relative; overflow: hidden; display: none; flex-direction: column; align-items: center; z-index: 2;
         }
-        @keyframes containerEnter {
-            from { opacity: 0; transform: translateY(20px) scale(0.98); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .container::before { 
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; 
-            background: linear-gradient(90deg, var(--info-color), var(--accent-primary), var(--danger-color)); 
-            opacity: 0.8;
-        }
+        .container::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), #ef4444); }
         
-        .btn-top-logout { 
-            position: absolute; top: 24px; right: 24px; background: transparent; border: none; 
-            color: var(--text-secondary); font-size: 13px; font-weight: 600; cursor: pointer; 
-            display: flex; align-items: center; gap: 8px; transition: var(--transition-smooth); 
-            padding: 6px 12px; border-radius: 8px;
-        }
-        .btn-top-logout:hover:not(:disabled) { color: var(--danger-color); background: rgba(239, 68, 68, 0.1); }
+        .btn-top-logout { position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--muted); font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.3s; }
+        .btn-top-logout:hover { color: var(--danger); transform: translateX(2px); }
         .btn-top-logout:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        h1 { color: var(--text-primary); margin-bottom: 6px; font-size: 30px; font-weight: 800; letter-spacing: -1px; }
-        h1 span { color: var(--accent-primary); }
-        p.subtitle { color: var(--text-secondary); margin-bottom: 35px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; }
+        h1 { color: var(--accent); margin-bottom: 4px; font-size: 28px; font-weight: 800; letter-spacing: -1.5px; }
+        p.subtitle { color: var(--muted); margin-bottom: 35px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 3px; }
 
-        /* ==========================================
-           FORMULÁRIOS E INPUTS
-           ========================================== */
         .input-container { position: relative; width: 100%; margin-bottom: 16px; }
-        .input-container i { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 16px; z-index: 2; transition: var(--transition-smooth); }
-        
+        .input-container i { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888888; font-size: 15px; z-index: 2; }
         .input-container input { 
-            width: 100%; background: rgba(0, 0, 0, 0.5); border: 1px solid var(--border-color); 
-            padding: 18px 18px 18px 50px; border-radius: 12px; color: var(--text-primary); 
-            font-size: 15px; outline: none; transition: var(--transition-smooth); position: relative; z-index: 1;
+            width: 100%; background: #141414; border: 1px solid #2a2a2a; 
+            padding: 16px 16px 16px 45px; border-radius: 8px; color: var(--text); 
+            font-size: 15px; outline: none; transition: all 0.3s ease; position: relative; z-index: 1;
         }
-        .input-container input:focus { border-color: var(--accent-primary); background: rgba(0, 0, 0, 0.7); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1); }
-        .input-container input:focus + i { color: var(--accent-primary); }
-        .input-container input::placeholder { color: #52525b; font-weight: 400; }
+        .input-container input:focus { border-color: var(--accent); background: #1a1a1a; box-shadow: 0 0 0 1px var(--accent); }
+        .input-container input::placeholder { color: #555555; }
         .input-container input:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .input-container input:-webkit-autofill,
         .input-container input:-webkit-autofill:hover, 
         .input-container input:-webkit-autofill:focus, 
         .input-container input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #0a0a0a inset !important;
-            -webkit-text-fill-color: var(--text-primary) !important;
+            -webkit-box-shadow: 0 0 0 30px #141414 inset !important;
+            -webkit-text-fill-color: var(--text) !important;
             transition: background-color 5000s ease-in-out 0s;
-            border: 1px solid var(--border-color) !important;
+            border: 1px solid #2a2a2a !important;
         }
         
-        /* ==========================================
-           BOTÕES GERAIS
-           ========================================== */
         .btn-login { 
-            background: var(--accent-primary); color: #000; border: none; padding: 18px; 
-            border-radius: 12px; font-weight: 700; font-size: 16px; width: 100%; 
-            cursor: pointer; transition: var(--transition-smooth); display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
+            background: var(--accent); color: #000; border: none; padding: 16px; 
+            border-radius: 8px; font-weight: 700; font-size: 16px; width: 100%; 
+            cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;
         }
-        .btn-login:hover:not(:disabled) { transform: translateY(-2px); background: var(--accent-hover); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.3); }
-        .btn-login:active:not(:disabled) { transform: translateY(0); }
-        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; background: #b45309; }
+        .btn-login:hover:not(:disabled) { transform: translateY(-2px); background: #fcd34d; }
+        .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
-        /* ==========================================
-           QR CODE E CÓPIA DE LINK
-           ========================================== */
-        .qr-box { background: #ffffff; padding: 20px; border-radius: 20px; display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .qr-box p { color: #000; font-size: 11px; font-weight: 800; margin-top: 15px; letter-spacing: 1px;}
+        .qr-box { background: #ffffff; padding: 18px; border-radius: 16px; display: inline-flex; flex-direction: column; align-items: center; margin-bottom: 15px; transition: opacity 0.3s; }
+        .qr-box p { color: #000; font-size: 10px; font-weight: 800; margin-top: 12px; letter-spacing: 0.5px;}
 
-        .btn-copy-link { background: rgba(255,255,255,0.03); color: var(--text-secondary); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 30px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 30px; transition: var(--transition-smooth); text-transform: uppercase; letter-spacing: 0.5px;}
-        .btn-copy-link:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: var(--text-primary); border-color: var(--border-light); }
-        .btn-copy-link i { color: var(--accent-primary); }
+        .btn-copy-link { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); padding: 8px 16px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: all 0.2s ease; text-transform: uppercase;}
+        .btn-copy-link:hover:not(:disabled) { background: rgba(255,255,255,0.1); color: var(--text); border-color: rgba(255,255,255,0.2); }
+        .btn-copy-link i { color: var(--accent); }
         .btn-copy-link:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ==========================================
-           ESTADOS E STATUS
-           ========================================== */
         .status-header { display: flex; gap: 12px; justify-content: center; width: 100%; align-items: center;}
-        .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 13px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); margin: 0; transition: var(--transition-smooth);}
-        .status-badge.connected { background: rgba(16, 185, 129, 0.1); color: var(--success-color); border-color: rgba(16, 185, 129, 0.3); box-shadow: 0 0 20px rgba(16, 185, 129, 0.1); }
+        .status-badge { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 20px; border-radius: 30px; font-weight: 600; font-size: 12px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); margin: 0; transition: all 0.3s ease;}
+        .status-badge.connected { background: rgba(16, 185, 129, 0.08); color: var(--success); border-color: rgba(16, 185, 129, 0.2); }
 
-        #active-clients-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 20px; margin-bottom: 25px; width: 100%; min-height: 32px; }
-        .client-pill { display: inline-flex; align-items: center; gap: 10px; padding: 8px 16px; border-radius: 30px; font-size: 12px; font-weight: 700; color: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.4); animation: fadeInScale 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        
-        @keyframes fadeInScale {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        #active-clients-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 15px; margin-bottom: 25px; width: 100%; }
+        .client-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.3); animation: fadeIn 0.3s ease; }
+        .client-pill-close { cursor: pointer; opacity: 0.6; transition: 0.2s; padding: 2px; }
+        .client-pill-close:hover { opacity: 1; transform: scale(1.2); }
 
-        .client-pill-close { cursor: pointer; opacity: 0.6; transition: var(--transition-smooth); padding: 4px; border-radius: 50%; }
-        .client-pill-close:hover { opacity: 1; background: rgba(255,255,255,0.2); transform: scale(1.1); }
-
-        .btn-disconnect { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px 24px; border-radius: 30px; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: var(--transition-smooth); font-size: 13px; font-weight: 600;}
-        .btn-disconnect:hover:not(:disabled) { background: var(--danger-color); color: #fff; border-color: var(--danger-color); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.3); }
+        .btn-disconnect { background: rgba(239, 68, 68, 0.08); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 30px; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: all 0.3s ease; font-size: 12px; font-weight: 600;}
+        .btn-disconnect:hover:not(:disabled) { background: var(--danger); color: #fff; border-color: var(--danger); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
         .btn-disconnect:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* ==========================================
-           ÁREA DE AÇÃO E DRAG & DROP
-           ========================================== */
-        .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; position: relative; border-radius: 16px; transition: var(--transition-smooth);}
+        .action-area { display: none; flex-direction: column; gap: 15px; margin-top: 10px; width: 100%; }
         .action-area.show { display: flex; animation: fadeIn 0.5s ease; }
-        
-        /* Drag & Drop Visuals */
-        .action-area.drag-active { background: rgba(59, 130, 246, 0.05); border: 2px dashed var(--info-color); padding: 15px; }
-        .action-area.drag-active::after {
-            content: 'Solte os arquivos aqui...'; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(18,18,18,0.9); backdrop-filter: blur(4px); display: flex; align-items: center; 
-            justify-content: center; font-size: 18px; font-weight: 700; color: var(--info-color); z-index: 10; border-radius: 14px;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .btn-upload { background: var(--accent-primary); color: #000; border: none; padding: 18px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 15px; width: 100%; transition: var(--transition-smooth); position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3);}
-        .btn-upload:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3); }
+        .btn-upload { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 14px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2); position: relative; overflow: hidden;}
+        .btn-upload:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.1); }
         .btn-upload:disabled { opacity: 0.6; cursor: not-allowed; filter: grayscale(0.5); transform: none !important; box-shadow: none; }
 
-        /* ==========================================
-           PROGRESSO
-           ========================================== */
-        .progress-wrapper { display: none; margin-top: 20px; text-align: left; width: 100%; animation: fadeIn 0.3s ease; }
-        .progress-info { display: flex; justify-content: space-between; font-size: 12px; font-weight: 700; color: var(--accent-primary); margin-bottom: 10px; letter-spacing: 0.5px;}
-        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 8px; overflow: hidden; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); }
-        .progress-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #fde68a); width: 0%; transition: width 0.2s linear; box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);}
+        .progress-wrapper { display: none; margin-top: 15px; text-align: left; width: 100%; animation: fadeIn 0.3s ease; }
+        .progress-info { display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; color: var(--accent); margin-bottom: 8px;}
+        .progress-container { width: 100%; background: rgba(255,255,255,0.05); border-radius: 10px; height: 6px; overflow: hidden; }
+        .progress-bar { height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); width: 0%; transition: width 0.2s linear; }
 
-        /* ==========================================
-           LISTA DE ARQUIVOS E CARDS
-           ========================================== */
-        .file-list { text-align: left; display: flex; flex-direction: column; gap: 12px; margin-top: 20px; width: 100%; max-height: 380px; overflow-y: auto; padding-right: 8px; scroll-behavior: smooth; position: relative;}
+        .file-list { text-align: left; display: flex; flex-direction: column; gap: 10px; margin-top: 15px; width: 100%; max-height: 350px; overflow-y: auto; padding-right: 5px; scroll-behavior: smooth; }
+        .file-list::-webkit-scrollbar { width: 4px; }
+        .file-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .file-item { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 14px; padding: 12px; display: flex; align-items: center; gap: 14px; width: 100%; transition: all 0.2s ease; animation: fadeIn 0.4s ease; }
+        .file-item:hover { border-color: rgba(255,255,255,0.15); }
         
-        .file-item { background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 16px; width: 100%; transition: var(--transition-smooth); animation: slideInUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .file-item:hover { border-color: var(--border-light); background: rgba(255,255,255,0.04); transform: translateX(4px); }
-        
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .file-preview-box { width: 52px; height: 52px; border-radius: 12px; overflow: hidden; background: rgba(0,0,0,0.6); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.08); position: relative; }
+        .file-preview-box { width: 48px; height: 48px; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.5); flex-shrink: 0; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); position: relative; }
         .file-preview-img { width: 100%; height: 100%; object-fit: cover; }
 
-        .file-main-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
-        .file-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 14px; color: #f4f4f5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; display: block;}
+        .file-main-info { flex: 1; min-width: 0; }
+        .file-name { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 5px; display: block;}
         
-        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 6px; align-items: center;}
-        .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .tag-size { background: rgba(255,255,255,0.05); color: #d4d4d4; border: 1px solid rgba(255,255,255,0.1); }
-        .tag-res { background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); }
-        .tag-word { background: rgba(37, 99, 235, 0.1); color: #60a5fa; border: 1px solid rgba(37, 99, 235, 0.2); }
-        .tag-zip { background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2); }
-        .tag-time { background: transparent; color: var(--text-secondary); font-size: 9px; font-weight: 500; margin-left: auto; border: none; padding: 0;}
+        .raio-x-tags { display: flex; flex-wrap: wrap; gap: 5px; align-items: center;}
+        .tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; }
+        .tag-size { background: rgba(255,255,255,0.08); color: #d4d4d4; }
+        .tag-res { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .tag-word { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+        .tag-zip { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
 
-        .file-actions { display: flex; gap: 8px; }
-        .btn-act { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color); background: rgba(255,255,255,0.02); color: var(--text-secondary); cursor: pointer; transition: var(--transition-smooth); outline: none;}
-        .btn-act:hover { color: #fff; background: rgba(255,255,255,0.08); border-color: var(--border-light); transform: translateY(-2px); }
-        .btn-act:focus-visible { box-shadow: 0 0 0 2px var(--accent-primary); }
-        .btn-print:hover { background: rgba(16, 185, 129, 0.15); color: var(--success-color); border-color: rgba(16, 185, 129, 0.4); }
-        .btn-delete:hover { background: rgba(239, 68, 68, 0.15); color: var(--danger-color); border-color: rgba(239, 68, 68, 0.4); }
+        .file-actions { display: flex; gap: 6px; }
+        .btn-act { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); background: rgba(255,255,255,0.02); color: var(--muted); cursor: pointer; transition: all 0.2s ease;}
+        .btn-act:hover { color: #fff; background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.2); }
+        .btn-print:hover { background: rgba(16, 185, 129, 0.1); color: var(--success); border-color: rgba(16, 185, 129, 0.3); }
+        .btn-delete:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); border-color: rgba(239, 68, 68, 0.3); }
 
         #printFrame { display: none; }
-        .dev-credit { position: absolute; bottom: 20px; font-size: 11px; font-weight: 500; color: var(--text-secondary); opacity: 0.4; letter-spacing: 1px; transition: var(--transition-smooth); z-index: 1;}
-        .dev-credit:hover { opacity: 1; color: var(--text-primary); }
+        .dev-credit { position: absolute; bottom: 20px; font-size: 10px; font-weight: 600; color: var(--muted); opacity: 0.3; letter-spacing: 1.5px; text-transform: uppercase; transition: 0.3s; z-index: 1;}
+        .dev-credit:hover { opacity: 1; color: var(--accent); }
 
-        /* ==========================================
-           TOAST NOTIFICATIONS (MENSAGENS)
-           ========================================== */
-        .toast { 
-            position: fixed; top: 24px; right: 24px; 
-            background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); 
-            padding: 16px 24px; border-radius: 12px; z-index: 10000; 
-            display: flex; align-items: center; gap: 14px; font-weight: 600; font-size: 14px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            transform: translateX(120%); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        }
+        .toast { position: fixed; top: 20px; right: 20px; background: rgba(18, 18, 18, 0.95); backdrop-filter: blur(10px); border: 1px solid var(--border); border-left: 4px solid var(--accent); padding: 16px 24px; border-radius: 12px; z-index: 10000; display: flex; align-items: center; gap: 12px; font-weight: 600; font-size: 13px; transform: translateX(150%); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .toast.show { transform: translateX(0); }
     </style>
 </head>
 <body>
 
     <div id="login-view" class="container">
-        <i class="fas fa-shield-alt" style="font-size: 44px; color: var(--accent-primary); margin-bottom: 18px; filter: drop-shadow(0 0 10px rgba(245,158,11,0.3));"></i>
-        <h1>ACESSO <span style="color: var(--text-primary);">RESTRITO</span></h1>
-        <p class="subtitle" style="margin-bottom: 30px;">Faça login para operar o balcão</p>
+        <i class="fas fa-shield-alt" style="font-size: 40px; color: var(--accent); margin-bottom: 15px;"></i>
+        <h1>ACESSO RESTRITO</h1>
+        <p class="subtitle" style="margin-bottom: 25px;">Faça login para operar o balcão</p>
 
         <div class="input-container">
             <i class="fas fa-envelope" aria-hidden="true"></i>
@@ -277,14 +163,13 @@
             Sair <i class="fas fa-sign-out-alt"></i>
         </button>
 
-        <h1>JM TRANSFER <span style="font-weight: 300;">PRO</span></h1>
+        <h1>JM TRANSFER <span style="opacity: 0.2; font-weight: 400;">PRO</span></h1>
         <p class="subtitle">Painel Multi-Atendimento</p>
 
         <div id="qr-container" class="qr-box">
             <div id="qrcode" aria-label="QR Code para conexão"></div>
             <p>ESCANEIE PARA ENTRAR NA FILA</p>
         </div>
-        
         <button id="btnCopyLink" class="btn-copy-link" onclick="copySessionLink()" title="Copiar link para WhatsApp" aria-label="Copiar link da sessão">
             <i class="fas fa-link"></i> Copiar Link WhatsApp
         </button>
@@ -312,12 +197,12 @@
         </div>
     </div>
 
-    <div id="mobile-view" class="container" style="border: none; box-shadow: none; background: transparent; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 20px;">
+    <div id="mobile-view" class="container" style="border: none; box-shadow: none;">
         </div>
 
     <iframe id="printFrame" title="Frame de Impressão Oculto"></iframe>
     <div class="dev-credit">Desenvolvido por José Marcelo</div>
-    <div class="toast" id="toastMsg" aria-live="assertive"><i class="fas fa-check-circle" style="color: var(--success-color);"></i> <span>Aviso</span></div>
+    <div class="toast" id="toastMsg" aria-live="assertive"><i class="fas fa-check-circle" style="color: var(--success);"></i> <span>Aviso</span></div>
 
     <script>
         // ==========================================
@@ -332,11 +217,7 @@
             appId: "1:781704866355:web:b74476d860bbe91d7f9146"
         };
         
-        try { 
-            firebase.initializeApp(firebaseConfig); 
-        } catch (error) { 
-            console.error("Erro Crítico Firebase:", error); 
-        }
+        try { firebase.initializeApp(firebaseConfig); } catch (error) { console.error(error); }
         
         const auth = firebase.auth();
         const urlParams = new URLSearchParams(window.location.search);
@@ -345,42 +226,43 @@
         let sessionUrl = "";
         const isMobile = !!remoteId;
 
-        // Limites e Controles
-        const MAX_FILE_SIZE_MB = 150; // Limite de segurança para navegação na Web
+        // Controle de estado e conexões (NOVO: clientHistory)
         let clients = {}; 
-        let clientHistory = {}; 
+        let clientHistory = {}; // Memória para reconhecer clientes que caem e voltam
         let clientCounter = 1;
         let mobileConn = null; 
         let isUploading = false;
-        
-        // Paleta semântica
         const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
         // ==========================================
-        // 2. FUNÇÕES DE UTILIDADE (Core)
+        // 2. FUNÇÕES DE UTILIDADE
         // ==========================================
         function escapeHTML(str) {
             if (!str) return "";
-            return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
-        }
-
-        function getCurrentTimeStr() {
-            const now = new Date();
-            return `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
         }
 
         function showToast(msg, isError = false) {
             const t = document.getElementById('toastMsg'); 
             const icon = t.querySelector('i');
             
-            icon.className = isError ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
-            icon.style.color = isError ? 'var(--danger-color)' : 'var(--success-color)';
-            t.style.borderLeftColor = isError ? 'var(--danger-color)' : 'var(--accent-primary)';
+            if (isError) {
+                icon.className = 'fas fa-exclamation-circle'; icon.style.color = 'var(--danger)'; t.style.borderLeftColor = 'var(--danger)';
+            } else {
+                icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; t.style.borderLeftColor = 'var(--accent)';
+            }
             
             t.querySelector('span').innerText = msg;
             t.classList.add('show'); 
             
-            setTimeout(() => { t.classList.remove('show'); }, 3500);
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => {
+                    icon.className = 'fas fa-check-circle'; icon.style.color = 'var(--success)'; t.style.borderLeftColor = 'var(--accent)';
+                }, 400);
+            }, 3500);
         }
 
         function toggleUploadState(type, state) {
@@ -400,26 +282,25 @@
         // UI DO CELULAR (Telas Dinâmicas)
         // ==========================================
         function renderMobileActive() {
-            const mobileView = document.getElementById('mobile-view');
-            mobileView.innerHTML = `
-                <h1 style="font-size:26px;">JM <span style="font-weight:300;">CONNECT</span></h1>
-                <p class="subtitle" style="margin-bottom:20px;">BALCÃO DIGITAL</p>
+            document.getElementById('mobile-view').innerHTML = `
+                <h1>JM CONNECT</h1>
+                <p class="subtitle">BALCÃO DIGITAL</p>
                 <div class="status-header" style="margin-bottom: 20px;">
                     <div class="status-badge connected" id="mobile-client-badge">
                         <i class="fas fa-circle-notch fa-spin"></i> CONECTANDO...
                     </div>
                 </div>
-                <div id="mobile-action" class="action-area show" style="background:var(--surface-color); padding: 25px 20px; border:1px solid var(--border-color); backdrop-filter: var(--glass-blur); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
-                    <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); padding: 14px; border-radius: 12px; margin-bottom: 15px; text-align: left;">
-                        <p style="font-size: 12px; color: var(--info-color); font-weight: 700; margin-bottom: 6px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
-                        <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.5;">Salve o PDF ou Foto no aparelho <b>antes</b> de enviar. Eles costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
+                <div id="mobile-action" class="action-area show">
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 12px; border-radius: 10px; margin-bottom: 10px; text-align: left;">
+                        <p style="font-size: 11px; color: #60a5fa; font-weight: 700; margin-bottom: 4px;"><i class="fas fa-info-circle"></i> ATENÇÃO (WHATSAPP):</p>
+                        <p style="font-size: 11px; color: var(--muted); line-height: 1.4;">Salve o PDF ou Foto no seu aparelho <b>antes</b> de enviar. Arquivos salvos costumam ficar na pasta <b>Recentes</b> ou <b>Downloads</b>.</p>
                     </div>
-                    <button class="btn-upload" id="mobileBtnImg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 8px;" onclick="document.getElementById('mobileImgInput').click()" title="Abre a galeria">
+                    <button class="btn-upload" id="mobileBtnImg" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; margin-bottom: 5px;" onclick="document.getElementById('mobileImgInput').click()" title="Abre a galeria de imagens">
                         <i class="fas fa-camera-retro"></i> ENVIAR FOTOS
                     </button>
                     <input type="file" id="mobileImgInput" accept="image/*" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar fotos">
-                    <button class="btn-upload" id="mobileBtnDoc" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()" title="Abre arquivos">
-                        <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS
+                    <button class="btn-upload" id="mobileBtnDoc" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;" onclick="document.getElementById('mobileDocInput').click()" title="Abre a pasta de arquivos e documentos">
+                        <i class="fas fa-file-pdf"></i> ENVIAR DOCUMENTOS (PDF/WORD)
                     </button>
                     <input type="file" id="mobileDocInput" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" multiple style="display: none;" onchange="handleFiles(this, 'mobile')" aria-label="Selecionar documentos">
                     
@@ -434,28 +315,29 @@
 
         function renderMobileExpired() {
             document.getElementById('mobile-view').innerHTML = `
-                <div style="padding: 40px 15px; text-align: center; animation: fadeIn 0.5s ease; background:var(--surface-color); border:1px solid var(--border-color); border-radius:24px; backdrop-filter: var(--glass-blur);">
-                    <i class="fas fa-lock" style="font-size: 64px; color: var(--text-secondary); margin-bottom: 24px;"></i>
-                    <h1 style="color: var(--text-primary); font-size: 22px; margin-bottom: 12px;">Link Expirado</h1>
-                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">Este atendimento foi concluído. O link não é mais válido por motivos de segurança.</p>
+                <div style="padding: 40px 10px; text-align: center; animation: fadeIn 0.5s ease;">
+                    <i class="fas fa-lock" style="font-size: 64px; color: var(--muted); margin-bottom: 24px;"></i>
+                    <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Link Expirado</h1>
+                    <p style="color: var(--muted); font-size: 14px; line-height: 1.5;">Este atendimento já foi concluído pela Lan House e este link não é mais válido por motivos de segurança.</p>
                 </div>
             `;
         }
 
         function renderMobileEnded() {
             document.getElementById('mobile-view').innerHTML = `
-                <div style="padding: 40px 15px; text-align: center; animation: fadeIn 0.5s ease; background:var(--surface-color); border:1px solid var(--border-color); border-radius:24px; backdrop-filter: var(--glass-blur);">
-                    <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success-color); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.3));"></i>
-                    <h1 style="color: var(--text-primary); font-size: 22px; margin-bottom: 12px;">Sessão Encerrada</h1>
-                    <p style="color: var(--text-secondary); font-size: 14px; line-height: 1.6;">A transferência foi concluída com segurança. Você já pode fechar esta tela.</p>
+                <div style="padding: 40px 10px; text-align: center; animation: fadeIn 0.5s ease;">
+                    <i class="fas fa-check-circle" style="font-size: 64px; color: var(--success); margin-bottom: 24px; filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));"></i>
+                    <h1 style="color: var(--text); font-size: 24px; margin-bottom: 10px;">Sessão Encerrada</h1>
+                    <p style="color: var(--muted); font-size: 14px; line-height: 1.5;">Obrigado! A transferência foi concluída com segurança. Você já pode fechar esta tela.</p>
                 </div>
             `;
         }
 
         // ==========================================
-        // 3. INICIALIZAÇÃO E AUTENTICAÇÃO
+        // 3. CONTROLE DE ACESSO
         // ==========================================
         if (isMobile) {
+            document.getElementById('mobile-view').style.display = 'flex';
             if (sessionStorage.getItem('sessao_morta_' + remoteId)) {
                 renderMobileExpired();
             } else {
@@ -474,7 +356,7 @@
                     if(peer) { peer.destroy(); peer = null; }
                 }
             });
-            document.getElementById('loginPass').addEventListener('keypress', (e) => { if(e.key === 'Enter') fazerLogin(); });
+            document.getElementById('loginPass').addEventListener('keypress', function(e) { if(e.key === 'Enter') fazerLogin(); });
         }
 
         function fazerLogin() {
@@ -494,25 +376,22 @@
                 btn.disabled = false; btn.innerHTML = 'Entrar no Sistema';
                 emailInput.value = ''; passInput.value = '';
             }).catch((error) => {
-                btn.disabled = false; btn.innerHTML = 'Entrar no Sistema'; showToast("Erro de autenticação.", true);
+                btn.disabled = false; btn.innerHTML = 'Entrar no Sistema'; showToast("Erro ao fazer login.", true);
             });
         }
 
         function fazerLogout() {
-            if (!confirm("Deseja realmente bloquear o sistema e encerrar todas as conexões ativas?")) return;
-            
-            // Broadcast de encerramento seguro
+            if (!confirm("Deseja realmente bloquear o sistema e encerrar conexões?")) return;
             Object.values(clients).forEach(c => {
                 if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
             });
-            
             setTimeout(() => {
                 auth.signOut().then(() => { endSessionPC(true); showToast("Sistema bloqueado."); });
-            }, 800);
+            }, 1000);
         }
 
         // ==========================================
-        // 4. REDE P2P E ROTEAMENTO (Engine)
+        // 4. REDE P2P ROBUSTA (Com Memória de Crachá)
         // ==========================================
         function iniciarPeerJSPc() {
             peer = new Peer(null, { debug: 0 }); 
@@ -521,22 +400,23 @@
                 sessionUrl = `${window.location.href.split('?')[0]}?remote=${id}`;
                 const qrContainer = document.getElementById("qrcode");
                 qrContainer.innerHTML = ""; 
-                try { new QRCode(qrContainer, { text: sessionUrl, width: 160, height: 160, colorDark: "#000000", colorLight: "#ffffff" }); } catch(err){}
+                try { new QRCode(qrContainer, { text: sessionUrl, width: 150, height: 150 }); } catch(err){}
             });
             
             peer.on('connection', (c) => {
                 let currentNum, assignedColor;
 
-                // Restaura estado se cliente deu F5
+                // INTELIGÊNCIA DE MEMÓRIA: Verifica se o cliente está voltando (F5, queda de rede)
                 if (clientHistory[c.peer]) {
                     currentNum = clientHistory[c.peer].num;
                     assignedColor = clientHistory[c.peer].color;
-                    showToast(`Cliente #${currentNum} reconectou.`);
+                    showToast(`Cliente #${currentNum} reconectou!`);
                 } else {
+                    // É um cliente novo real
                     currentNum = clientCounter++;
                     assignedColor = colors[(currentNum - 1) % colors.length];
-                    clientHistory[c.peer] = { num: currentNum, color: assignedColor }; 
-                    showToast(`Cliente #${currentNum} na fila!`);
+                    clientHistory[c.peer] = { num: currentNum, color: assignedColor }; // Anota no caderninho
+                    showToast(`Cliente #${currentNum} conectado!`);
                     try { new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3').play().catch(()=>{}); } catch(err){}
                 }
                 
@@ -558,6 +438,7 @@
         }
 
         function iniciarPeerJSCelular() {
+            // O celular do cliente guarda seu próprio "RG" para não gerar um novo a cada refresh
             let myPeerId = sessionStorage.getItem('jm_peer_id_' + remoteId);
             if (!myPeerId) {
                 myPeerId = 'cli_' + Math.random().toString(36).substr(2, 9);
@@ -570,7 +451,7 @@
                 if(!remoteId) return;
                 mobileConn = peer.connect(remoteId, { reliable: true });
                 mobileConn.on('open', () => { setupConnection(mobileConn, 'mobile', null); });
-                mobileConn.on('error', () => { showToast("Falha ao conectar.", true); });
+                mobileConn.on('error', () => { showToast("Falha ao conectar com a Lan House.", true); });
             });
         }
 
@@ -579,7 +460,7 @@
             if(!sessionUrl) return;
             btn.disabled = true;
             navigator.clipboard.writeText(sessionUrl).then(() => {
-                showToast("Link copiado para área de transferência!"); setTimeout(() => { btn.disabled = false; }, 2000);
+                showToast("Link copiado!"); setTimeout(() => { btn.disabled = false; }, 2000);
             });
         }
 
@@ -592,27 +473,31 @@
                 setTimeout(() => {
                     if(clients[peerId]) {
                         try { clients[peerId].conn.close(); } catch(e){}
-                        delete clients[peerId]; 
+                        delete clients[peerId]; // Remove dos ativos
+                        // NÃO deleta do clientHistory. Assim ele nunca mais volta para essa mesma fila.
                         renderActiveClients();
                         if(Object.keys(clients).length === 0) limparEstadoPC();
                     }
-                }, 1000);
+                }, 1500);
             }
         }
 
         function endSessionPC(force = false) {
-            if (!force && !confirm("Encerrar fila e desconectar TODOS?")) return;
+            if (!force && !confirm("Encerrar fila e desconectar TODOS os clientes?")) return;
 
             Object.values(clients).forEach(c => {
                 if(c.conn && c.conn.open) c.conn.send({ type: 'command', action: 'disconnect' });
-                setTimeout(() => { try { c.conn.close(); } catch(e){} }, 1000);
+                setTimeout(() => { try { c.conn.close(); } catch(e){} }, 1500);
             });
             
             setTimeout(() => {
-                clients = {}; clientHistory = {}; clientCounter = 1;
-                renderActiveClients(); limparEstadoPC();
-                if(!force) showToast("Fila encerrada.");
-            }, 1200);
+                clients = {}; 
+                clientHistory = {}; // Zera o caderninho para o próximo dia/lote
+                clientCounter = 1;
+                renderActiveClients();
+                limparEstadoPC();
+                if(!force) showToast("Fila zerada com sucesso.");
+            }, 1600);
         }
 
         function limparEstadoPC() {
@@ -631,7 +516,7 @@
                 pill.style.background = c.color;
                 pill.innerHTML = `
                     <i class="fas fa-user" aria-hidden="true"></i> Cliente #${escapeHTML(c.num.toString())}
-                    <i class="fas fa-times client-pill-close" onclick="disconnectClient('${escapeHTML(peerId)}')" title="Encerrar atendimento"></i>
+                    <i class="fas fa-times client-pill-close" onclick="disconnectClient('${escapeHTML(peerId)}')" title="Encerrar cliente"></i>
                 `;
                 list.appendChild(pill);
             });
@@ -647,7 +532,8 @@
                     if (data.action === 'setClientInfo') {
                         const badge = document.getElementById('mobile-client-badge');
                         if(badge) {
-                            badge.innerHTML = `<i class="fas fa-user-check"></i> ATENDIMENTO #${escapeHTML(data.num.toString())}`;
+                            const safeNum = escapeHTML(data.num.toString());
+                            badge.innerHTML = `<i class="fas fa-user-check"></i> VOCÊ É O CLIENTE #${safeNum}`;
                             badge.style.backgroundColor = data.color + '22';
                             badge.style.color = data.color;
                             badge.style.borderColor = data.color + '55';
@@ -655,6 +541,7 @@
                     }
                     else if (data.action === 'disconnect') { 
                         if(type === 'mobile') {
+                            // Vacina ativada: marca a sessão como morta no celular dele
                             sessionStorage.setItem('sessao_morta_' + remoteId, 'true');
                             renderMobileEnded();
                             if(mobileConn) setTimeout(() => { try { mobileConn.close(); } catch(e){} }, 500);
@@ -665,39 +552,15 @@
             
             connection.on('close', () => { 
                 if(type === 'pc' && clients[peerId]) { 
-                    delete clients[peerId]; renderActiveClients(); 
+                    delete clients[peerId]; 
+                    renderActiveClients(); 
                     if(Object.keys(clients).length === 0) limparEstadoPC();
                 } 
             });
         }
 
         // ==========================================
-        // 5. DRAG & DROP (Exclusivo PC)
-        // ==========================================
-        const pcActionArea = document.getElementById('pc-action');
-        if (pcActionArea) {
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                pcActionArea.addEventListener(eventName, e => e.preventDefault(), false);
-            });
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                pcActionArea.addEventListener(eventName, () => pcActionArea.classList.add('drag-active'), false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                pcActionArea.addEventListener(eventName, () => pcActionArea.classList.remove('drag-active'), false);
-            });
-            
-            pcActionArea.addEventListener('drop', e => {
-                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-                    // Cria objeto simulando input event
-                    handleFiles({ files: e.dataTransfer.files, value: '' }, 'pc');
-                }
-            });
-        }
-
-        // ==========================================
-        // 6. SISTEMA DE ARQUIVOS (Memory Safe)
+        // 5. SISTEMA DE ARQUIVOS BLINDADO
         // ==========================================
         async function handleFiles(input, type) {
             if (isUploading) return;
@@ -705,17 +568,12 @@
             if (!files || !files.length) return;
             
             if (type === 'mobile' && (!mobileConn || !mobileConn.open)) { 
-                showToast("Aguarde a conexão estabilizar...", true); input.value = ''; return; 
+                showToast("Aguarde a conexão estabilizar...", true); 
+                input.value = ''; return; 
             }
             if (type === 'pc' && Object.keys(clients).length === 0) { 
-                showToast("Nenhum cliente conectado.", true); input.value = ''; return; 
-            }
-
-            // Verificação de segurança de tamanho
-            let totalSize = 0;
-            for(let i=0; i<files.length; i++) totalSize += files[i].size;
-            if (totalSize > (MAX_FILE_SIZE_MB * 1024 * 1024)) {
-                showToast(`Limite excedido (${MAX_FILE_SIZE_MB}MB por envio).`, true); input.value = ''; return;
+                showToast("Nenhum cliente na fila!", true); 
+                input.value = ''; return; 
             }
             
             toggleUploadState(type, true);
@@ -735,17 +593,13 @@
                         const p = Math.max(1, Math.round(metadata.percent));
                         bar.style.width = p + '%'; if(perc) perc.innerText = p + '%';
                     });
-                    sendData(content, `Lote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
+                    sendData(content, `Pacote_Arquivos_${Math.floor(Math.random()*1000)}.zip`, 'application/zip', type);
                 } else {
                     label.innerText = "LENDO ARQUIVO..."; bar.style.width = '50%'; if(perc) perc.innerText = '50%';
                     const file = files[0];
-                    sendData(file, file.name || "documento_anexo", file.type || 'application/octet-stream', type);
+                    sendData(file, file.name || "arquivo_desconhecido", file.type || 'application/octet-stream', type);
                 }
-            } catch (error) { 
-                showToast("Falha ao processar dados.", true); fecharProgresso(type); 
-            } finally { 
-                if(input.value !== undefined) input.value = ''; 
-            }
+            } catch (error) { showToast("Erro ao processar arquivo.", true); fecharProgresso(type); } finally { input.value = ''; }
         }
 
         function sendData(blob, name, mime, type) {
@@ -756,7 +610,7 @@
             label.innerText = "ENVIANDO PELA REDE...";
             const reader = new FileReader();
             
-            reader.onerror = () => { showToast("Erro de leitura.", true); fecharProgresso(type); };
+            reader.onerror = () => { showToast("Falha ao ler arquivo.", true); fecharProgresso(type); };
 
             reader.onload = () => {
                 const payload = { type: 'file', file: reader.result, name: name, mime: mime, size: blob.size };
@@ -773,7 +627,7 @@
                         label.innerText = "CONCLUÍDO!"; showToast("Enviado com sucesso!");
                     } else throw new Error();
                 } catch(e) {
-                    label.innerText = "ERRO DE REDE"; showToast("Falha no transporte.", true);
+                    label.innerText = "ERRO DE REDE"; showToast("Falha ao enviar. Tente reconectar.", true);
                 }
                 setTimeout(() => { fecharProgresso(type); }, 2000);
             };
@@ -781,22 +635,16 @@
         }
 
         function fecharProgresso(type) {
-            const wrap = document.getElementById(`${type}-progress-wrapper`);
-            const bar = document.getElementById(`${type}-progress-bar`);
-            if(wrap) wrap.style.display = 'none'; 
-            if(bar) bar.style.width = '0%';
+            document.getElementById(`${type}-progress-wrapper`).style.display = 'none'; 
+            document.getElementById(`${type}-progress-bar`).style.width = '0%';
             toggleUploadState(type, false);
         }
 
         window.deleteFileItem = function(elementId, objectUrl) {
             const el = document.getElementById(elementId);
             if(el) {
-                el.style.transform = 'scale(0.9) translateY(10px)';
-                el.style.opacity = '0'; 
-                setTimeout(() => { 
-                    el.remove(); 
-                    if(objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl); // Garbage Collection Manual
-                }, 300);
+                el.style.opacity = '0'; el.style.transform = 'translateY(-10px)';
+                setTimeout(() => { el.remove(); if(objectUrl && objectUrl.startsWith('blob:')) URL.revokeObjectURL(objectUrl); }, 300);
             }
         };
 
@@ -814,39 +662,33 @@
             let clientTagHTML = '';
             if (type === 'pc' && clients[peerId]) {
                 const c = clients[peerId];
-                clientTagHTML = `<span class="tag" style="background: ${c.color}20; color: ${c.color}; border: 1px solid ${c.color}40;" title="Cliente ${escapeHTML(c.num.toString())}">CLI #${escapeHTML(c.num.toString())}</span>`;
+                clientTagHTML = `<span class="tag" style="background: ${c.color}22; color: ${c.color}; border: 1px solid ${c.color}55;">CLI #${escapeHTML(c.num.toString())}</span>`;
             }
 
             const sizeStr = escapeHTML((data.size/1024/1024).toFixed(2));
-            const timeStr = getCurrentTimeStr();
             let tags = `<span class="tag tag-size">${sizeStr} MB</span>`;
-            let preview = `<i class="fas fa-file-alt" style="font-size:24px; color:var(--text-secondary)"></i>`;
+            let preview = `<i class="fas fa-file-alt" style="font-size:22px; color:var(--muted)"></i>`;
             
             const rawName = data.name || "arquivo_sem_nome"; const safeFileName = escapeHTML(rawName);
             const nameLow = rawName.toLowerCase(); const safeMime = escapeHTML(data.mime || "");
 
             if (nameLow.endsWith('.doc') || nameLow.endsWith('.docx')) {
-                preview = `<div style="background:rgba(59, 130, 246, 0.1); width:100%; height:100%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-file-word" style="font-size:24px; color:var(--info-color)"></i></div>`; 
-                tags += `<span class="tag tag-word">WORD</span>`;
+                preview = `<i class="fas fa-file-word" style="font-size:24px; color:#3b82f6"></i>`; tags += `<span class="tag tag-word">WORD</span>`;
             } else if (safeMime.startsWith('image/')) {
-                preview = `<img src="${url}" class="file-preview-img" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--text-secondary)\\'></i>';">`; 
-                tags += `<span class="tag tag-res">IMG</span>`;
+                preview = `<img src="${url}" class="file-preview-img" onerror="this.src=''; this.onerror=null; this.parentElement.innerHTML='<i class=\\'fas fa-image\\' style=\\'font-size:20px;color:var(--muted)\\'></i>';">`; tags += `<span class="tag tag-res">IMG</span>`;
             } else if (safeMime === 'application/pdf' || nameLow.endsWith('.pdf')) {
-                preview = `<div style="background:rgba(239, 68, 68, 0.1); width:100%; height:100%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger-color)"></i></div>`;
+                preview = `<i class="fas fa-file-pdf" style="font-size:24px; color:var(--danger)"></i>`;
             } else if (nameLow.endsWith('.zip') || safeMime === 'application/zip') {
-                preview = `<div style="background:rgba(245, 158, 11, 0.1); width:100%; height:100%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-file-archive" style="font-size:24px; color:var(--accent-primary)"></i></div>`; 
-                tags += `<span class="tag tag-zip">ZIP</span>`;
+                preview = `<i class="fas fa-file-archive" style="font-size:24px; color:#f59e0b"></i>`; tags += `<span class="tag tag-zip">ZIP</span>`;
             }
-            
-            tags += `<span class="tag tag-time">${timeStr}</span>`;
 
             const jsUrl = url.replace(/'/g, "\\'"); const jsMime = safeMime.replace(/'/g, "\\'"); const jsName = rawName.replace(/'/g, "\\'").replace(/"/g, "&quot;");
 
             let actionsHTML = '';
             if (type === 'pc') {
-                actionsHTML = `<button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir"><i class="fas fa-print"></i></button><a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar Original"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Apagar"><i class="fas fa-trash-alt"></i></button>`;
+                actionsHTML = `<button class="btn-act btn-print" onclick="smartPrint('${jsUrl}', '${jsMime}', '${jsName}')" title="Imprimir"><i class="fas fa-print"></i></button><a href="${url}" download="${safeFileName}" class="btn-act" title="Baixar"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>`;
             } else {
-                actionsHTML = `<a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Apagar"><i class="fas fa-trash-alt"></i></button>`;
+                actionsHTML = `<a href="${url}" download="${safeFileName}" class="btn-act"><i class="fas fa-download"></i></a><button class="btn-act btn-delete" onclick="deleteFileItem('${fileId}', '${jsUrl}')" title="Excluir"><i class="fas fa-trash-alt"></i></button>`;
             }
 
             item.innerHTML = `<div class="file-preview-box">${preview}</div><div class="file-main-info" style="overflow:hidden;"><span class="file-name" title="${safeFileName}">${safeFileName}</span><div class="raio-x-tags">${clientTagHTML} ${tags}</div></div><div class="file-actions">${actionsHTML}</div>`;
@@ -860,7 +702,7 @@
                 if(!url || !name) return;
                 const isWord = name.toLowerCase().endsWith('.doc') || name.toLowerCase().endsWith('.docx');
                 if (isWord) {
-                    showToast("Iniciando Download para o Word...");
+                    showToast("Iniciando Download...");
                     const a = document.createElement('a'); a.href = url; a.download = name; 
                     document.body.appendChild(a); a.click(); document.body.removeChild(a); return;
                 }
@@ -870,8 +712,8 @@
                     doc.close();
                 } else if (mime === 'application/pdf' || name.toLowerCase().endsWith('.pdf')) {
                     frame.onload = () => { try { frame.contentWindow.print(); } catch(e){} }; frame.src = url;
-                } else { doc.close(); showToast("Formato requer download manual.", true); }
-            } catch (error) { showToast("Erro no serviço de impressão.", true); }
+                } else { doc.close(); showToast("Faça o download para abrir.", true); }
+            } catch (error) { showToast("Erro na impressão.", true); }
         };
     </script>
 </body>
